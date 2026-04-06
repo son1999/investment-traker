@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__figma-remote-mcp__get_design_context",
+      "Bash(npm create:*)",
+      "Bash(cp -r /d/SonNT/itracker/temp-init/* /d/SonNT/itracker/)",
+      "Bash(cp /d/SonNT/itracker/temp-init/.gitignore /d/SonNT/itracker/)",
+      "Bash(rm -rf /d/SonNT/itracker/temp-init)",
+      "Bash(npm install:*)"
+    ]
+  }
+}
