@@ -38,7 +38,7 @@ export default function DCASection() {
 
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">{t('reports.asset')}:</span>
-            <Select value={selectedCode} onValueChange={setSelectedCode}>
+            <Select value={selectedCode} onValueChange={(v) => v && setSelectedCode(v)}>
               <SelectTrigger className="w-36">
                 <SelectValue placeholder={t('reports.asset')} />
               </SelectTrigger>

@@ -116,7 +116,7 @@ export default function AssetForm({ open, onOpenChange, asset, onSave, isPending
             </div>
             <div className="flex flex-col gap-2">
               <Label>{t('currencies.code')}</Label>
-              <Select value={currency} onValueChange={setCurrency}>
+              <Select value={currency} onValueChange={(v) => v && setCurrency(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {currencyOptions.map((c) => (
