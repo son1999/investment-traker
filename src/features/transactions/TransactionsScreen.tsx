@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useTransactionsStore } from '@/stores/transactions'
+import { useTransactionsUIStore } from '@/stores/transactions'
 import TransactionForm from './components/TransactionForm'
 import TransactionFilters from './components/TransactionFilters'
 import TransactionTable from './components/TransactionTable'
@@ -8,8 +7,7 @@ import { Plus, Search } from 'lucide-react'
 
 export default function TransactionsScreen() {
   const { t } = useTranslation()
-  const { showForm, setShowForm } = useTransactionsStore()
-  const [search, setSearch] = useState('')
+  const { showForm, setShowForm, search, setSearch } = useTransactionsUIStore()
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 px-6 py-8">
@@ -43,7 +41,7 @@ export default function TransactionsScreen() {
         <TransactionFilters />
       </div>
 
-      <TransactionTable search={search} />
+      <TransactionTable />
     </div>
   )
 }

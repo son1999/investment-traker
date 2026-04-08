@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 const logoUrl = '/logo.png'
 import { Eye, EyeOff } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth'
 
 export default function LoginScreen() {
   const navigate = useNavigate()
@@ -14,16 +15,17 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const { login, isLoading, error } = useAuthStore()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) return
-    setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      await login(email, password)
       navigate('/dashboard')
-    }, 800)
+    } catch {
+      // error is set in the store
+    }
   }
 
   return (
@@ -46,6 +48,11 @@ export default function LoginScreen() {
           </CardHeader>
           <CardContent className="px-6 pt-5 pb-6">
             <form onSubmit={handleLogin} className="flex flex-col gap-4">
+              {error && (
+                <div className="rounded-md bg-negative/10 px-3 py-2 text-sm text-negative">
+                  {error}
+                </div>
+              )}
               <div className="flex flex-col gap-1.5">
                 <Label className="text-sm text-label">{t('login.email')}</Label>
                 <Input

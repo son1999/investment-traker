@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Sun, Moon, Languages, LogOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useThemeStore, type Theme } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
 const logoUrl = '/logo.png'
 
 const navKeys = [
@@ -20,6 +21,8 @@ const themes: { value: Theme; icon: typeof Sun; label: string }[] = [
 export default function AppHeader() {
   const { t, i18n } = useTranslation()
   const { theme, setTheme } = useThemeStore()
+  const { logout, user } = useAuthStore()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -78,7 +81,7 @@ export default function AppHeader() {
               onClick={() => setOpen(!open)}
               className="flex size-7 cursor-pointer items-center justify-center overflow-hidden rounded-full border border-edge bg-panel transition-colors hover:border-edge-strong"
             >
-              <span className="text-[11px] font-medium text-caption">U</span>
+              <span className="text-[11px] font-medium text-caption">{user?.email?.[0]?.toUpperCase() || 'U'}</span>
             </button>
 
             {open && (
@@ -107,9 +110,10 @@ export default function AppHeader() {
 
                 {/* Logout */}
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     setOpen(false)
-                    window.location.href = '/login'
+                    await logout()
+                    navigate('/login')
                   }}
                   className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium text-negative transition-colors hover:bg-negative/8"
                 >

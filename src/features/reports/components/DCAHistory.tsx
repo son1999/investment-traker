@@ -1,70 +1,27 @@
 import { useTranslation } from 'react-i18next'
+import { useDCAHistory } from '@/hooks/useReports'
 
-export default function DCAHistory() {
+function formatVND(v: number): string { return v.toLocaleString('vi-VN') + ' ₫' }
+
+export default function DCAHistory({ code }: { code: string }) {
   const { t } = useTranslation()
-
-  const entries = [
-    {
-      num: 8,
-      title: 'Mua định kỳ Tháng 08',
-      date: '15/08/2023 • 14:30',
-      price: '84.200.000 ₫',
-      qty: '0.245 BTC',
-      total: '20.629.000 ₫',
-    },
-    {
-      num: 7,
-      title: 'Mua định kỳ Tháng 07',
-      date: '15/07/2023 • 09:15',
-      price: '81.500.000 ₫',
-      qty: '0.251 BTC',
-      total: '20.456.500 ₫',
-    },
-  ]
+  const { data } = useDCAHistory(code)
+  const entries = data || []
 
   return (
     <div className="flex flex-col gap-4 items-end">
-      <h3 className="w-full text-xs font-bold uppercase tracking-[2.4px] text-[rgba(172,170,177,0.6)]">
-        {t('reports.dcaHistoryTitle')}
-      </h3>
-
+      <h3 className="w-full text-xs font-bold uppercase tracking-[2.4px] text-[rgba(172,170,177,0.6)]">{t('reports.dcaHistoryTitle')}</h3>
       <div className="flex w-full flex-col gap-2">
         {entries.map((e) => (
-          <div
-            key={e.num}
-            className="flex h-[72px] items-center justify-between rounded bg-panel p-4"
-          >
-            {/* Left: number + info */}
+          <div key={e.number} className="flex h-[72px] items-center justify-between rounded bg-panel p-4">
             <div className="flex items-center gap-4">
-              <div className="flex size-10 items-center justify-center rounded-sm bg-field">
-                <span className="font-['JetBrains_Mono'] text-base font-bold text-label">
-                  #{e.num}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-body">{e.title}</span>
-                <span className="font-['JetBrains_Mono'] text-[10px] text-caption">
-                  {e.date}
-                </span>
-              </div>
+              <div className="flex size-10 items-center justify-center rounded-sm bg-field"><span className="font-['JetBrains_Mono'] text-base font-bold text-label">#{e.number}</span></div>
+              <div className="flex flex-col"><span className="text-sm font-semibold text-body">Mua định kỳ #{e.number}</span><span className="font-['JetBrains_Mono'] text-[10px] text-caption">{new Date(e.date).toLocaleString('vi-VN')}</span></div>
             </div>
-
-            {/* Right: metrics */}
             <div className="flex items-center gap-12">
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[10px] uppercase text-caption">{t('reports.colPrice')}</span>
-                <span className="font-['JetBrains_Mono'] text-xs text-body">{e.price}</span>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-[10px] uppercase text-caption">{t('reports.colQty')}</span>
-                <span className="font-['JetBrains_Mono'] text-xs text-body">{e.qty}</span>
-              </div>
-              <div className="flex min-w-[100px] flex-col items-end gap-1">
-                <span className="text-[10px] uppercase text-caption">{t('reports.colTotal')}</span>
-                <span className="font-['JetBrains_Mono'] text-sm font-bold text-body">
-                  {e.total}
-                </span>
-              </div>
+              <div className="flex flex-col items-end gap-1"><span className="text-[10px] uppercase text-caption">{t('reports.colPrice')}</span><span className="font-['JetBrains_Mono'] text-xs text-body">{formatVND(e.unitPrice)}</span></div>
+              <div className="flex flex-col items-end gap-1"><span className="text-[10px] uppercase text-caption">{t('reports.colQty')}</span><span className="font-['JetBrains_Mono'] text-xs text-body">{e.quantity}</span></div>
+              <div className="flex min-w-[100px] flex-col items-end gap-1"><span className="text-[10px] uppercase text-caption">{t('reports.colTotal')}</span><span className="font-['JetBrains_Mono'] text-sm font-bold text-body">{formatVND(e.total)}</span></div>
             </div>
           </div>
         ))}
