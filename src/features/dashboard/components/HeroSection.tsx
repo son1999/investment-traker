@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { usePortfolioSummary, usePortfolioHistory } from '@/hooks/usePortfolio'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 
 function buildSparklinePath(points: number[], w: number, h: number, pad = 0) {
   if (points.length < 2) return { line: '', area: '' }
@@ -7,12 +10,10 @@ function buildSparklinePath(points: number[], w: number, h: number, pad = 0) {
   const max = Math.max(...points)
   const range = max - min || 1
   const stepX = w / (points.length - 1)
-
   const coords = points.map((v, i) => ({
     x: i * stepX,
     y: pad + (1 - (v - min) / range) * (h - pad * 2),
   }))
-
   const line = coords.map((c, i) => (i === 0 ? `M${c.x},${c.y}` : `L${c.x},${c.y}`)).join(' ')
   const area = `${line} L${w},${h} L0,${h} Z`
   return { line, area }
@@ -24,7 +25,7 @@ function formatVND(value: number): string {
 
 export default function HeroSection() {
   const { t } = useTranslation()
-  const { data: summary } = usePortfolioSummary()
+  const { data: summary, isLoading } = usePortfolioSummary()
   const { data: history } = usePortfolioHistory('6m')
 
   const sparkPoints = history?.points?.map((p) => p.value) || []
@@ -37,9 +38,13 @@ export default function HeroSection() {
   const profitPct = summary?.profitPercentage ?? 0
   const positive = profit >= 0
 
+  if (isLoading) {
+    return <Skeleton className="h-[200px] w-full rounded-2xl" />
+  }
+
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-edge bg-panel">
-      <div className="relative z-10 flex items-start justify-between px-8 pt-8 pb-2">
+    <Card className="relative overflow-hidden rounded-2xl border-edge bg-panel">
+      <CardContent className="relative z-10 flex items-start justify-between px-8 pt-8 pb-2">
         <div className="flex flex-col gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-[1px] text-caption">
             {t('dashboard.totalValue')}
@@ -51,29 +56,14 @@ export default function HeroSection() {
             <span className="text-lg font-medium text-caption">₫</span>
           </div>
           <div className="mt-1 flex items-center gap-3">
-            <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-bold ${positive ? 'bg-positive/10 text-positive' : 'bg-negative/10 text-negative'}`}>
-              {positive ? (
-                <svg width="10" height="6" viewBox="0 0 12 7" fill="none"><path d="M1 6L6 1L11 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              ) : (
-                <svg width="10" height="6" viewBox="0 0 12 7" fill="none"><path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              )}
-              {positive ? '+' : ''}{profitPct.toFixed(2)}%
-            </span>
+            <Badge variant={positive ? 'secondary' : 'destructive'} className={`gap-1.5 rounded-lg px-3 py-1 text-sm font-bold ${positive ? 'bg-positive/10 text-positive' : ''}`}>
+              {positive ? '▲' : '▼'} {positive ? '+' : ''}{profitPct.toFixed(2)}%
+            </Badge>
             <span className="text-sm text-caption">{positive ? '+' : ''}{formatVND(profit)} ₫</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 rounded-xl bg-gold/10 px-4 py-2.5">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
-            <path d="M12 2L1 21h22L12 2z" fill="currentColor" opacity="0.3" stroke="currentColor" strokeWidth="1.5" className="text-gold" />
-            <path d="M12 9v5M12 16v1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-gold" />
-          </svg>
-          <span className="text-xs font-medium text-gold">{t('dashboard.priceAlertDesc')}</span>
-          <button className="cursor-pointer whitespace-nowrap rounded-md bg-gold/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gold transition-colors hover:bg-gold/30">
-            {t('dashboard.updateNow')}
-          </button>
-        </div>
-      </div>
+      </CardContent>
 
       <div className="relative z-0 mt-2">
         <svg viewBox={`0 0 ${svgW} ${svgH}`} className="block h-[100px] w-full" preserveAspectRatio="none">
@@ -87,6 +77,6 @@ export default function HeroSection() {
           {line && <path d={line} fill="none" stroke={positive ? 'var(--positive)' : 'var(--negative)'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
         </svg>
       </div>
-    </div>
+    </Card>
   )
 }

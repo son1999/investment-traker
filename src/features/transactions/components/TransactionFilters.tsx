@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useTransactionsUIStore } from '@/stores/transactions'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function TransactionFilters() {
   const { t } = useTranslation()
@@ -13,18 +14,12 @@ export default function TransactionFilters() {
   ]
 
   return (
-    <div className="flex items-center gap-2">
-      {filters.map((f) => (
-        <button
-          key={f.value}
-          onClick={() => setFilter(f.value)}
-          className={`cursor-pointer rounded-xl px-4 py-1.5 text-xs font-medium transition-colors ${
-            filter === f.value ? 'bg-btn text-on-btn' : 'bg-panel-alt text-caption hover:text-body'
-          }`}
-        >
-          {f.label}
-        </button>
-      ))}
-    </div>
+    <Tabs value={filter} onValueChange={setFilter}>
+      <TabsList>
+        {filters.map((f) => (
+          <TabsTrigger key={f.value} value={f.value}>{f.label}</TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   )
 }

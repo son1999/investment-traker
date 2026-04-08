@@ -16,6 +16,30 @@ export interface Paginated<T> {
   meta: PaginationMeta
 }
 
+// ── Currencies ──────────────────────────────────────────
+export interface Currency {
+  id: string
+  code: string
+  name: string
+  symbol: string
+  rateToVnd: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateCurrencyRequest {
+  code: string
+  name: string
+  symbol: string
+  rateToVnd: number
+}
+
+export interface UpdateCurrencyRequest {
+  name?: string
+  symbol?: string
+  rateToVnd?: number
+}
+
 // ── Auth ──────────────────────────────────────���─────────
 export interface User {
   id: string
@@ -103,6 +127,7 @@ export interface Holding {
   quantity: number
   averageCost: number
   currentPrice: number
+  currency?: string
   value: number
   profitLossPercent: number
   profitLossAmount: number
@@ -133,16 +158,59 @@ export interface PortfolioHistory {
 }
 
 // ── Assets ──────────────────────────────────────────────
+export interface Asset {
+  id: string
+  code: string
+  name: string
+  type: AssetType
+  currency: string
+  icon: string
+  iconBg: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateAssetRequest {
+  code: string
+  name: string
+  type: AssetType
+  currency?: string
+  icon: string
+  iconBg: string
+}
+
+export interface UpdateAssetRequest {
+  name?: string
+  type?: AssetType
+  icon?: string
+  iconBg?: string
+}
+
 export interface AssetDetail {
   assetCode: string
   assetType: AssetType
   icon: string
   iconBg: string
   metrics: {
-    holdings: number
-    avgCost: number
-    currentPrice: number
-    profit: number
+    holdings: {
+      quantity: number
+      unit: string
+      detail: string
+    }
+    avgCost: {
+      value: number
+      currency: string
+    }
+    currentPrice: {
+      value: number
+      currency: string
+      updatedAt: string | null
+    }
+    profit: {
+      amount: number
+      percent: number
+      positive: boolean
+    }
   }
   realizedPnl: {
     total: number
@@ -159,9 +227,8 @@ export interface AssetDetail {
 export interface RealizedPnlTx {
   date: string
   quantity: number
-  buyPrice: number
   sellPrice: number
-  pnl: number
+  profit: number
 }
 
 export interface AssetTransaction {

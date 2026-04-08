@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCreateOrUpdatePrice } from '@/hooks/usePrices'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { AssetType } from '@/types/api'
 
@@ -22,34 +25,36 @@ export default function PriceForm() {
   }
 
   return (
-    <div className="rounded-lg border border-edge bg-panel p-8 shadow-sm">
-      <h2 className="mb-8 text-lg font-semibold text-heading">{t('prices.newPrice')}</h2>
-      <div className="grid grid-cols-4 gap-6">
-        <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold uppercase tracking-[1.1px] text-caption">{t('prices.type')}</label>
-          <Select value={assetType} onValueChange={(v) => setAssetType(v as AssetType)}>
-            <SelectTrigger className="h-11 w-full rounded border-none bg-field px-4 text-sm text-body"><SelectValue /></SelectTrigger>
-            <SelectContent className="border-edge-strong bg-panel-alt text-body">
-              <SelectItem value="metal">{t('common.metal')}</SelectItem>
-              <SelectItem value="crypto">{t('common.crypto')}</SelectItem>
-              <SelectItem value="stock">{t('common.stock')}</SelectItem>
-            </SelectContent>
-          </Select>
+    <Card className="border-edge shadow-sm">
+      <CardHeader><CardTitle>{t('prices.newPrice')}</CardTitle></CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-4 gap-6">
+          <div className="flex flex-col gap-2">
+            <Label className="text-[11px] uppercase tracking-wider">{t('prices.type')}</Label>
+            <Select value={assetType} onValueChange={(v) => setAssetType(v as AssetType)}>
+              <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="metal">{t('common.metal')}</SelectItem>
+                <SelectItem value="crypto">{t('common.crypto')}</SelectItem>
+                <SelectItem value="stock">{t('common.stock')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-[11px] uppercase tracking-wider">{t('prices.code')}</Label>
+            <Input value={assetCode} onChange={(e) => setAssetCode(e.target.value)} placeholder="Vd: BTC, PNJ" className="h-11" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label className="text-[11px] uppercase tracking-wider">{t('prices.currentPrice')}</Label>
+            <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" className="h-11 font-['JetBrains_Mono']" />
+          </div>
+          <div className="flex flex-col justify-end">
+            <Button onClick={handleSubmit} disabled={createPrice.isPending} className="h-11">
+              {createPrice.isPending ? '...' : t('prices.update')}
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold uppercase tracking-[1.1px] text-caption">{t('prices.code')}</label>
-          <Input value={assetCode} onChange={(e) => setAssetCode(e.target.value)} placeholder="Vd: BTC, PNJ" className="h-11 rounded border-none bg-field px-4 text-sm text-body placeholder:text-dim" />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-bold uppercase tracking-[1.1px] text-caption">{t('prices.currentPrice')}</label>
-          <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" className="h-11 rounded border-none bg-field px-4 font-['JetBrains_Mono'] text-sm text-body placeholder:text-dim" />
-        </div>
-        <div className="flex flex-col justify-end">
-          <button onClick={handleSubmit} disabled={createPrice.isPending} className="h-11 cursor-pointer rounded bg-btn text-base font-semibold text-on-btn transition-colors hover:bg-btn-hover disabled:opacity-50">
-            {createPrice.isPending ? '...' : t('prices.update')}
-          </button>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

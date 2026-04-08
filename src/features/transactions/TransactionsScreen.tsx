@@ -4,6 +4,8 @@ import TransactionForm from './components/TransactionForm'
 import TransactionFilters from './components/TransactionFilters'
 import TransactionTable from './components/TransactionTable'
 import { Plus, Search } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 export default function TransactionsScreen() {
   const { t } = useTranslation()
@@ -16,26 +18,23 @@ export default function TransactionsScreen() {
           <h1 className="text-xl font-semibold text-heading">{t('transactions.title')}</h1>
           <p className="text-sm text-caption">{t('transactions.subtitle')}</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex cursor-pointer items-center gap-2 rounded bg-btn px-5 py-[10px] text-sm font-semibold text-on-btn transition-colors hover:bg-btn-hover"
-        >
+        <Button onClick={() => setShowForm(true)} size="lg" className="gap-2">
           <Plus size={12} />
           {t('transactions.add')}
-        </button>
+        </Button>
       </div>
 
       {showForm && <TransactionForm />}
 
       <div className="flex flex-col gap-6">
-        <div className="relative max-w-[448px]">
-          <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-dim" />
-          <input
+        <div className="relative max-w-md">
+          <Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('transactions.searchPlaceholder')}
-            className="w-full rounded border border-edge bg-panel py-3 pl-10 pr-4 text-sm text-body outline-none placeholder:text-dim focus:border-edge-strong"
+            className="pl-10"
           />
         </div>
         <TransactionFilters />

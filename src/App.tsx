@@ -8,7 +8,8 @@ import { ReportsScreen } from '@/features/reports'
 import { PricesScreen } from '@/features/prices'
 import { AssetDetailScreen } from '@/features/asset-detail'
 import { AllocationScreen } from '@/features/allocation'
-
+import { AssetsScreen } from '@/features/assets'
+import { CurrenciesScreen } from '@/features/currencies'
 
 import { LoginScreen } from '@/features/login'
 import { NotFoundScreen } from '@/features/not-found'
@@ -29,6 +30,8 @@ function App() {
             <Route path="/transactions" element={<TransactionsScreen />} />
             <Route path="/reports" element={<ReportsScreen />} />
             <Route path="/prices" element={<PricesScreen />} />
+            <Route path="/assets" element={<AssetsScreen />} />
+            <Route path="/currencies" element={<CurrenciesScreen />} />
             <Route path="/assets/:code" element={<AssetDetailScreen />} />
             <Route path="/allocation" element={<AllocationScreen />} />
             <Route path="/journal" element={<Navigate to="/transactions" replace />} />

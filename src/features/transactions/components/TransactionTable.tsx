@@ -1,7 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { useTransactionsUIStore } from '@/stores/transactions'
 import { useTransactions, useDeleteTransaction, useBulkDeleteTransactions } from '@/hooks/useTransactions'
-import { Pencil, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown, Check } from 'lucide-react'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Pencil, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import type { AssetType } from '@/types/api'
 
 function formatVND(amount: number): string {
@@ -27,95 +32,102 @@ export default function TransactionTable() {
   const totalPages = meta?.pages || 1
   const allSelected = transactions.length > 0 && transactions.every((tx) => selectedIds.includes(tx.id))
 
+  if (isLoading) return <Skeleton className="h-96 w-full rounded-lg" />
+
   return (
     <>
       <div className="overflow-hidden rounded-lg border border-edge-subtle bg-panel">
-        {isLoading && <div className="flex items-center justify-center py-8"><span className="text-sm text-caption">Loading...</span></div>}
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-edge bg-panel-alt">
-              <th className="w-16 px-6 py-4"><Checkbox checked={allSelected} onChange={() => allSelected ? deselectAll() : selectAll(transactions.map((tx) => tx.id))} /></th>
-              <th className="py-4 pl-6 text-left"><button className="flex cursor-pointer items-center gap-1 bg-transparent text-[11px] font-medium uppercase tracking-[1.1px] text-caption">{t('assetDetail.colDate')}<ChevronDown size={10} /></button></th>
-              <th className="py-4 pl-12 text-left"><button className="flex cursor-pointer items-center gap-1 bg-transparent text-[11px] font-medium uppercase tracking-[1.1px] text-caption">{t('dashboard.colAsset')}<ChevronDown size={10} /></button></th>
-              <th className="px-6 py-4 text-left text-[11px] font-medium uppercase tracking-[1.1px] text-caption">{t('dashboard.colType')}</th>
-              <th className="px-6 py-4 text-right text-[11px] font-medium uppercase tracking-[1.1px] text-caption">{t('dashboard.colQty')}</th>
-              <th className="px-6 py-4 text-right text-[11px] font-medium uppercase tracking-[1.1px] text-caption">{t('assetDetail.colUnitPrice')}</th>
-              <th className="px-6 py-4 text-right text-[11px] font-medium uppercase tracking-[1.1px] text-caption">{t('transactions.total')}</th>
-              <th className="px-6 py-4 text-left text-[11px] font-medium uppercase tracking-[1.1px] text-caption">{t('transactions.note')}</th>
-              <th className="px-6 py-4 text-center text-[11px] font-medium uppercase tracking-[1.1px] text-caption">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((tx, idx) => {
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-panel-alt hover:bg-panel-alt">
+              <TableHead className="w-16 px-6">
+                <Checkbox
+                  checked={allSelected}
+                  onCheckedChange={() => allSelected ? deselectAll() : selectAll(transactions.map((tx) => tx.id))}
+                />
+              </TableHead>
+              <TableHead className="pl-6">{t('assetDetail.colDate')}</TableHead>
+              <TableHead className="pl-12">{t('dashboard.colAsset')}</TableHead>
+              <TableHead>{t('dashboard.colType')}</TableHead>
+              <TableHead className="text-right">{t('dashboard.colQty')}</TableHead>
+              <TableHead className="text-right">{t('assetDetail.colUnitPrice')}</TableHead>
+              <TableHead className="text-right">{t('transactions.total')}</TableHead>
+              <TableHead>{t('transactions.note')}</TableHead>
+              <TableHead className="text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {transactions.map((tx) => {
               const isSelected = selectedIds.includes(tx.id)
               const isBuy = tx.action === 'MUA'
               return (
-                <tr key={tx.id} className={`${idx > 0 ? 'border-t border-edge-subtle' : ''} transition-colors hover:bg-[rgba(255,255,255,0.02)]`}>
-                  <td className="w-16 px-6 py-6"><Checkbox checked={isSelected} onChange={() => toggleSelect(tx.id)} /></td>
-                  <td className="px-6 py-[22px] font-['JetBrains_Mono'] text-sm text-caption">{new Date(tx.date).toLocaleDateString('vi-VN')}</td>
-                  <td className="px-6 py-5">
+                <TableRow key={tx.id} data-state={isSelected ? 'selected' : undefined}>
+                  <TableCell className="w-16 px-6">
+                    <Checkbox checked={isSelected} onCheckedChange={() => toggleSelect(tx.id)} />
+                  </TableCell>
+                  <TableCell className="px-6 font-['JetBrains_Mono'] text-sm text-caption">{new Date(tx.date).toLocaleDateString('vi-VN')}</TableCell>
+                  <TableCell className="px-6">
                     <div className="flex items-center gap-2">
                       <div className="flex size-6 items-center justify-center rounded-full text-[10px]" style={{ backgroundColor: tx.iconBg }}>{tx.icon}</div>
                       <span className="text-base font-semibold text-heading">{tx.assetCode}</span>
                     </div>
-                  </td>
-                  <td className="px-6 py-6">
-                    {isBuy
-                      ? <span className="rounded-sm bg-[#1e3a2a] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[-0.5px] text-[#4ade80]">{t('common.buy')}</span>
-                      : <span className="rounded-sm bg-[rgba(127,41,39,0.2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[-0.5px] text-negative">{t('common.sell')}</span>}
-                  </td>
-                  <td className="px-6 py-[22px] text-right font-['JetBrains_Mono'] text-sm text-body">{tx.quantity.toLocaleString('en-US')}</td>
-                  <td className="px-6 py-[22px] text-right font-['JetBrains_Mono'] text-sm text-body">{formatVND(tx.unitPrice)}</td>
-                  <td className="px-6 py-[22px] text-right font-['JetBrains_Mono'] text-sm font-bold text-heading">{formatVND(tx.quantity * tx.unitPrice)}</td>
-                  <td className="px-6 py-[22px] text-sm text-caption">{tx.note || '—'}</td>
-                  <td className="px-6 py-[22px]">
-                    <div className="flex items-center justify-center gap-3">
-                      <button className="cursor-pointer bg-transparent text-caption transition-colors hover:text-heading"><Pencil size={13} /></button>
-                      <button onClick={() => deleteTx.mutate(tx.id)} className="cursor-pointer bg-transparent text-caption transition-colors hover:text-negative"><Trash2 size={13} /></button>
+                  </TableCell>
+                  <TableCell className="px-6">
+                    <Badge variant={isBuy ? 'secondary' : 'destructive'} className={`text-[10px] font-bold uppercase ${isBuy ? 'bg-positive/10 text-positive' : ''}`}>
+                      {isBuy ? t('common.buy') : t('common.sell')}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="px-6 text-right font-['JetBrains_Mono'] text-sm text-body">{tx.quantity.toLocaleString('en-US')}</TableCell>
+                  <TableCell className="px-6 text-right font-['JetBrains_Mono'] text-sm text-body">{formatVND(tx.unitPrice)}</TableCell>
+                  <TableCell className="px-6 text-right font-['JetBrains_Mono'] text-sm font-bold text-heading">{formatVND(tx.quantity * tx.unitPrice)}</TableCell>
+                  <TableCell className="px-6 text-sm text-caption">{tx.note || '—'}</TableCell>
+                  <TableCell className="px-6">
+                    <div className="flex items-center justify-center gap-2">
+                      <Button variant="ghost" size="icon-xs"><Pencil size={13} /></Button>
+                      <Button variant="ghost" size="icon-xs" onClick={() => deleteTx.mutate(tx.id)}><Trash2 size={13} className="text-destructive" /></Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )
             })}
-          </tbody>
-        </table>
-        <div className="flex items-center justify-between border-t border-edge-subtle bg-panel-alt px-6 py-6">
+          </TableBody>
+        </Table>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between border-t border-edge-subtle bg-panel-alt px-6 py-4">
           <span className="text-sm text-caption">
             {t('transactions.showing')} <span className="font-medium text-heading">{meta ? `${(page - 1) * meta.limit + 1}-${Math.min(page * meta.limit, meta.total)}` : '0'}</span>
-            {t('transactions.of')}<span className="font-medium text-heading">{meta?.total || 0}</span> giao dịch
+            {t('transactions.of')} <span className="font-medium text-heading">{meta?.total || 0}</span> giao dịch
           </span>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setPage(1)} disabled={page <= 1} className="cursor-pointer rounded-sm border border-edge bg-transparent p-2.5 text-caption disabled:opacity-30"><ChevronsLeft size={8} /></button>
-            <button onClick={() => setPage(page - 1)} disabled={page <= 1} className="cursor-pointer rounded-sm border border-edge bg-transparent p-2.5 text-caption disabled:opacity-30"><ChevronLeft size={8} /></button>
-            <div className="flex gap-1 px-2">
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((p) => (
-                <button key={p} onClick={() => setPage(p)} className={`flex size-8 cursor-pointer items-center justify-center rounded-sm text-sm ${p === page ? 'bg-btn font-bold text-on-btn' : 'bg-transparent font-medium text-caption'}`}>{p}</button>
-              ))}
-              {totalPages > 5 && <><span className="flex size-8 items-center justify-center text-base text-dim">...</span><button onClick={() => setPage(totalPages)} className="flex size-8 cursor-pointer items-center justify-center rounded-sm bg-transparent text-sm font-medium text-caption">{totalPages}</button></>}
-            </div>
-            <button onClick={() => setPage(page + 1)} disabled={page >= totalPages} className="cursor-pointer rounded-sm border border-edge bg-transparent p-2.5 text-caption transition-colors hover:text-heading disabled:opacity-30"><ChevronRight size={8} /></button>
-            <button onClick={() => setPage(totalPages)} disabled={page >= totalPages} className="cursor-pointer rounded-sm border border-edge bg-transparent p-2.5 text-caption transition-colors hover:text-heading disabled:opacity-30"><ChevronsRight size={8} /></button>
+          <div className="flex items-center gap-1">
+            <Button variant="outline" size="icon-xs" onClick={() => setPage(1)} disabled={page <= 1}><ChevronsLeft size={12} /></Button>
+            <Button variant="outline" size="icon-xs" onClick={() => setPage(page - 1)} disabled={page <= 1}><ChevronLeft size={12} /></Button>
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((p) => (
+              <Button key={p} variant={p === page ? 'default' : 'ghost'} size="icon-xs" onClick={() => setPage(p)}>{p}</Button>
+            ))}
+            {totalPages > 5 && <span className="px-1 text-muted-foreground">...</span>}
+            <Button variant="outline" size="icon-xs" onClick={() => setPage(page + 1)} disabled={page >= totalPages}><ChevronRight size={12} /></Button>
+            <Button variant="outline" size="icon-xs" onClick={() => setPage(totalPages)} disabled={page >= totalPages}><ChevronsRight size={12} /></Button>
           </div>
         </div>
       </div>
+
+      {/* Floating bulk action bar */}
       {selectedIds.length > 0 && (
-        <div className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-6 rounded-xl border border-edge-strong bg-field px-6 py-3.5 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.4)]">
-          <div className="flex items-center gap-2"><div className="size-2 rounded-full bg-btn" /><span className="text-sm font-semibold text-heading">{t('transactions.selected', { count: selectedIds.length })}</span></div>
-          <div className="h-4 w-px bg-[rgba(71,71,78,0.3)]" />
-          <div className="flex items-center gap-3">
-            <button onClick={() => { bulkDelete.mutate(selectedIds); deselectAll() }} className="flex cursor-pointer items-center gap-2 rounded-xl bg-negative/10 px-4 py-1.5 text-sm font-bold text-negative transition-colors hover:bg-[rgba(238,125,119,0.2)]"><Trash2 size={10} />{t('transactions.delete')}</button>
-            <button onClick={deselectAll} className="cursor-pointer rounded-xl border border-edge-strong bg-transparent px-4 py-1.5 text-sm font-bold text-heading transition-colors hover:border-edge-strong">{t('transactions.deselect')}</button>
+        <div className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-6 rounded-xl border border-edge-strong bg-popover px-6 py-3.5 shadow-lg">
+          <div className="flex items-center gap-2">
+            <div className="size-2 rounded-full bg-primary" />
+            <span className="text-sm font-semibold text-heading">{t('transactions.selected', { count: selectedIds.length })}</span>
+          </div>
+          <div className="h-4 w-px bg-border" />
+          <div className="flex items-center gap-2">
+            <Button variant="destructive" size="sm" onClick={() => { bulkDelete.mutate(selectedIds); deselectAll() }}>
+              <Trash2 size={12} /> {t('transactions.delete')}
+            </Button>
+            <Button variant="outline" size="sm" onClick={deselectAll}>{t('transactions.deselect')}</Button>
           </div>
         </div>
       )}
     </>
-  )
-}
-
-function Checkbox({ checked, onChange }: { checked: boolean; onChange: () => void }) {
-  return (
-    <button onClick={onChange} className={`flex size-4 cursor-pointer items-center justify-center rounded-sm border ${checked ? 'border-transparent bg-btn' : 'border-edge-strong bg-field'}`}>
-      {checked && <Check size={12} className="text-on-btn" strokeWidth={3} />}
-    </button>
   )
 }

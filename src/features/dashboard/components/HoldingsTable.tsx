@@ -1,6 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useHoldings } from '@/hooks/usePortfolio'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 function formatCompact(value: number): string {
   const abs = Math.abs(value)
@@ -10,16 +15,12 @@ function formatCompact(value: number): string {
   return value.toLocaleString('vi-VN')
 }
 
-const typeLabel: Record<string, string> = {
-  metal: 'commodity',
-  crypto: 'crypto',
-  stock: 'stock',
-}
+const typeLabel: Record<string, string> = { metal: 'commodity', crypto: 'crypto', stock: 'stock' }
 
 export default function HoldingsTable() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { data: holdings } = useHoldings()
+  const { data: holdings, isLoading } = useHoldings()
 
   const items = holdings || []
   const totalValue = items.reduce((s, h) => s + h.value, 0)
@@ -27,56 +28,65 @@ export default function HoldingsTable() {
   const totalPnlPct = totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : 0
   const totalPositive = totalPnlPct >= 0
 
-  const columns = [t('dashboard.colAsset'), t('dashboard.colType'), t('dashboard.colQty'), t('dashboard.colAvgCost'), t('dashboard.colCurrentPrice'), 'Giá trị', t('dashboard.colPnl')]
+  if (isLoading) return <Skeleton className="h-[300px] w-full rounded-lg" />
 
   return (
-    <div className="h-full w-full overflow-hidden rounded-lg border border-edge bg-panel">
-      <div className="flex items-center justify-between border-b border-edge-subtle px-8 py-6">
-        <h3 className="text-base font-bold text-body">{t('dashboard.holdings')}</h3>
-        <button className="cursor-pointer bg-transparent text-[13px] font-medium text-label hover:underline">{t('dashboard.viewDetails')}</button>
-      </div>
-      <table className="w-full">
-        <thead>
-          <tr className="bg-panel-alt">
-            {columns.map((col, i) => (
-              <th key={col} className={`px-4 py-5 text-[11px] font-bold uppercase tracking-[0.6px] text-body ${i === 0 ? 'pl-8 text-left' : i === columns.length - 1 ? 'pr-8 text-right' : 'text-right'}`}>{col}</th>
+    <Card className="h-full border-edge bg-panel">
+      <CardHeader className="flex-row items-center justify-between border-b border-edge-subtle px-8 py-6">
+        <CardTitle className="text-base font-bold text-body">{t('dashboard.holdings')}</CardTitle>
+        <Button variant="link" size="sm" className="text-[13px] text-label">{t('dashboard.viewDetails')}</Button>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-panel-alt hover:bg-panel-alt">
+              <TableHead className="pl-8">{t('dashboard.colAsset')}</TableHead>
+              <TableHead className="text-right">{t('dashboard.colType')}</TableHead>
+              <TableHead className="text-right">{t('dashboard.colQty')}</TableHead>
+              <TableHead className="text-right">{t('dashboard.colAvgCost')}</TableHead>
+              <TableHead className="text-right">{t('dashboard.colCurrentPrice')}</TableHead>
+              <TableHead className="text-right">Giá trị</TableHead>
+              <TableHead className="pr-8 text-right">{t('dashboard.colPnl')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((h) => (
+              <TableRow key={h.assetCode} onClick={() => navigate(`/assets/${h.assetCode}`)} className="cursor-pointer">
+                <TableCell className="pl-8">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-7 items-center justify-center rounded-sm text-sm" style={{ backgroundColor: h.iconBg }}>{h.icon}</div>
+                    <span className="text-sm font-semibold text-body">{h.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Badge variant="outline" className="text-[10px] uppercase">{t(`common.${typeLabel[h.assetType] || h.assetType}`)}</Badge>
+                </TableCell>
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-body">{h.quantity.toLocaleString('en-US')}</TableCell>
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-body">{formatCompact(h.averageCost)}</TableCell>
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-body">{formatCompact(h.currentPrice)}</TableCell>
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-body">{formatCompact(h.value)}</TableCell>
+                <TableCell className="pr-8 text-right">
+                  <Badge variant={h.positive ? 'secondary' : 'destructive'} className={`gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${h.positive ? 'bg-positive/15 text-positive' : ''}`}>
+                    {h.positive ? '▲' : '▼'} {h.positive ? '+' : ''}{h.profitLossPercent.toFixed(1)}%
+                  </Badge>
+                </TableCell>
+              </TableRow>
             ))}
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((h, idx) => (
-            <tr key={h.assetCode} onClick={() => navigate(`/assets/${h.assetCode}`)} className={`cursor-pointer ${idx > 0 ? 'border-t border-[rgba(71,71,78,0.05)]' : ''} transition-colors hover:bg-[rgba(255,255,255,0.02)]`}>
-              <td className="py-[18px] pl-8 pr-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-7 items-center justify-center rounded-sm text-sm" style={{ backgroundColor: h.iconBg }}>{h.icon}</div>
-                  <span className="text-sm font-semibold text-body">{h.name}</span>
-                </div>
-              </td>
-              <td className="px-4 text-right"><span className="rounded-sm border border-edge-strong px-[9px] py-[3px] text-[10px] font-medium uppercase text-caption">{t(`common.${typeLabel[h.assetType] || h.assetType}`)}</span></td>
-              <td className="px-4 text-right font-['JetBrains_Mono'] text-[13px] text-body">{h.quantity.toLocaleString('en-US')}</td>
-              <td className="px-4 text-right font-['JetBrains_Mono'] text-[13px] text-body">{formatCompact(h.averageCost)}</td>
-              <td className="px-4 text-right font-['JetBrains_Mono'] text-[13px] text-body">{formatCompact(h.currentPrice)}</td>
-              <td className="px-4 text-right font-['JetBrains_Mono'] text-[13px] font-bold text-body">{formatCompact(h.value)}</td>
-              <td className="py-[18px] pl-4 pr-8 text-right">
-                <span className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold transition-all ${h.positive ? 'bg-positive/15 text-positive shadow-sm shadow-positive/20' : 'bg-negative/15 text-negative shadow-sm shadow-negative/20'}`}>
-                  {h.positive ? <svg width="10" height="10" viewBox="0 0 12 7" fill="none"><path d="M1 6L6 1L11 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> : <svg width="10" height="10" viewBox="0 0 12 7" fill="none"><path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                  {h.positive ? '+' : ''}{h.profitLossPercent.toFixed(1)}%
-                </span>
-              </td>
-            </tr>
-          ))}
-          {items.length > 0 && (
-            <tr className="border-t-2 border-edge bg-field/30">
-              <td className="py-[18px] pl-8 pr-4"><span className="font-bold text-heading">Tổng cộng</span></td>
-              <td className="px-4"></td><td className="px-4"></td><td className="px-4"></td><td className="px-4"></td>
-              <td className="px-4 text-right font-['JetBrains_Mono'] text-[13px] font-bold text-heading">{formatCompact(totalValue)}</td>
-              <td className="py-[18px] pl-4 pr-8 text-right">
-                <span className={`inline-flex items-center gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${totalPositive ? 'bg-positive/15 text-positive shadow-sm shadow-positive/20' : 'bg-negative/15 text-negative shadow-sm shadow-negative/20'}`}>{totalPositive ? '+' : ''}{totalPnlPct.toFixed(1)}%</span>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+            {items.length > 0 && (
+              <TableRow className="border-t-2 border-edge bg-field/30 hover:bg-field/30">
+                <TableCell className="pl-8"><span className="font-bold text-heading">Tổng cộng</span></TableCell>
+                <TableCell /><TableCell /><TableCell /><TableCell />
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-heading">{formatCompact(totalValue)}</TableCell>
+                <TableCell className="pr-8 text-right">
+                  <Badge variant={totalPositive ? 'secondary' : 'destructive'} className={`gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${totalPositive ? 'bg-positive/15 text-positive' : ''}`}>
+                    {totalPositive ? '+' : ''}{totalPnlPct.toFixed(1)}%
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   )
 }

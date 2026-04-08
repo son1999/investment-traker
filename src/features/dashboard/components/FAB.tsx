@@ -1,9 +1,17 @@
+import { Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useNavigate } from 'react-router-dom'
+
 export default function FAB() {
+  const navigate = useNavigate()
+
   return (
-    <button className="fixed bottom-8 right-8 z-50 flex size-14 cursor-pointer items-center justify-center rounded-xl bg-btn text-on-btn transition-colors hover:bg-btn-hover active:scale-95">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 1v14M1 8h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-      </svg>
-    </button>
+    <Button
+      size="icon-lg"
+      onClick={() => navigate('/transactions')}
+      className="fixed bottom-8 right-8 z-50 size-14 rounded-xl shadow-lg"
+    >
+      <Plus size={16} />
+    </Button>
   )
 }

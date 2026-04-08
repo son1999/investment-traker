@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { useTransactionsUIStore } from '@/stores/transactions'
 import { useCreateTransaction } from '@/hooks/useTransactions'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import type { AssetType, TransactionAction } from '@/types/api'
 
@@ -45,18 +48,18 @@ export default function TransactionForm() {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-edge-subtle bg-panel shadow-[0px_25px_50px_-12px_rgba(0,0,0,0.25)]">
-      <div className="flex flex-col gap-6 p-8">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold text-heading">{t('transactions.newTitle')}</h2>
-          <p className="text-xs font-medium uppercase tracking-[0.6px] text-caption">{t('transactions.newSubtitle')}</p>
-        </div>
+    <Card className="border-edge-subtle shadow-lg">
+      <CardHeader>
+        <CardTitle>{t('transactions.newTitle')}</CardTitle>
+        <CardDescription className="uppercase tracking-wider">{t('transactions.newSubtitle')}</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-6">
         <div className="grid grid-cols-3 gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">{t('transactions.assetType')}</label>
+            <Label className="text-[11px] uppercase tracking-wider">{t('transactions.assetType')}</Label>
             <Select value={assetType} onValueChange={(v) => setAssetType(v as AssetType)}>
-              <SelectTrigger className="h-9 w-full rounded border-none bg-field text-sm text-body"><SelectValue /></SelectTrigger>
-              <SelectContent className="border-edge-strong bg-panel-alt text-body">
+              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+              <SelectContent>
                 <SelectItem value="metal">{t('common.metal')}</SelectItem>
                 <SelectItem value="crypto">{t('common.crypto')}</SelectItem>
                 <SelectItem value="stock">{t('common.stock')}</SelectItem>
@@ -64,51 +67,55 @@ export default function TransactionForm() {
             </Select>
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">{t('transactions.assetCode')}</label>
-            <Input value={assetCode} onChange={(e) => setAssetCode(e.target.value)} placeholder="SJC, BTC, VNM..." className="h-9 rounded border-none bg-field text-sm text-body placeholder:text-dim" />
+            <Label className="text-[11px] uppercase tracking-wider">{t('transactions.assetCode')}</Label>
+            <Input value={assetCode} onChange={(e) => setAssetCode(e.target.value)} placeholder="SJC, BTC, VNM..." className="h-9" />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">{t('transactions.action')}</label>
+            <Label className="text-[11px] uppercase tracking-wider">{t('transactions.action')}</Label>
             <Select value={action} onValueChange={(v) => setAction(v as TransactionAction)}>
-              <SelectTrigger className="h-9 w-full rounded border-none bg-field text-sm text-body"><SelectValue /></SelectTrigger>
-              <SelectContent className="border-edge-strong bg-panel-alt text-body">
+              <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+              <SelectContent>
                 <SelectItem value="MUA">{t('common.buy')}</SelectItem>
                 <SelectItem value="BAN">{t('common.sell')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
+
         <div className="grid grid-cols-3 gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">{t('transactions.quantity')}</label>
-            <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0.00" className="h-9 rounded border-none bg-field font-['JetBrains_Mono'] text-sm text-body placeholder:text-dim" />
+            <Label className="text-[11px] uppercase tracking-wider">{t('transactions.quantity')}</Label>
+            <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0.00" className="h-9 font-['JetBrains_Mono']" />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">{t('transactions.unitPrice')}</label>
-            <Input value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} placeholder="0" className="h-9 rounded border-none bg-field font-['JetBrains_Mono'] text-sm text-body placeholder:text-dim" />
+            <Label className="text-[11px] uppercase tracking-wider">{t('transactions.unitPrice')}</Label>
+            <Input value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} placeholder="0" className="h-9 font-['JetBrains_Mono']" />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">{t('transactions.date')}</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-9 w-full rounded border-none bg-field px-3 text-sm text-body outline-none" />
+            <Label className="text-[11px] uppercase tracking-wider">{t('transactions.date')}</Label>
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-9" />
           </div>
         </div>
+
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">{t('transactions.note')}</label>
-          <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('transactions.notePlaceholder')} className="h-9 rounded border-none bg-field text-sm text-body placeholder:text-dim" />
+          <Label className="text-[11px] uppercase tracking-wider">{t('transactions.note')}</Label>
+          <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('transactions.notePlaceholder')} className="h-9" />
         </div>
-        <div className="flex items-center justify-between rounded border border-edge bg-field p-[17px]">
+
+        <div className="flex items-center justify-between rounded-lg border border-edge bg-muted/50 p-4">
           <span className="text-sm text-caption">{t('transactions.totalValue')}</span>
           <span className="font-['JetBrains_Mono'] text-xl font-bold text-heading">{formatVND(total)}</span>
         </div>
+
         <div className="flex gap-4 pt-2">
-          <button onClick={handleSave} disabled={createTx.isPending} className="cursor-pointer rounded bg-btn px-6 py-[10.5px] text-sm font-semibold text-on-btn transition-colors hover:bg-btn-hover disabled:opacity-50">
+          <Button onClick={handleSave} disabled={createTx.isPending} size="lg">
             {createTx.isPending ? '...' : t('transactions.save')}
-          </button>
-          <button onClick={() => setShowForm(false)} className="cursor-pointer rounded border border-edge-strong bg-transparent px-[25px] py-[11px] text-sm font-semibold text-heading transition-colors hover:bg-edge-subtle">
+          </Button>
+          <Button variant="outline" size="lg" onClick={() => setShowForm(false)}>
             {t('transactions.cancel')}
-          </button>
+          </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

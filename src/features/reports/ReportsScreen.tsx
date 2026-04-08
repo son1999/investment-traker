@@ -5,6 +5,9 @@ import SummaryCards from './components/SummaryCards'
 import PerformanceComparison from './components/PerformanceComparison'
 import TopAssets from './components/TopAssets'
 import CashFlowChart from './components/CashFlowChart'
+import DCASection from './components/DCASection'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Separator } from '@/components/ui/separator'
 import type { Period } from '@/types/api'
 
 const periodKeys: Period[] = ['1m', '3m', '6m', '1y', 'all']
@@ -21,13 +24,13 @@ export default function ReportsScreen() {
             <h1 className="text-xl font-semibold text-heading">{t('reports.title')}</h1>
             <p className="text-sm text-caption">{t('reports.subtitle')}</p>
           </div>
-          <div className="flex rounded-lg border border-edge bg-panel p-1">
-            {periodKeys.map((p) => (
-              <button key={p} onClick={() => setPeriod(p)} className={`cursor-pointer rounded px-4 py-2 text-xs font-semibold transition-colors ${period === p ? 'bg-field text-label shadow-sm' : 'bg-transparent text-caption'}`}>
-                {t(`reports.periods.${p}`)}
-              </button>
-            ))}
-          </div>
+          <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
+            <TabsList>
+              {periodKeys.map((p) => (
+                <TabsTrigger key={p} value={p}>{t(`reports.periods.${p}`)}</TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
         <PerformanceChart period={period} />
         <SummaryCards period={period} />
@@ -36,6 +39,11 @@ export default function ReportsScreen() {
           <div className="col-span-2"><TopAssets period={period} /></div>
         </div>
         <CashFlowChart period={period} />
+
+        <Separator />
+
+        {/* DCA Analysis Section */}
+        <DCASection />
       </div>
     </div>
   )

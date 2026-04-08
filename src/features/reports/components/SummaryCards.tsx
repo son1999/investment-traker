@@ -1,12 +1,16 @@
 import { useTranslation } from 'react-i18next'
 import { useReportSummary } from '@/hooks/useReports'
+import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { Period } from '@/types/api'
 
 function formatVND(v: number): string { return (v >= 0 ? '+' : '') + v.toLocaleString('vi-VN') }
 
 export default function SummaryCards({ period }: { period: Period }) {
   const { t } = useTranslation()
-  const { data } = useReportSummary(period)
+  const { data, isLoading } = useReportSummary(period)
+
+  if (isLoading) return <div className="grid grid-cols-4 gap-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-24 rounded-lg" />)}</div>
 
   const cards = [
     { label: t('reports.totalDeposited'), value: data ? data.totalDeposited.toLocaleString('vi-VN') : '—', sub: t('reports.fromYearStart') },
@@ -17,12 +21,14 @@ export default function SummaryCards({ period }: { period: Period }) {
 
   return (
     <div className="grid grid-cols-4 gap-4">
-      {cards.map((c) => (
-        <div key={c.label} className="flex flex-col gap-1.5 rounded-lg border border-edge bg-panel p-5">
-          <span className="text-[11px] font-medium uppercase tracking-wide text-caption">{c.label}</span>
-          <span className="font-mono text-lg font-semibold tracking-tight" style={{ color: c.color || 'var(--heading)' }}>{c.value}</span>
-          <span className="text-[11px] text-dim">{c.sub}</span>
-        </div>
+      {cards.map(c => (
+        <Card key={c.label} className="border-edge">
+          <CardContent className="flex flex-col gap-1.5 p-5">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-caption">{c.label}</span>
+            <span className="font-mono text-lg font-semibold tracking-tight" style={{ color: c.color || 'var(--heading)' }}>{c.value}</span>
+            <span className="text-[11px] text-muted-foreground">{c.sub}</span>
+          </CardContent>
+        </Card>
       ))}
     </div>
   )
