@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { currenciesApi } from '@/lib/api'
+import { toast } from 'sonner'
 import type { Currency, CreateCurrencyRequest, UpdateCurrencyRequest } from '@/types/api'
 
 export function useCurrencies() {
@@ -13,8 +14,12 @@ export function useCreateCurrency() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateCurrencyRequest) => currenciesApi.createCurrency(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['currencies'] })
+      toast.success(`Đã tạo tiền tệ ${data.code}`)
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Tạo tiền tệ thất bại')
     },
   })
 }
@@ -26,6 +31,10 @@ export function useUpdateCurrency() {
       currenciesApi.updateCurrency(code, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['currencies'] })
+      toast.success('Đã cập nhật tiền tệ')
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Cập nhật tiền tệ thất bại')
     },
   })
 }
@@ -36,6 +45,10 @@ export function useDeleteCurrency() {
     mutationFn: (code: string) => currenciesApi.deleteCurrency(code),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['currencies'] })
+      toast.success('Đã xóa tiền tệ')
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Xóa tiền tệ thất bại')
     },
   })
 }

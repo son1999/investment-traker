@@ -296,7 +296,8 @@
     "colRate": "Rate (VND)",
     "colUpdated": "Updated",
     "colActions": "Actions",
-    "count": "{{count}} currencies"
+    "count": "{{count}} currencies",
+    "vndBuiltIn": "VND is built-in (rate = 1). No need to create."
   },
   "assets": {
     "title": "Asset Management",

@@ -37,10 +37,14 @@ export default function CurrencyForm({ open, onOpenChange, currency, onSave, isP
     }
   }, [currency, open])
 
+  const codeUpper = code.trim().toUpperCase()
+  const isVND = codeUpper === 'VND'
+  const rate = parseFloat(rateToVnd) || 0
+  const canSubmit = !!code && !!name && !!symbol && rate > 0 && !isVND
+
   const handleSubmit = () => {
-    const rate = parseFloat(rateToVnd) || 0
-    if (!code || !name || !symbol || rate <= 0) return
-    onSave({ code: code.toUpperCase(), name, symbol, rateToVnd: rate })
+    if (!canSubmit) return
+    onSave({ code: codeUpper, name, symbol, rateToVnd: rate })
   }
 
   return (
@@ -78,11 +82,15 @@ export default function CurrencyForm({ open, onOpenChange, currency, onSave, isP
             <Label>{t('currencies.rateToVnd')}</Label>
             <Input value={rateToVnd} onChange={(e) => setRateToVnd(e.target.value)} placeholder={t('currencies.rateToVndPlaceholder')} className="font-['JetBrains_Mono']" />
           </div>
+
+          {isVND && (
+            <p className="text-sm text-destructive">{t('currencies.vndBuiltIn')}</p>
+          )}
         </div>
 
         <DialogFooter>
           <DialogClose render={<Button variant="outline">{t('currencies.cancel')}</Button>} />
-          <Button onClick={handleSubmit} disabled={isPending || !code || !name || !symbol}>
+          <Button onClick={handleSubmit} disabled={isPending || !canSubmit}>
             {isPending ? '...' : t('currencies.save')}
           </Button>
         </DialogFooter>

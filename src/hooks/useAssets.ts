@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { assetsApi } from '@/lib/api'
+import { toast } from 'sonner'
 import type { AssetDetail, AssetTransaction, Paginated, Period, AssetType, CreateAssetRequest, UpdateAssetRequest, Asset } from '@/types/api'
 
 export function useAssets(type?: AssetType) {
@@ -13,8 +14,12 @@ export function useCreateAsset() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateAssetRequest) => assetsApi.createAsset(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ['assets'] })
+      toast.success(`Đã tạo tài sản ${data.code}`)
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Tạo tài sản thất bại')
     },
   })
 }
@@ -26,6 +31,10 @@ export function useUpdateAsset() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['assets'] })
       qc.invalidateQueries({ queryKey: ['portfolio'] })
+      toast.success('Đã cập nhật tài sản')
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Cập nhật tài sản thất bại')
     },
   })
 }
@@ -37,6 +46,10 @@ export function useDeleteAsset() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['assets'] })
       qc.invalidateQueries({ queryKey: ['portfolio'] })
+      toast.success('Đã xóa tài sản')
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Xóa tài sản thất bại')
     },
   })
 }

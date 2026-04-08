@@ -296,7 +296,8 @@
     "colRate": "Tỷ giá (VND)",
     "colUpdated": "Cập nhật",
     "colActions": "Hành động",
-    "count": "{{count}} loại tiền"
+    "count": "{{count}} loại tiền",
+    "vndBuiltIn": "VND đã có sẵn trong hệ thống (rate = 1). Không cần tạo thêm."
   },
   "assets": {
     "title": "Quản lý tài sản",

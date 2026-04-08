@@ -66,6 +66,7 @@ export interface Transaction {
   action: TransactionAction
   quantity: number
   unitPrice: number
+  currency: string
   note?: string
   icon: string
   iconBg: string

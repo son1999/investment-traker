@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { authApi } from '@/lib/api'
+import { toast } from 'sonner'
 import type { User } from '@/types/api'
 
 interface AuthState {
@@ -25,9 +26,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.setItem('itracker-token', data.accessToken)
       localStorage.setItem('itracker-user', JSON.stringify(data.user))
       set({ token: data.accessToken, user: data.user, isLoading: false })
+      toast.success('Đăng nhập thành công!')
     } catch (err: any) {
       const message = err.response?.data?.message || 'Login failed'
       set({ error: message, isLoading: false })
+      toast.error(message)
       throw err
     }
   },
