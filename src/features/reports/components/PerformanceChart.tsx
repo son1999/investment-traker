@@ -1,16 +1,19 @@
-const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6']
-const yLabels = ['300M', '200M', '100M', '0']
-const legend = [
-  { label: 'Vàng', color: '#f59e0b' },
-  { label: 'Bitcoin', color: '#f97316' },
-  { label: 'Cổ phiếu', color: '#60a5fa' },
-]
+import { useTranslation } from 'react-i18next'
 
 export default function PerformanceChart() {
+  const { t } = useTranslation()
+
+  const months = [t('reports.month1'), t('reports.month2'), t('reports.month3'), t('reports.month4'), t('reports.month5'), t('reports.month6')]
+  const yLabels = ['300M', '200M', '100M', '0']
+  const legend = [
+    { label: t('common.metal'), color: '#f59e0b' },
+    { label: t('common.bitcoin'), color: '#f97316' },
+    { label: t('common.stock'), color: '#60a5fa' },
+  ]
   return (
     <div className="flex flex-col gap-5 rounded-lg border border-edge bg-panel p-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-heading">Hiệu suất danh mục</h2>
+        <h2 className="text-sm font-medium text-heading">{t('reports.performance')}</h2>
         <div className="flex gap-5">
           {legend.map((l) => (
             <div key={l.label} className="flex items-center gap-1.5">

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   LayoutGrid,
   PieChart,
@@ -11,51 +12,52 @@ import {
 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
-const sidebarLinks = [
-  { icon: LayoutGrid, label: 'Tổng quan', active: false },
-  { icon: PieChart, label: 'Phân bổ', active: true },
-  { icon: RefreshCw, label: 'Tái cân bằng', active: false },
-  { icon: Clock, label: 'Lịch sử', active: false },
-  { icon: BarChart3, label: 'Phân tích', active: false },
-]
-
-const assets = [
-  {
-    name: 'Vàng',
-    value: '450.000.000 ₫',
-    actual: 32,
-    target: 30,
-    color: '#ffb148',
-    status: 'Thừa 2%',
-    statusType: 'over' as const,
-  },
-  {
-    name: 'Bitcoin',
-    value: '280.000.000 ₫',
-    actual: 17,
-    target: 25,
-    color: '#f7931a',
-    status: 'Thiếu 8%',
-    statusType: 'under' as const,
-  },
-  {
-    name: 'Cổ phiếu',
-    value: '700.000.000 ₫',
-    actual: 51,
-    target: 45,
-    color: 'var(--btn)',
-    status: 'Cân bằng',
-    statusType: 'balanced' as const,
-  },
-]
-
-const statusStyles = {
-  over: 'bg-gold/10 border-gold/20 text-gold',
-  under: 'bg-[rgba(127,41,39,0.2)] border-negative/20 text-negative',
-  balanced: 'bg-label/10 border-label/20 text-label',
-}
-
 export default function AllocationScreen() {
+  const { t } = useTranslation()
+
+  const sidebarLinks = [
+    { icon: LayoutGrid, label: t('allocation.sidebarOverview'), active: false },
+    { icon: PieChart, label: t('allocation.sidebarAllocation'), active: true },
+    { icon: RefreshCw, label: t('allocation.sidebarRebalance'), active: false },
+    { icon: Clock, label: t('allocation.sidebarHistory'), active: false },
+    { icon: BarChart3, label: t('allocation.sidebarAnalysis'), active: false },
+  ]
+
+  const assets = [
+    {
+      name: t('common.metal'),
+      value: '450.000.000 ₫',
+      actual: 32,
+      target: 30,
+      color: '#ffb148',
+      status: t('allocation.overweight'),
+      statusType: 'over' as const,
+    },
+    {
+      name: t('common.bitcoin'),
+      value: '280.000.000 ₫',
+      actual: 17,
+      target: 25,
+      color: '#f7931a',
+      status: t('allocation.underweight'),
+      statusType: 'under' as const,
+    },
+    {
+      name: t('common.stock'),
+      value: '700.000.000 ₫',
+      actual: 51,
+      target: 45,
+      color: 'var(--btn)',
+      status: t('allocation.balanced'),
+      statusType: 'balanced' as const,
+    },
+  ]
+
+  const statusStyles = {
+    over: 'bg-gold/10 border-gold/20 text-gold',
+    under: 'bg-[rgba(127,41,39,0.2)] border-negative/20 text-negative',
+    balanced: 'bg-label/10 border-label/20 text-label',
+  }
   const [targets, setTargets] = useState({ gold: '30', bitcoin: '25', stock: '45' })
   const total =
     (parseInt(targets.gold) || 0) +
@@ -68,9 +70,9 @@ export default function AllocationScreen() {
       <aside className="flex w-64 flex-col gap-2 border-r border-edge bg-page px-4 py-4">
         <div className="mb-6 px-2">
           <span className="text-[11px] font-bold uppercase tracking-[0.55px] text-dim">
-            Danh mục chính
+            {t('allocation.sidebarMenu')}
           </span>
-          <p className="text-[13px] text-caption">Premium Tier</p>
+          <p className="text-[13px] text-caption">{t('allocation.premium')}</p>
         </div>
 
         <nav className="flex flex-1 flex-col gap-1">
@@ -90,7 +92,7 @@ export default function AllocationScreen() {
         </nav>
 
         <button className="w-full cursor-pointer rounded border border-edge bg-field py-2.5 text-[13px] font-medium text-label transition-colors hover:brightness-110">
-          Tối ưu hóa
+          {t('allocation.optimize')}
         </button>
       </aside>
 
@@ -101,10 +103,10 @@ export default function AllocationScreen() {
           <div className="flex items-end justify-between border-b border-edge-subtle pb-6">
             <div className="flex flex-col gap-1">
               <h1 className="text-xl font-semibold text-body">
-                Mục tiêu phân bổ
+                {t('allocation.title')}
               </h1>
               <p className="text-base text-caption">
-                So sánh phân bổ thực tế vs mục tiêu chiến lược của bạn
+                {t('allocation.subtitle')}
               </p>
             </div>
             <button className="cursor-pointer bg-transparent text-caption transition-colors hover:text-body">
@@ -132,9 +134,9 @@ export default function AllocationScreen() {
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <div className="flex items-center gap-2 text-sm font-medium">
-                      <span className="text-body">Thực tế {asset.actual}%</span>
+                      <span className="text-body">{t('allocation.actual')} {asset.actual}%</span>
                       <span className="text-dim">/</span>
-                      <span className="text-caption">Mục tiêu {asset.target}%</span>
+                      <span className="text-caption">{t('allocation.target')} {asset.target}%</span>
                     </div>
                     <span
                       className={`rounded-xl border px-3 py-1 text-xs font-medium ${statusStyles[asset.statusType]}`}
@@ -180,14 +182,14 @@ export default function AllocationScreen() {
             <div className="flex items-center gap-2">
               <Settings size={17} className="text-caption" />
               <h2 className="text-sm font-bold uppercase tracking-[1.4px] text-body">
-                Cài đặt tỷ trọng mục tiêu
+                {t('allocation.setTarget')}
               </h2>
             </div>
 
             <div className="grid grid-cols-3 gap-6">
               <div className="flex flex-col gap-2">
                 <label className="text-[11px] font-semibold uppercase tracking-[0.55px] text-dim">
-                  Vàng (%)
+                  {t('common.metal')} (%)
                 </label>
                 <Input
                   value={targets.gold}
@@ -197,7 +199,7 @@ export default function AllocationScreen() {
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[11px] font-semibold uppercase tracking-[0.55px] text-dim">
-                  Bitcoin (%)
+                  {t('common.bitcoin')} (%)
                 </label>
                 <Input
                   value={targets.bitcoin}
@@ -207,7 +209,7 @@ export default function AllocationScreen() {
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[11px] font-semibold uppercase tracking-[0.55px] text-dim">
-                  Cổ phiếu (%)
+                  {t('common.stock')} (%)
                 </label>
                 <Input
                   value={targets.stock}
@@ -221,11 +223,11 @@ export default function AllocationScreen() {
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={11} className="text-label" />
                 <span className="text-[13px] text-label">
-                  Tổng phân bổ: {total}% {total === 100 ? '(Hợp lệ)' : '(Chưa hợp lệ)'}
+                  {t('allocation.totalAllocation')}: {total}% {total === 100 ? `(${t('allocation.valid')})` : `(${t('allocation.invalid')})`}
                 </span>
               </div>
               <button className="cursor-pointer rounded bg-btn px-8 py-2 text-sm font-bold text-on-btn transition-colors hover:bg-btn-hover">
-                Lưu thay đổi
+                {t('allocation.saveChanges')}
               </button>
             </div>
           </div>
@@ -236,17 +238,9 @@ export default function AllocationScreen() {
               <Info size={20} className="text-gold" />
             </div>
             <div className="flex flex-col gap-1">
-              <h4 className="text-base font-bold text-body">Gợi ý tái cân bằng</h4>
+              <h4 className="text-base font-bold text-body">{t('allocation.recommendationTitle')}</h4>
               <p className="text-base leading-[26px] text-caption">
-                Danh mục đang lệch khỏi mục tiêu chiến lược. Chúng tôi khuyên bạn nên{' '}
-                <span className="font-semibold text-body underline decoration-[rgba(255,177,72,0.4)]">
-                  bán ~15 tr ₫ Vàng
-                </span>{' '}
-                và{' '}
-                <span className="font-semibold text-body underline decoration-[rgba(198,198,199,0.4)]">
-                  mua thêm ~15 tr ₫ Cổ phiếu
-                </span>{' '}
-                để đạt được hiệu quả phân bổ tối ưu.
+                {t('allocation.recommendationDesc')}
               </p>
             </div>
           </div>

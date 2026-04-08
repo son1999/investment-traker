@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import iconSvg from '@/assets/icon.svg'
+const logoUrl = '/logo.png'
 import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginScreen() {
@@ -31,7 +31,7 @@ export default function LoginScreen() {
       <div className="flex w-full max-w-[400px] flex-col items-center">
         <div className="flex flex-col items-center">
           <div className="flex size-10 items-center justify-center rounded-md border border-edge bg-panel">
-            <img src={iconSvg} alt="" className="size-4" />
+            <img src={logoUrl} alt="" className="size-8" />
           </div>
           <div className="flex flex-col items-center gap-1 pt-4">
             <h1 className="text-xl font-semibold text-heading">{t('login.title')}</h1>
@@ -85,21 +85,6 @@ export default function LoginScreen() {
               </Button>
             </form>
 
-            <div className="my-5 flex items-center gap-3">
-              <div className="h-px flex-1 bg-edge" />
-              <span className="text-xs text-dim">{t('login.or')}</span>
-              <div className="h-px flex-1 bg-edge" />
-            </div>
-
-            <Button variant="outline" onClick={() => navigate('/dashboard')} className="h-9 w-full cursor-pointer gap-2 border-edge bg-transparent text-sm font-medium text-body hover:bg-edge-subtle">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M15.68 8.18c0-.57-.05-1.11-.15-1.64H8v3.1h4.31a3.68 3.68 0 0 1-1.6 2.42v2h2.59c1.51-1.4 2.38-3.45 2.38-5.88Z" fill="#4285F4"/>
-                <path d="M8 16c2.16 0 3.97-.72 5.3-1.94l-2.59-2a4.79 4.79 0 0 1-7.15-2.52H.96v2.06A8 8 0 0 0 8 16Z" fill="#34A853"/>
-                <path d="M3.56 9.54a4.82 4.82 0 0 1 0-3.08V4.4H.96a8 8 0 0 0 0 7.2l2.6-2.06Z" fill="#FBBC05"/>
-                <path d="M8 3.18a4.33 4.33 0 0 1 3.07 1.2l2.3-2.3A7.72 7.72 0 0 0 8 0 8 8 0 0 0 .96 4.4l2.6 2.06A4.77 4.77 0 0 1 8 3.18Z" fill="#EA4335"/>
-              </svg>
-              {t('login.google')}
-            </Button>
           </CardContent>
         </Card>
 

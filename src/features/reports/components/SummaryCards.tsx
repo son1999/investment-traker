@@ -1,21 +1,24 @@
-const cards = [
-  { label: 'Tổng nạp vốn', value: '2,450,000,000', sub: 'VND · Tính từ đầu năm' },
-  { label: 'Tổng rút vốn', value: '120,500,000', sub: 'VND · Tài khoản thanh toán' },
-  {
-    label: 'Lãi/Lỗ đã thực hiện',
-    value: '+85,340,000',
-    color: 'var(--positive)',
-    sub: '↑ 3.4% · Lợi nhuận chốt lời',
-  },
-  {
-    label: 'Lãi/Lỗ chưa thực hiện',
-    value: '+312,800,000',
-    color: 'var(--gold)',
-    sub: '↑ 12.8% · Giá trị thị trường',
-  },
-]
+import { useTranslation } from 'react-i18next'
 
 export default function SummaryCards() {
+  const { t } = useTranslation()
+
+  const cards = [
+    { label: t('reports.totalDeposited'), value: '2,450,000,000', sub: t('reports.fromYearStart') },
+    { label: t('reports.totalWithdrawn'), value: '120,500,000', sub: t('reports.paymentAccount') },
+    {
+      label: t('reports.realizedPnl'),
+      value: '+85,340,000',
+      color: 'var(--positive)',
+      sub: t('reports.realizedProfit'),
+    },
+    {
+      label: t('reports.unrealizedPnl'),
+      value: '+312,800,000',
+      color: 'var(--gold)',
+      sub: t('reports.marketValue'),
+    },
+  ]
   return (
     <div className="grid grid-cols-4 gap-4">
       {cards.map((c) => (

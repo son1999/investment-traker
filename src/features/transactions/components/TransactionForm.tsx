@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useTransactionsStore } from '@/stores/transactions'
 import { Input } from '@/components/ui/input'
 import {
@@ -9,22 +10,29 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const assetTypeIcons: Record<string, { icon: string; iconBg: string }> = {
-  Vàng: { icon: '🥇', iconBg: 'rgba(248,160,16,0.2)' },
-  Bitcoin: { icon: '₿', iconBg: '#3b3b3e' },
-  'Cổ phiếu': { icon: '📈', iconBg: '#3b3b3e' },
-}
-
 function formatVND(amount: number): string {
   return amount.toLocaleString('vi-VN') + ' ₫'
 }
 
 export default function TransactionForm() {
+  const { t } = useTranslation()
   const { addTransaction, setShowForm } = useTransactionsStore()
 
-  const [assetType, setAssetType] = useState('Vàng')
+  const assetTypes = [
+    { value: 'metal', label: t('common.metal') },
+    { value: 'bitcoin', label: t('common.bitcoin') },
+    { value: 'stock', label: t('common.stock') },
+  ]
+
+  const assetTypeIcons: Record<string, { icon: string; iconBg: string }> = {
+    metal: { icon: '🥇', iconBg: 'rgba(248,160,16,0.2)' },
+    bitcoin: { icon: '₿', iconBg: '#3b3b3e' },
+    stock: { icon: '📈', iconBg: '#3b3b3e' },
+  }
+
+  const [assetType, setAssetType] = useState('metal')
   const [assetCode, setAssetCode] = useState('')
-  const [action, setAction] = useState('MUA')
+  const [action, setAction] = useState<'MUA' | 'BÁN'>('MUA')
   const [quantity, setQuantity] = useState('')
   const [unitPrice, setUnitPrice] = useState('')
   const [date, setDate] = useState('')
@@ -47,7 +55,7 @@ export default function TransactionForm() {
       date: date || new Date().toISOString().split('T')[0],
       assetType,
       assetCode: assetCode.toUpperCase(),
-      action: action as 'MUA' | 'BÁN',
+      action: action as typeof action,
       quantity: qty,
       unitPrice: price,
       note,
@@ -70,9 +78,9 @@ export default function TransactionForm() {
       <div className="flex flex-col gap-6 p-8">
         {/* Header */}
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold text-heading">Giao dịch mới</h2>
+          <h2 className="text-lg font-semibold text-heading">{t('transactions.newTitle')}</h2>
           <p className="text-xs font-medium uppercase tracking-[0.6px] text-caption">
-            Nhập thông tin mua hoặc bán
+            {t('transactions.newSubtitle')}
           </p>
         </div>
 
@@ -80,23 +88,25 @@ export default function TransactionForm() {
         <div className="grid grid-cols-3 gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">
-              Loại tài sản
+              {t('transactions.assetType')}
             </label>
-            <Select value={assetType} onValueChange={setAssetType}>
+            <Select value={assetType} onValueChange={(v) => setAssetType(v as string)}>
               <SelectTrigger className="h-9 w-full rounded border-none bg-field text-sm text-body">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-edge-strong bg-panel-alt text-body">
-                <SelectItem value="Vàng">Vàng</SelectItem>
-                <SelectItem value="Bitcoin">Bitcoin</SelectItem>
-                <SelectItem value="Cổ phiếu">Cổ phiếu</SelectItem>
+                {assetTypes.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex flex-col gap-2">
             <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">
-              Mã tài sản
+              {t('transactions.assetCode')}
             </label>
             <Input
               value={assetCode}
@@ -108,15 +118,15 @@ export default function TransactionForm() {
 
           <div className="flex flex-col gap-2">
             <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">
-              Hành động
+              {t('transactions.action')}
             </label>
-            <Select value={action} onValueChange={setAction}>
+            <Select value={action} onValueChange={(v) => setAction(v as 'MUA' | 'BÁN')}>
               <SelectTrigger className="h-9 w-full rounded border-none bg-field text-sm text-body">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-edge-strong bg-panel-alt text-body">
-                <SelectItem value="MUA">MUA</SelectItem>
-                <SelectItem value="BÁN">BÁN</SelectItem>
+                <SelectItem value="MUA">{t('common.buy')}</SelectItem>
+                <SelectItem value="BÁN">{t('common.sell')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -126,7 +136,7 @@ export default function TransactionForm() {
         <div className="grid grid-cols-3 gap-6">
           <div className="flex flex-col gap-2">
             <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">
-              Số lượng
+              {t('transactions.quantity')}
             </label>
             <Input
               value={quantity}
@@ -138,7 +148,7 @@ export default function TransactionForm() {
 
           <div className="flex flex-col gap-2">
             <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">
-              Đơn giá (₫)
+              {t('transactions.unitPrice')}
             </label>
             <Input
               value={unitPrice}
@@ -150,7 +160,7 @@ export default function TransactionForm() {
 
           <div className="flex flex-col gap-2">
             <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">
-              Ngày
+              {t('transactions.date')}
             </label>
             <input
               type="date"
@@ -164,19 +174,19 @@ export default function TransactionForm() {
         {/* Note */}
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-medium uppercase tracking-[0.55px] text-caption">
-            Ghi chú
+            {t('transactions.note')}
           </label>
           <Input
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Thêm mô tả cho giao dịch này..."
+            placeholder={t('transactions.notePlaceholder')}
             className="h-9 rounded border-none bg-field text-sm text-body placeholder:text-dim"
           />
         </div>
 
         {/* Total */}
-        <div className="flex items-center justify-between rounded border border-edge-subtle bg-[rgba(31,31,36,0.5)] p-[17px]">
-          <span className="text-sm text-caption">Tổng giá trị</span>
+        <div className="flex items-center justify-between rounded border border-edge bg-field p-[17px]">
+          <span className="text-sm text-caption">{t('transactions.totalValue')}</span>
           <span className="font-['JetBrains_Mono'] text-xl font-bold text-heading">
             {formatVND(total)}
           </span>
@@ -188,13 +198,13 @@ export default function TransactionForm() {
             onClick={handleSave}
             className="cursor-pointer rounded bg-btn px-6 py-[10.5px] text-sm font-semibold text-on-btn transition-colors hover:bg-btn-hover"
           >
-            Lưu giao dịch
+            {t('transactions.save')}
           </button>
           <button
             onClick={handleCancel}
             className="cursor-pointer rounded border border-edge-strong bg-transparent px-[25px] py-[11px] text-sm font-semibold text-heading transition-colors hover:bg-edge-subtle"
           >
-            Hủy
+            {t('transactions.cancel')}
           </button>
         </div>
       </div>

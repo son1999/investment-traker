@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePricesStore } from '@/stores/prices'
 import { Input } from '@/components/ui/input'
 import {
@@ -9,16 +10,18 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const typeIcons: Record<string, string> = {
-  Vàng: '✨',
-  Crypto: '₿',
-  'Cổ phiếu': '📈',
-  'Kim loại': '✨',
-}
-
 export default function PriceForm() {
+  const { t } = useTranslation()
   const { addPrice } = usePricesStore()
-  const [assetType, setAssetType] = useState('Vàng')
+
+  const typeIcons: Record<string, string> = {
+    [t('common.metal')]: '✨',
+    [t('common.crypto')]: '₿',
+    [t('common.stock')]: '📈',
+    [t('common.metal')]: '✨',
+  }
+
+  const [assetType, setAssetType] = useState(t('common.metal'))
   const [assetCode, setAssetCode] = useState('')
   const [price, setPrice] = useState('')
 
@@ -46,29 +49,29 @@ export default function PriceForm() {
 
   return (
     <div className="rounded-lg border border-edge bg-panel p-8 shadow-sm">
-      <h2 className="mb-8 text-lg font-semibold text-heading">Nhập giá mới</h2>
+      <h2 className="mb-8 text-lg font-semibold text-heading">{t('prices.newPrice')}</h2>
 
       <div className="grid grid-cols-4 gap-6">
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-            Loại tài sản
+            {t('prices.type')}
           </label>
-          <Select value={assetType} onValueChange={setAssetType}>
+          <Select value={assetType} onValueChange={(v) => setAssetType(v as string)}>
             <SelectTrigger className="h-11 w-full rounded border-none bg-field px-4 text-sm text-body">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="border-edge-strong bg-panel-alt text-body">
-              <SelectItem value="Vàng">Vàng</SelectItem>
-              <SelectItem value="Crypto">Crypto</SelectItem>
-              <SelectItem value="Cổ phiếu">Cổ phiếu</SelectItem>
-              <SelectItem value="Kim loại">Kim loại</SelectItem>
+              <SelectItem value={t('common.metal')}>{t('common.metal')}</SelectItem>
+              <SelectItem value={t('common.crypto')}>{t('common.crypto')}</SelectItem>
+              <SelectItem value={t('common.stock')}>{t('common.stock')}</SelectItem>
+              <SelectItem value={t('common.metal')}>{t('common.metal')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-            Mã tài sản
+            {t('prices.code')}
           </label>
           <Input
             value={assetCode}
@@ -80,7 +83,7 @@ export default function PriceForm() {
 
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-            Giá hiện tại (₫)
+            {t('prices.currentPrice')}
           </label>
           <Input
             value={price}
@@ -95,7 +98,7 @@ export default function PriceForm() {
             onClick={handleSubmit}
             className="h-11 cursor-pointer rounded bg-btn text-base font-semibold text-on-btn transition-colors hover:bg-btn-hover"
           >
-            Cập nhật giá
+            {t('prices.update')}
           </button>
         </div>
       </div>

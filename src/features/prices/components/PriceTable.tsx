@@ -1,15 +1,17 @@
+import { useTranslation } from 'react-i18next'
 import { usePricesStore } from '@/stores/prices'
 
 export default function PriceTable() {
+  const { t } = useTranslation()
   const { prices } = usePricesStore()
 
   return (
     <div className="overflow-hidden rounded-lg border border-edge bg-panel">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-edge-subtle px-6 py-6">
-        <h2 className="text-lg font-semibold text-heading">Bảng giá đã lưu</h2>
+        <h2 className="text-lg font-semibold text-heading">{t('prices.savedPrices')}</h2>
         <span className="text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-          {prices.length} Bản ghi
+          {prices.length} {t('prices.records')}
         </span>
       </div>
 
@@ -18,16 +20,16 @@ export default function PriceTable() {
         <thead>
           <tr className="bg-panel">
             <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-              Mã
+              {t('prices.code')}
             </th>
             <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-              Loại
+              {t('prices.type')}
             </th>
             <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-              Giá hiện tại
+              {t('prices.currentPrice')}
             </th>
             <th className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-              Cập nhật lúc
+              {t('prices.updatedAt')}
             </th>
           </tr>
         </thead>

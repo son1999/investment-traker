@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next'
+
 export default function PriceAlertCard() {
+  const { t } = useTranslation()
+
   return (
     <div className="flex max-w-[384px] flex-1 gap-4 rounded-lg border border-gold/30 bg-[rgba(248,160,16,0.1)] p-[17px]">
       <div className="flex size-[38px] shrink-0 items-center justify-center text-2xl">
@@ -8,12 +12,12 @@ export default function PriceAlertCard() {
         </svg>
       </div>
       <div className="flex flex-col gap-px">
-        <span className="text-sm font-bold text-gold">Cảnh báo giá</span>
+        <span className="text-sm font-bold text-gold">{t('dashboard.priceAlert')}</span>
         <p className="pb-[7px] text-[13px] text-caption">
-          {`3 tài sản chưa cập nhật giá > 7 ngày`}
+          {t('dashboard.priceAlertDesc')}
         </p>
         <button className="w-fit cursor-pointer bg-transparent text-xs font-bold uppercase tracking-[0.6px] text-gold hover:underline">
-          Cập nhật ngay
+          {t('dashboard.updateNow')}
         </button>
       </div>
     </div>

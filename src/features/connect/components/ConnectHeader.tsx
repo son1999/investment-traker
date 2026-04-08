@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import iconSvg from '@/assets/icon.svg'
+const logoUrl = '/logo.png'
 
 export default function ConnectHeader() {
   const { t } = useTranslation()
@@ -7,7 +7,7 @@ export default function ConnectHeader() {
   return (
     <div className="flex flex-col items-center">
       <div className="flex size-10 items-center justify-center rounded-md border border-edge bg-panel">
-        <img src={iconSvg} alt="" className="size-4" />
+        <img src={logoUrl} alt="" className="size-5" />
       </div>
       <div className="flex flex-col items-center gap-1 pt-4">
         <h1 className="text-xl font-semibold text-heading">{t('connect.title')}</h1>

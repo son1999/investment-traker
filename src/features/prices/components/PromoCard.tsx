@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next'
+
 export default function PromoCard() {
+  const { t } = useTranslation()
+
   return (
     <div className="relative flex h-48 flex-col justify-end overflow-hidden rounded-lg p-8">
       {/* Gradient background */}
@@ -12,9 +16,9 @@ export default function PromoCard() {
 
       {/* Content */}
       <div className="relative flex flex-col gap-2">
-        <h3 className="text-xl font-bold text-[#ffb148]">Tự động hóa dữ liệu?</h3>
+        <h3 className="text-xl font-bold text-[#ffb148]">{t('prices.automate')}</h3>
         <p className="text-sm leading-5 text-[rgba(231,228,236,0.8)]">
-          Kết nối API để cập nhật giá thời gian thực từ các sàn lớn.
+          {t('prices.automateDesc')}
         </p>
       </div>
     </div>

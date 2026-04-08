@@ -1,50 +1,52 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Plus, MoreVertical, ExternalLink } from 'lucide-react'
 
-const metrics = [
-  {
-    label: 'Đang nắm giữ',
-    value: '0.5',
-    unit: 'BTC',
-    sub: '3 lệnh mua · 1 lệnh bán',
-    border: '#454747',
-  },
-  {
-    label: 'Giá vốn TB',
-    value: '850.000.000',
-    unit: '₫',
-    sub: 'Tổng vốn: 425.000.000 ₫',
-    border: '#454747',
-  },
-  {
-    label: 'Giá hiện tại',
-    value: '1.650.000.000',
-    unit: '₫',
-    sub: 'Cập nhật: 03/04/2025 14:30',
-    border: '#f8a010',
-    hasRefresh: true,
-  },
-  {
-    label: 'Lợi nhuận',
-    value: '+400.000.000',
-    unit: '₫',
-    sub: '+94.12%',
-    border: '#22c55e',
-    isProfit: true,
-  },
-]
-
-const txRows = [
-  { date: '15/03/2025', type: 'BÁN', qty: '0.1', price: '1.350.000.000', total: '135.000.000', note: 'Chốt lời ngắn hạn' },
-  { date: '10/01/2025', type: 'MUA', qty: '0.2', price: '900.000.000', total: '180.000.000', note: '' },
-  { date: '05/11/2024', type: 'MUA', qty: '0.2', price: '850.000.000', total: '170.000.000', note: 'DCA đợt 2' },
-  { date: '12/08/2024', type: 'MUA', qty: '0.2', price: '750.000.000', total: '150.000.000', note: 'Mở vị thế mới' },
-]
-
-const chartLabels = ['01/2025', '02/2025', '03/2025', 'Hiện tại']
-
 export default function AssetDetailScreen() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
+
+  const metrics = [
+    {
+      label: t('assetDetail.holdings'),
+      value: '0.5',
+      unit: 'BTC',
+      sub: '3 lệnh mua · 1 lệnh bán',
+      border: '#454747',
+    },
+    {
+      label: t('assetDetail.avgCost'),
+      value: '850.000.000',
+      unit: '₫',
+      sub: t('assetDetail.totalCostLabel') + ': 425.000.000 ₫',
+      border: '#454747',
+    },
+    {
+      label: t('assetDetail.currentPrice'),
+      value: '1.650.000.000',
+      unit: '₫',
+      sub: 'Cập nhật: 03/04/2025 14:30',
+      border: '#f8a010',
+      hasRefresh: true,
+    },
+    {
+      label: t('assetDetail.profit'),
+      value: '+400.000.000',
+      unit: '₫',
+      sub: '+94.12%',
+      border: '#22c55e',
+      isProfit: true,
+    },
+  ]
+
+  const txRows = [
+    { date: '15/03/2025', type: t('common.sell'), qty: '0.1', price: '1.350.000.000', total: '135.000.000', note: 'Chốt lời ngắn hạn' },
+    { date: '10/01/2025', type: t('common.buy'), qty: '0.2', price: '900.000.000', total: '180.000.000', note: '' },
+    { date: '05/11/2024', type: t('common.buy'), qty: '0.2', price: '850.000.000', total: '170.000.000', note: 'DCA đợt 2' },
+    { date: '12/08/2024', type: t('common.buy'), qty: '0.2', price: '750.000.000', total: '150.000.000', note: 'Mở vị thế mới' },
+  ]
+
+  const chartLabels = ['01/2025', '02/2025', '03/2025', 'Hiện tại']
 
   return (
     <div className="mx-auto max-w-[1400px] px-6 pb-16 pt-6">
@@ -56,16 +58,16 @@ export default function AssetDetailScreen() {
             className="flex cursor-pointer items-center gap-2 bg-transparent text-sm font-medium text-caption transition-colors hover:text-heading"
           >
             <ArrowLeft size={13} />
-            Quay lại
+            {t('assetDetail.back')}
           </button>
         </div>
         <div className="flex items-center gap-3">
           <button className="cursor-pointer rounded border border-edge bg-transparent px-4 py-2 text-sm font-medium text-body transition-colors hover:border-edge-strong">
-            Cập nhật giá
+            {t('assetDetail.updatePrice')}
           </button>
           <button className="flex cursor-pointer items-center gap-2 rounded bg-btn px-4 py-2 text-sm font-bold text-on-btn transition-colors hover:bg-btn-hover">
             <Plus size={11} />
-            Thêm giao dịch
+            {t('assetDetail.addTransaction')}
           </button>
           <button className="cursor-pointer bg-transparent text-caption hover:text-heading">
             <MoreVertical size={16} />
@@ -83,11 +85,11 @@ export default function AssetDetailScreen() {
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-semibold tracking-[-1.5px] text-heading">BTC</h1>
               <span className="rounded-xl border border-edge-strong px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[1.1px] text-caption">
-                Bitcoin
+                {t('common.bitcoin')}
               </span>
             </div>
             <p className="text-sm tracking-[0.35px] text-caption">
-              Mã tài sản kỹ thuật số phổ biến nhất thế giới
+              {t('assetDetail.assetDescription')}
             </p>
           </div>
         </div>
@@ -133,20 +135,20 @@ export default function AssetDetailScreen() {
         <div className="rounded-2xl bg-panel p-8 shadow-[0px_8px_32px_0px_rgba(231,228,236,0.04)]">
           <div className="mb-8 flex items-start justify-between">
             <div className="flex flex-col gap-1">
-              <h2 className="text-xl font-bold text-heading">Biến động giá trị</h2>
+              <h2 className="text-xl font-bold text-heading">{t('assetDetail.valueChart')}</h2>
               <p className="text-sm text-caption">
-                Giá trị tài sản qua từng giao dịch trong lịch sử nắm giữ.
+                {t('assetDetail.valueChartDesc')}
               </p>
             </div>
             <div className="flex gap-2">
-              {['1T', '1N', 'TẤT CẢ'].map((t, i) => (
+              {[t('assetDetail.periodMonth'), t('assetDetail.periodYear'), t('assetDetail.periodAll')].map((period, i) => (
                 <button
-                  key={t}
+                  key={period}
                   className={`cursor-pointer rounded-sm px-3 py-1 text-[11px] font-bold ${
                     i === 0 ? 'bg-field text-body' : 'bg-transparent text-caption'
                   }`}
                 >
-                  {t}
+                  {period}
                 </button>
               ))}
             </div>
@@ -211,7 +213,7 @@ export default function AssetDetailScreen() {
           >
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold uppercase tracking-[1.4px] text-caption">
-                Lãi/Lỗ đã thực hiện
+                {t('assetDetail.realizedPnl')}
               </h3>
               <span className="font-['JetBrains_Mono'] text-lg font-bold text-positive">
                 +50.000.000 ₫
@@ -220,9 +222,9 @@ export default function AssetDetailScreen() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-edge-subtle">
-                  <th className="pb-3 text-left text-xs font-medium text-caption">Ngày</th>
-                  <th className="pb-3 text-left text-xs font-medium text-caption">Số lượng</th>
-                  <th className="pb-3 text-right text-xs font-medium text-caption">Lợi nhuận</th>
+                  <th className="pb-3 text-left text-xs font-medium text-caption">{t('assetDetail.colDate')}</th>
+                  <th className="pb-3 text-left text-xs font-medium text-caption">{t('assetDetail.colQty')}</th>
+                  <th className="pb-3 text-right text-xs font-medium text-caption">{t('reports.profitLoss')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -246,7 +248,7 @@ export default function AssetDetailScreen() {
           >
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold uppercase tracking-[1.4px] text-caption">
-                Lãi/Lỗ chưa thực hiện
+                {t('assetDetail.unrealizedPnl')}
               </h3>
               <span className="font-['JetBrains_Mono'] text-lg font-bold text-positive">
                 +400.000.000 ₫
@@ -254,13 +256,13 @@ export default function AssetDetailScreen() {
             </div>
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between border-b border-edge-subtle pb-2">
-                <span className="text-xs text-caption">Giá trị hiện tại</span>
+                <span className="text-xs text-caption">{t('assetDetail.currentValue')}</span>
                 <span className="font-['JetBrains_Mono'] text-xs text-body">
                   825.000.000 ₫
                 </span>
               </div>
               <div className="flex items-center justify-between border-b border-edge-subtle pb-2">
-                <span className="text-xs text-caption">Tổng giá vốn</span>
+                <span className="text-xs text-caption">{t('assetDetail.totalCost')}</span>
                 <span className="font-['JetBrains_Mono'] text-xs text-body">
                   425.000.000 ₫
                 </span>
@@ -276,13 +278,13 @@ export default function AssetDetailScreen() {
         {/* Transaction Table */}
         <div className="overflow-hidden rounded-2xl bg-panel-alt shadow-[0px_8px_32px_0px_rgba(231,228,236,0.04)]">
           <div className="px-8 py-6">
-            <h2 className="text-lg font-bold text-heading">Giao dịch của BTC</h2>
-            <p className="text-xs text-caption">4 giao dịch trong 12 tháng qua</p>
+            <h2 className="text-lg font-bold text-heading">{t('assetDetail.transactionsOf', { code: 'BTC' })}</h2>
+            <p className="text-xs text-caption">{t('assetDetail.transactionsCount', { count: 4 })}</p>
           </div>
           <table className="w-full">
             <thead>
               <tr className="bg-[rgba(37,37,43,0.4)]">
-                {['Ngày', 'Loại', 'SL', 'Đơn giá', 'Tổng tiền', 'Ghi chú', 'Hành động'].map(
+                {[t('assetDetail.colDate'), t('assetDetail.colType'), t('assetDetail.colQty'), t('assetDetail.colUnitPrice'), t('assetDetail.colTotal'), t('assetDetail.colNote'), t('assetDetail.colAction')].map(
                   (col, i) => (
                     <th
                       key={col}
@@ -306,13 +308,13 @@ export default function AssetDetailScreen() {
                     {row.date}
                   </td>
                   <td className="px-6 py-[22px]">
-                    {row.type === 'MUA' ? (
+                    {row.type === t('common.buy') ? (
                       <span className="rounded-sm bg-positive/10 px-2 text-[10px] font-bold text-positive">
-                        MUA
+                        {t('common.buy')}
                       </span>
                     ) : (
                       <span className="rounded-sm bg-[rgba(127,41,39,0.2)] px-2 text-[10px] font-bold text-[#bb5551]">
-                        BÁN
+                        {t('common.sell')}
                       </span>
                     )}
                   </td>

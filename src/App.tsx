@@ -7,8 +7,8 @@ import { ReportsScreen } from '@/features/reports'
 import { PricesScreen } from '@/features/prices'
 import { AssetDetailScreen } from '@/features/asset-detail'
 import { AllocationScreen } from '@/features/allocation'
-import { SettingsScreen } from '@/features/settings'
-import { JournalScreen } from '@/features/journal'
+
+
 import { LoginScreen } from '@/features/login'
 import { NotFoundScreen } from '@/features/not-found'
 
@@ -29,8 +29,8 @@ function App() {
           <Route path="/prices" element={<PricesScreen />} />
           <Route path="/assets/:code" element={<AssetDetailScreen />} />
           <Route path="/allocation" element={<AllocationScreen />} />
-          <Route path="/journal" element={<JournalScreen />} />
-          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/journal" element={<Navigate to="/transactions" replace />} />
+          <Route path="/settings" element={<Navigate to="/dashboard" replace />} />
         </Route>
 
         {/* 404 */}

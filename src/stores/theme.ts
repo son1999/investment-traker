@@ -1,23 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type Theme = 'light' | 'dark' | 'system'
+export type Theme = 'light' | 'dark'
 
 interface ThemeState {
   theme: Theme
   setTheme: (theme: Theme) => void
 }
 
-function resolveTheme(theme: Theme): 'light' | 'dark' {
-  if (theme === 'system') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  }
-  return theme
-}
-
 function applyTheme(theme: Theme) {
-  const resolved = resolveTheme(theme)
-  document.documentElement.classList.toggle('dark', resolved === 'dark')
+  document.documentElement.classList.toggle('dark', theme === 'dark')
 }
 
 export const useThemeStore = create<ThemeState>()(
@@ -37,11 +29,3 @@ export const useThemeStore = create<ThemeState>()(
     },
   ),
 )
-
-// Listen for OS theme changes when in system mode
-if (typeof window !== 'undefined') {
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    const { theme } = useThemeStore.getState()
-    if (theme === 'system') applyTheme('system')
-  })
-}

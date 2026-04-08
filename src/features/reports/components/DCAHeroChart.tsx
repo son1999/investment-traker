@@ -1,25 +1,28 @@
-const barHeights = [40, 60, 35, 85, 55, 70, 45, 90]
-const currentPricePct = 65
-
-const stats = [
-  { label: 'Số lần mua', value: '8' },
-  { label: 'Khoảng cách TB', value: '15 ngày' },
-  { label: 'Mỗi lần TB', value: '20.5 tr ₫' },
-]
-
-const yLeft = ['40M', '20M', '0']
-const yRight = ['120M', '60M', '0']
-const xAxis = ['01/01', '01/02', '01/03', '01/04']
+import { useTranslation } from 'react-i18next'
 
 export default function DCAHeroChart() {
+  const { t } = useTranslation()
+
+  const barHeights = [40, 60, 35, 85, 55, 70, 45, 90]
+  const currentPricePct = 65
+
+  const stats = [
+    { label: t('reports.numPurchases'), value: '8' },
+    { label: t('reports.avgInterval'), value: '15 ngày' },
+    { label: t('reports.avgPerPurchase'), value: '20.5 tr ₫' },
+  ]
+
+  const yLeft = ['40M', '20M', '0']
+  const yRight = ['120M', '60M', '0']
+  const xAxis = ['01/01', '01/02', '01/03', '01/04']
   return (
     <div className="rounded-lg border border-edge bg-panel p-6">
       <div className="flex flex-col gap-5">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-sm font-medium text-heading">Dollar Cost Averaging</h2>
-            <p className="mt-0.5 text-xs text-caption">Phân tích chiến lược mua trung bình</p>
+            <h2 className="text-sm font-medium text-heading">{t('reports.dca')}</h2>
+            <p className="mt-0.5 text-xs text-caption">{t('reports.dcaSub')}</p>
           </div>
           <div className="flex gap-5">
             {stats.map((s) => (
@@ -66,7 +69,7 @@ export default function DCAHeroChart() {
             style={{ bottom: `${currentPricePct}%` }}
           >
             <span className="absolute -top-2 right-0 bg-panel px-1.5 text-[10px] text-positive">
-              Giá hiện tại
+              {t('reports.currentPrice')}
             </span>
           </div>
         </div>
@@ -76,15 +79,15 @@ export default function DCAHeroChart() {
           <div className="flex gap-5">
             <div className="flex items-center gap-1.5">
               <div className="size-2 rounded-sm bg-dim/40" />
-              <span className="text-[11px] text-caption">Số tiền mua</span>
+              <span className="text-[11px] text-caption">{t('reports.purchaseAmount')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="h-0.5 w-3 rounded-full bg-gold" />
-              <span className="text-[11px] text-caption">Giá vốn TB</span>
+              <span className="text-[11px] text-caption">{t('reports.avgCostPrice')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="h-px w-3 border-t border-dashed border-positive" />
-              <span className="text-[11px] text-caption">Giá hiện tại</span>
+              <span className="text-[11px] text-caption">{t('reports.currentPrice')}</span>
             </div>
           </div>
           <div className="flex gap-12">

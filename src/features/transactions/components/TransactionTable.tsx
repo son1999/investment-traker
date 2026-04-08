@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useTransactionsStore } from '@/stores/transactions'
 import {
   Pencil,
@@ -15,6 +16,7 @@ function formatVND(amount: number): string {
 }
 
 export default function TransactionTable({ search }: { search: string }) {
+  const { t } = useTranslation()
   const {
     transactions,
     filter,
@@ -27,23 +29,23 @@ export default function TransactionTable({ search }: { search: string }) {
   } = useTransactionsStore()
 
   const filtered = transactions
-    .filter((t) => (filter === 'Tất cả' ? true : t.assetType === filter))
-    .filter((t) => {
+    .filter((transaction) => (filter === t('transactions.all') ? true : transaction.assetType === filter))
+    .filter((transaction) => {
       if (!search) return true
       const q = search.toLowerCase()
       return (
-        t.assetCode.toLowerCase().includes(q) ||
-        t.note.toLowerCase().includes(q)
+        transaction.assetCode.toLowerCase().includes(q) ||
+        transaction.note.toLowerCase().includes(q)
       )
     })
 
-  const allSelected = filtered.length > 0 && filtered.every((t) => selectedIds.includes(t.id))
+  const allSelected = filtered.length > 0 && filtered.every((tx) => selectedIds.includes(tx.id))
 
   const handleSelectAll = () => {
     if (allSelected) {
       deselectAll()
     } else {
-      selectAll(filtered.map((t) => t.id))
+      selectAll(filtered.map((tx) => tx.id))
     }
   }
 
@@ -59,30 +61,30 @@ export default function TransactionTable({ search }: { search: string }) {
               </th>
               <th className="py-4 pl-6 text-left">
                 <button className="flex cursor-pointer items-center gap-1 bg-transparent text-[11px] font-medium uppercase tracking-[1.1px] text-caption">
-                  Ngày
+                  {t('assetDetail.colDate')}
                   <ChevronDown size={10} />
                 </button>
               </th>
               <th className="py-4 pl-12 text-left">
                 <button className="flex cursor-pointer items-center gap-1 bg-transparent text-[11px] font-medium uppercase tracking-[1.1px] text-caption">
-                  Tài sản
+                  {t('dashboard.colAsset')}
                   <ChevronDown size={10} />
                 </button>
               </th>
               <th className="px-6 py-4 text-left text-[11px] font-medium uppercase tracking-[1.1px] text-caption">
-                Loại
+                {t('dashboard.colType')}
               </th>
               <th className="px-6 py-4 text-right text-[11px] font-medium uppercase tracking-[1.1px] text-caption">
-                SL
+                {t('dashboard.colQty')}
               </th>
               <th className="px-6 py-4 text-right text-[11px] font-medium uppercase tracking-[1.1px] text-caption">
-                Đơn giá
+                {t('assetDetail.colUnitPrice')}
               </th>
               <th className="px-6 py-4 text-right text-[11px] font-medium uppercase tracking-[1.1px] text-caption">
-                Tổng tiền
+                {t('transactions.total')}
               </th>
               <th className="px-6 py-4 text-left text-[11px] font-medium uppercase tracking-[1.1px] text-caption">
-                Ghi chú
+                {t('transactions.note')}
               </th>
               <th className="px-6 py-4 text-center text-[11px] font-medium uppercase tracking-[1.1px] text-caption">
                 Actions
@@ -90,57 +92,57 @@ export default function TransactionTable({ search }: { search: string }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((t, idx) => {
-              const isSelected = selectedIds.includes(t.id)
+            {filtered.map((tx, idx) => {
+              const isSelected = selectedIds.includes(tx.id)
               return (
                 <tr
-                  key={t.id}
+                  key={tx.id}
                   className={`${idx > 0 ? 'border-t border-edge-subtle' : ''} transition-colors hover:bg-[rgba(255,255,255,0.02)]`}
                 >
                   <td className="w-16 px-6 py-6">
                     <Checkbox
                       checked={isSelected}
-                      onChange={() => toggleSelect(t.id)}
+                      onChange={() => toggleSelect(tx.id)}
                     />
                   </td>
                   <td className="px-6 py-[22px] font-['JetBrains_Mono'] text-sm text-caption">
-                    {t.date}
+                    {tx.date}
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-2">
                       <div
                         className="flex size-6 items-center justify-center rounded-full text-[10px]"
-                        style={{ backgroundColor: t.iconBg }}
+                        style={{ backgroundColor: tx.iconBg }}
                       >
-                        {t.icon}
+                        {tx.icon}
                       </div>
                       <span className="text-base font-semibold text-heading">
-                        {t.assetCode}
+                        {tx.assetCode}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-6">
-                    {t.action === 'MUA' ? (
+                    {tx.action === 'MUA' ? (
                       <span className="rounded-sm bg-[#1e3a2a] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[-0.5px] text-[#4ade80]">
-                        MUA
+                        {t('common.buy')}
                       </span>
                     ) : (
                       <span className="rounded-sm bg-[rgba(127,41,39,0.2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[-0.5px] text-negative">
-                        BÁN
+                        {t('common.sell')}
                       </span>
                     )}
                   </td>
                   <td className="px-6 py-[22px] text-right font-['JetBrains_Mono'] text-sm text-body">
-                    {t.quantity.toLocaleString('en-US')}
+                    {tx.quantity.toLocaleString('en-US')}
                   </td>
                   <td className="px-6 py-[22px] text-right font-['JetBrains_Mono'] text-sm text-body">
-                    {formatVND(t.unitPrice)}
+                    {formatVND(tx.unitPrice)}
                   </td>
                   <td className="px-6 py-[22px] text-right font-['JetBrains_Mono'] text-sm font-bold text-heading">
-                    {formatVND(t.quantity * t.unitPrice)}
+                    {formatVND(tx.quantity * tx.unitPrice)}
                   </td>
                   <td className="px-6 py-[22px] text-sm text-caption">
-                    {t.note || '—'}
+                    {tx.note || '—'}
                   </td>
                   <td className="px-6 py-[22px]">
                     <div className="flex items-center justify-center gap-3">
@@ -148,7 +150,7 @@ export default function TransactionTable({ search }: { search: string }) {
                         <Pencil size={13} />
                       </button>
                       <button
-                        onClick={() => removeTransaction(t.id)}
+                        onClick={() => removeTransaction(tx.id)}
                         className="cursor-pointer bg-transparent text-caption transition-colors hover:text-negative"
                       >
                         <Trash2 size={13} />
@@ -164,9 +166,9 @@ export default function TransactionTable({ search }: { search: string }) {
         {/* Enhanced pagination footer */}
         <div className="flex items-center justify-between border-t border-edge-subtle bg-panel-alt px-6 py-6">
           <span className="text-sm text-caption">
-            Hiển thị{' '}
+            {t('transactions.showing')}{' '}
             <span className="font-medium text-heading">1-{filtered.length}</span>
-            {' / '}
+            {t('transactions.of')}
             <span className="font-medium text-heading">{transactions.length}</span>
             {' giao dịch'}
           </span>
@@ -213,7 +215,7 @@ export default function TransactionTable({ search }: { search: string }) {
           <div className="flex items-center gap-2">
             <div className="size-2 rounded-full bg-btn" />
             <span className="text-sm font-semibold text-heading">
-              Đã chọn {selectedIds.length} giao dịch
+              {t('transactions.selected', { count: selectedIds.length })}
             </span>
           </div>
           <div className="h-4 w-px bg-[rgba(71,71,78,0.3)]" />
@@ -223,13 +225,13 @@ export default function TransactionTable({ search }: { search: string }) {
               className="flex cursor-pointer items-center gap-2 rounded-xl bg-negative/10 px-4 py-1.5 text-sm font-bold text-negative transition-colors hover:bg-[rgba(238,125,119,0.2)]"
             >
               <Trash2 size={10} />
-              Xóa
+              {t('transactions.delete')}
             </button>
             <button
               onClick={deselectAll}
               className="cursor-pointer rounded-xl border border-edge-strong bg-transparent px-4 py-1.5 text-sm font-bold text-heading transition-colors hover:border-edge-strong"
             >
-              Bỏ chọn
+              {t('transactions.deselect')}
             </button>
           </div>
         </div>

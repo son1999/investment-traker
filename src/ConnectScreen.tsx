@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import iconSvg from '@/assets/icon.svg'
+const logoUrl = '/logo.png'
 
 export default function ConnectScreen() {
   const { projectUrl, anonKey, isConnecting, setProjectUrl, setAnonKey, connect } =
@@ -15,7 +15,7 @@ export default function ConnectScreen() {
         {/* Header */}
         <div className="flex flex-col items-center">
           <div className="flex size-10 items-center justify-center rounded-md border border-edge bg-panel">
-            <img src={iconSvg} alt="" className="size-4" />
+            <img src={logoUrl} alt="" className="size-5" />
           </div>
           <div className="flex flex-col items-center gap-1 pt-4">
             <h1 className="text-xl font-semibold text-heading">Investment Tracker</h1>

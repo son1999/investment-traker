@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next'
 import { useTransactionsStore } from '@/stores/transactions'
 
-const filters = ['Tất cả', 'Vàng', 'Bitcoin', 'Cổ phiếu']
-
 export default function TransactionFilters() {
+  const { t } = useTranslation()
   const { filter, setFilter } = useTransactionsStore()
+
+  const filters = [t('transactions.all'), t('common.metal'), t('common.bitcoin'), t('common.stock')]
 
   return (
     <div className="flex items-center gap-2">
