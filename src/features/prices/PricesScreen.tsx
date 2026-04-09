@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next'
 import PriceForm from './components/PriceForm'
 import PriceTable from './components/PriceTable'
 import QuickUpdate from './components/QuickUpdate'
-import PromoCard from './components/PromoCard'
+import RefreshCard from './components/RefreshCard'
+import LivePriceCard from './components/LivePriceCard'
 
 export default function PricesScreen() {
   const { t } = useTranslation()
@@ -25,8 +26,9 @@ export default function PricesScreen() {
 
         {/* Right column */}
         <div className="col-span-4 flex flex-col gap-8">
+          <RefreshCard />
           <QuickUpdate />
-          <PromoCard />
+          <LivePriceCard />
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 // ── Common ──────────────────────────────────────────────
-export type AssetType = 'metal' | 'crypto' | 'stock'
+export type AssetType = 'metal' | 'crypto' | 'stock' | 'savings'
 export type TransactionAction = 'MUA' | 'BAN'
 export type Period = '1m' | '3m' | '6m' | '1y' | 'all'
 export type AllocationStatus = 'on-target' | 'overweight' | 'underweight'
@@ -78,7 +78,8 @@ export interface CreateTransactionRequest {
   assetCode: string
   action: TransactionAction
   quantity: number
-  unitPrice: number
+  unitPrice?: number
+  totalAmount?: number
   note?: string
   icon: string
   iconBg: string
@@ -167,6 +168,10 @@ export interface Asset {
   currency: string
   icon: string
   iconBg: string
+  interestRate?: number
+  termMonths?: number
+  bankName?: string
+  maturityDate?: string
   createdAt: string
   updatedAt: string
 }
@@ -178,6 +183,10 @@ export interface CreateAssetRequest {
   currency?: string
   icon: string
   iconBg: string
+  interestRate?: number
+  termMonths?: number
+  bankName?: string
+  maturityDate?: string
 }
 
 export interface UpdateAssetRequest {
@@ -185,6 +194,10 @@ export interface UpdateAssetRequest {
   type?: AssetType
   icon?: string
   iconBg?: string
+  interestRate?: number
+  termMonths?: number
+  bankName?: string
+  maturityDate?: string
 }
 
 export interface AssetDetail {
@@ -274,6 +287,7 @@ export interface PerformanceData {
     metal: number[]
     crypto: number[]
     stock: number[]
+    savings: number[]
   }
 }
 
@@ -345,4 +359,24 @@ export interface DCAComparisonData {
     profit: number
     profitPercent: number
   }
+}
+
+// ── CSV Import ─────────────────────────────────────────
+export interface CSVImportResult {
+  successCount: number
+  errorCount: number
+  errors: { row: number; message: string }[]
+}
+
+// ── Price Refresh ──────────────────────────────────────
+export interface PriceRefreshResult {
+  updated: { code: string; type: string; price: number }[]
+  count: number
+}
+
+// ── Live Price ─────────────────────────────────────────
+export interface LivePriceResult {
+  code: string
+  type: string
+  price: number | null
 }

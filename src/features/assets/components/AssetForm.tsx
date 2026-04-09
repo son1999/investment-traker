@@ -12,7 +12,10 @@ interface AssetFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   asset?: Asset | null
-  onSave: (data: { code: string; name: string; type: AssetType; currency?: string; icon: string; iconBg: string }) => void
+  onSave: (data: {
+    code: string; name: string; type: AssetType; currency?: string; icon: string; iconBg: string
+    interestRate?: number; termMonths?: number; bankName?: string; maturityDate?: string
+  }) => void
   isPending: boolean
 }
 
@@ -20,12 +23,14 @@ const defaultIconBgs: Record<AssetType, string> = {
   metal: 'rgba(248,160,16,0.2)',
   crypto: 'rgba(249,115,22,0.15)',
   stock: 'rgba(96,165,250,0.15)',
+  savings: 'rgba(34,197,94,0.15)',
 }
 
 const defaultIcons: Record<AssetType, string> = {
   metal: '🥇',
   crypto: '₿',
   stock: '📈',
+  savings: '🏦',
 }
 
 export default function AssetForm({ open, onOpenChange, asset, onSave, isPending }: AssetFormProps) {
@@ -39,6 +44,10 @@ export default function AssetForm({ open, onOpenChange, asset, onSave, isPending
   const [currency, setCurrency] = useState('VND')
   const [icon, setIcon] = useState('🥇')
   const [iconBg, setIconBg] = useState('rgba(248,160,16,0.2)')
+  const [interestRate, setInterestRate] = useState('')
+  const [termMonths, setTermMonths] = useState('')
+  const [bankName, setBankName] = useState('')
+  const [maturityDate, setMaturityDate] = useState('')
 
   useEffect(() => {
     if (asset) {
@@ -48,6 +57,10 @@ export default function AssetForm({ open, onOpenChange, asset, onSave, isPending
       setCurrency(asset.currency || 'VND')
       setIcon(asset.icon)
       setIconBg(asset.iconBg)
+      setInterestRate(asset.interestRate?.toString() || '')
+      setTermMonths(asset.termMonths?.toString() || '')
+      setBankName(asset.bankName || '')
+      setMaturityDate(asset.maturityDate || '')
     } else {
       setCode('')
       setName('')
@@ -55,6 +68,10 @@ export default function AssetForm({ open, onOpenChange, asset, onSave, isPending
       setCurrency('VND')
       setIcon('🥇')
       setIconBg('rgba(248,160,16,0.2)')
+      setInterestRate('')
+      setTermMonths('')
+      setBankName('')
+      setMaturityDate('')
     }
   }, [asset, open])
 
@@ -68,7 +85,14 @@ export default function AssetForm({ open, onOpenChange, asset, onSave, isPending
 
   const handleSubmit = () => {
     if (!code || !name) return
-    onSave({ code: code.toUpperCase(), name, type, currency, icon, iconBg })
+    const data: Parameters<typeof onSave>[0] = { code: code.toUpperCase(), name, type, currency, icon, iconBg }
+    if (type === 'savings') {
+      if (interestRate) data.interestRate = parseFloat(interestRate)
+      if (termMonths) data.termMonths = parseInt(termMonths)
+      if (bankName) data.bankName = bankName
+      if (maturityDate) data.maturityDate = maturityDate
+    }
+    onSave(data)
   }
 
   const currencyOptions = [
@@ -104,6 +128,7 @@ export default function AssetForm({ open, onOpenChange, asset, onSave, isPending
                   <SelectItem value="metal">{t('common.metal')}</SelectItem>
                   <SelectItem value="crypto">{t('common.crypto')}</SelectItem>
                   <SelectItem value="stock">{t('common.stock')}</SelectItem>
+                  <SelectItem value="savings">{t('common.savings')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -140,6 +165,31 @@ export default function AssetForm({ open, onOpenChange, asset, onSave, isPending
               <Input value={iconBg} onChange={(e) => setIconBg(e.target.value)} placeholder={t('assets.iconBgPlaceholder')} />
             </div>
           </div>
+
+          {type === 'savings' && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label>{t('assets.interestRate')}</Label>
+                  <Input type="number" step="0.1" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} placeholder={t('assets.interestRatePlaceholder')} />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>{t('assets.termMonths')}</Label>
+                  <Input type="number" value={termMonths} onChange={(e) => setTermMonths(e.target.value)} placeholder={t('assets.termMonthsPlaceholder')} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label>{t('assets.bankName')}</Label>
+                  <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder={t('assets.bankNamePlaceholder')} />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>{t('assets.maturityDate')}</Label>
+                  <Input type="date" value={maturityDate} onChange={(e) => setMaturityDate(e.target.value)} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         <DialogFooter>

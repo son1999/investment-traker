@@ -11,6 +11,7 @@ export default function TransactionFilters() {
     { value: 'metal', label: t('common.metal') },
     { value: 'crypto', label: t('common.crypto') },
     { value: 'stock', label: t('common.stock') },
+    { value: 'savings', label: t('common.savings') },
   ]
 
   return (

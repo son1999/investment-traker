@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { Period } from '@/types/api'
 
-const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'common.crypto', stock: 'common.stock' }
+const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'common.crypto', stock: 'common.stock', savings: 'common.savings' }
 function formatVND(v: number): string { return v.toLocaleString('vi-VN') }
 
 export default function AssetDetailScreen() {

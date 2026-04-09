@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import CurrencyForm from './components/CurrencyForm'
 import type { Currency } from '@/types/api'
 
@@ -13,6 +14,7 @@ export default function CurrenciesScreen() {
   const { t } = useTranslation()
   const [formOpen, setFormOpen] = useState(false)
   const [editingCurrency, setEditingCurrency] = useState<Currency | null>(null)
+  const [deleteCode, setDeleteCode] = useState<string | null>(null)
 
   const { data: currencies, isLoading } = useCurrencies()
   const createCurrency = useCreateCurrency()
@@ -36,9 +38,10 @@ export default function CurrenciesScreen() {
     setFormOpen(true)
   }
 
-  const handleDelete = async (code: string) => {
-    if (!confirm(t('currencies.confirmDelete', { code }))) return
-    await deleteCurrency.mutateAsync(code)
+  const handleDelete = async () => {
+    if (!deleteCode) return
+    await deleteCurrency.mutateAsync(deleteCode)
+    setDeleteCode(null)
   }
 
   const handleAdd = () => {
@@ -105,7 +108,7 @@ export default function CurrenciesScreen() {
                         <Button variant="ghost" size="icon-xs" onClick={() => handleEdit(c)}>
                           <Pencil size={14} />
                         </Button>
-                        <Button variant="ghost" size="icon-xs" onClick={() => handleDelete(c.code)}>
+                        <Button variant="ghost" size="icon-xs" onClick={() => setDeleteCode(c.code)}>
                           <Trash2 size={14} className="text-destructive" />
                         </Button>
                       </div>
@@ -124,6 +127,18 @@ export default function CurrenciesScreen() {
         currency={editingCurrency}
         onSave={handleSave}
         isPending={createCurrency.isPending || updateCurrency.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!deleteCode}
+        onOpenChange={(open) => { if (!open) setDeleteCode(null) }}
+        title={t('common.delete')}
+        description={t('currencies.confirmDelete', { code: deleteCode })}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={handleDelete}
+        isPending={deleteCurrency.isPending}
+        variant="danger"
       />
     </div>
   )

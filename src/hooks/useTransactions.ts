@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { transactionsApi } from '@/lib/api'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import type { TransactionFilters, CreateTransactionRequest, Transaction, Paginated } from '@/types/api'
 
 export function useTransactions(filters: TransactionFilters = {}) {
@@ -58,6 +59,27 @@ export function useBulkDeleteTransactions() {
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Xóa giao dịch thất bại')
+    },
+  })
+}
+
+export function useImportCSV() {
+  const qc = useQueryClient()
+  const { t } = useTranslation()
+  return useMutation({
+    mutationFn: (file: File) => transactionsApi.importCSV(file),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+      qc.invalidateQueries({ queryKey: ['portfolio'] })
+      qc.invalidateQueries({ queryKey: ['assets'] })
+      if (data.errorCount > 0) {
+        toast.warning(t('transactions.csvPartial', { success: data.successCount, error: data.errorCount }))
+      } else {
+        toast.success(t('transactions.csvSuccess', { count: data.successCount }))
+      }
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || t('transactions.csvError'))
     },
   })
 }

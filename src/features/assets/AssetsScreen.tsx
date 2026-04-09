@@ -9,10 +9,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import AssetForm from './components/AssetForm'
 import type { Asset, AssetType } from '@/types/api'
 
-const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'common.crypto', stock: 'common.stock' }
+const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'common.crypto', stock: 'common.stock', savings: 'common.savings' }
 
 export default function AssetsScreen() {
   const { t } = useTranslation()
@@ -20,6 +21,7 @@ export default function AssetsScreen() {
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [formOpen, setFormOpen] = useState(false)
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
+  const [deleteCode, setDeleteCode] = useState<string | null>(null)
 
   const { data: assets, isLoading } = useAssets(typeFilter ? typeFilter as AssetType : undefined)
   const createAsset = useCreateAsset()
@@ -28,9 +30,9 @@ export default function AssetsScreen() {
 
   const items = assets || []
 
-  const handleSave = async (data: { code: string; name: string; type: AssetType; currency?: string; icon: string; iconBg: string }) => {
+  const handleSave = async (data: { code: string; name: string; type: AssetType; currency?: string; icon: string; iconBg: string; interestRate?: number; termMonths?: number; bankName?: string; maturityDate?: string }) => {
     if (editingAsset) {
-      await updateAsset.mutateAsync({ code: editingAsset.code, data: { name: data.name, type: data.type, icon: data.icon, iconBg: data.iconBg } })
+      await updateAsset.mutateAsync({ code: editingAsset.code, data: { name: data.name, type: data.type, icon: data.icon, iconBg: data.iconBg, interestRate: data.interestRate, termMonths: data.termMonths, bankName: data.bankName, maturityDate: data.maturityDate } })
     } else {
       await createAsset.mutateAsync(data)
     }
@@ -43,9 +45,10 @@ export default function AssetsScreen() {
     setFormOpen(true)
   }
 
-  const handleDelete = async (code: string) => {
-    if (!confirm(t('assets.confirmDelete', { code }))) return
-    await deleteAsset.mutateAsync(code)
+  const handleDelete = async () => {
+    if (!deleteCode) return
+    await deleteAsset.mutateAsync(deleteCode)
+    setDeleteCode(null)
   }
 
   const handleAdd = () => {
@@ -73,6 +76,7 @@ export default function AssetsScreen() {
             <TabsTrigger value="metal">{t('common.metal')}</TabsTrigger>
             <TabsTrigger value="crypto">{t('common.crypto')}</TabsTrigger>
             <TabsTrigger value="stock">{t('common.stock')}</TabsTrigger>
+            <TabsTrigger value="savings">{t('common.savings')}</TabsTrigger>
           </TabsList>
         </Tabs>
         <span className="text-sm text-muted-foreground">{t('assets.count', { count: items.length })}</span>
@@ -136,7 +140,7 @@ export default function AssetsScreen() {
                         <Button variant="ghost" size="icon-xs" onClick={() => handleEdit(asset)}>
                           <Pencil size={14} />
                         </Button>
-                        <Button variant="ghost" size="icon-xs" onClick={() => handleDelete(asset.code)}>
+                        <Button variant="ghost" size="icon-xs" onClick={() => setDeleteCode(asset.code)}>
                           <Trash2 size={14} className="text-destructive" />
                         </Button>
                       </div>
@@ -155,6 +159,18 @@ export default function AssetsScreen() {
         asset={editingAsset}
         onSave={handleSave}
         isPending={createAsset.isPending || updateAsset.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!deleteCode}
+        onOpenChange={(open) => { if (!open) setDeleteCode(null) }}
+        title={t('assets.deleteAsset')}
+        description={t('assets.confirmDelete', { code: deleteCode })}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={handleDelete}
+        isPending={deleteAsset.isPending}
+        variant="danger"
       />
     </div>
   )

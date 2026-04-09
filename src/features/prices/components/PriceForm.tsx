@@ -37,6 +37,7 @@ export default function PriceForm() {
                 <SelectItem value="metal">{t('common.metal')}</SelectItem>
                 <SelectItem value="crypto">{t('common.crypto')}</SelectItem>
                 <SelectItem value="stock">{t('common.stock')}</SelectItem>
+                <SelectItem value="savings">{t('common.savings')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

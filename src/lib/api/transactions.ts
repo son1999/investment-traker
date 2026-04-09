@@ -4,6 +4,7 @@ import type {
   CreateTransactionRequest,
   TransactionFilters,
   Paginated,
+  CSVImportResult,
 } from '@/types/api'
 
 export async function getTransactions(filters: TransactionFilters = {}): Promise<Paginated<Transaction>> {
@@ -28,5 +29,14 @@ export async function deleteTransaction(id: string): Promise<void> {
 
 export async function bulkDeleteTransactions(ids: string[]): Promise<{ deleted: number }> {
   const res = await client.post<{ data: { deleted: number } }>('/api/transactions/bulk-delete', { ids })
+  return res.data.data
+}
+
+export async function importCSV(file: File): Promise<CSVImportResult> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await client.post<{ data: CSVImportResult }>('/api/transactions/import-csv', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
   return res.data.data
 }

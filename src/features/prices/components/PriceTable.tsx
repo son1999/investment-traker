@@ -1,16 +1,34 @@
 import { useTranslation } from 'react-i18next'
 import { usePrices } from '@/hooks/usePrices'
+import { useAssets } from '@/hooks/useAssets'
+import { useCurrencies } from '@/hooks/useCurrencies'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'common.crypto', stock: 'common.stock' }
+const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'common.crypto', stock: 'common.stock', savings: 'common.savings' }
+
+function formatNum(v: number): string {
+  return v.toLocaleString('vi-VN')
+}
 
 export default function PriceTable() {
   const { t } = useTranslation()
   const { data: prices, isLoading } = usePrices()
+  const { data: assets } = useAssets()
+  const { data: currencies } = useCurrencies()
   const items = prices || []
+
+  // Build lookup maps
+  const assetCurrencyMap: Record<string, string> = {}
+  for (const a of assets || []) {
+    assetCurrencyMap[a.code] = a.currency || 'VND'
+  }
+  const rateMap: Record<string, number> = { VND: 1 }
+  for (const c of currencies || []) {
+    rateMap[c.code] = c.rateToVnd
+  }
 
   if (isLoading) return <Skeleton className="h-64 w-full rounded-lg" />
 
@@ -31,21 +49,42 @@ export default function PriceTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell className="px-6">
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">{p.icon}</span>
-                    <span className="text-base font-bold text-heading">{p.code}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="px-6">
-                  <Badge variant="outline" className="text-[10px] uppercase">{t(typeLabels[p.type] || p.type)}</Badge>
-                </TableCell>
-                <TableCell className="px-6 font-['JetBrains_Mono'] text-base font-bold text-heading">{p.price.toLocaleString('en-US')}</TableCell>
-                <TableCell className="px-6 text-xs text-caption">{new Date(p.updatedAt).toLocaleString('vi-VN')}</TableCell>
-              </TableRow>
-            ))}
+            {items.map((p) => {
+              const currency = assetCurrencyMap[p.code] || 'VND'
+              const rate = rateMap[currency] || 1
+              const isVND = currency === 'VND'
+              const priceInVnd = p.price * rate
+
+              return (
+                <TableRow key={p.id}>
+                  <TableCell className="px-6">
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">{p.icon}</span>
+                      <span className="text-base font-bold text-heading">{p.code}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-6">
+                    <Badge variant="outline" className="text-[10px] uppercase">{t(typeLabels[p.type] || p.type)}</Badge>
+                  </TableCell>
+                  <TableCell className="px-6">
+                    <div className="flex flex-col">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="font-['JetBrains_Mono'] text-base font-bold text-heading">
+                          {formatNum(p.price)}
+                        </span>
+                        <span className="text-xs text-caption">{isVND ? '₫' : currency}</span>
+                      </div>
+                      {!isVND && (
+                        <span className="font-['JetBrains_Mono'] text-xs text-caption">
+                          ≈ {formatNum(Math.round(priceInVnd))} ₫
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-6 text-xs text-caption">{new Date(p.updatedAt).toLocaleString('vi-VN')}</TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </CardContent>
