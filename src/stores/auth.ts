@@ -24,6 +24,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const data = await authApi.login({ email, password })
       localStorage.setItem('itracker-token', data.accessToken)
+      localStorage.setItem('itracker-refresh-token', data.refreshToken)
       localStorage.setItem('itracker-user', JSON.stringify(data.user))
       set({ token: data.accessToken, user: data.user, isLoading: false })
       toast.success('Đăng nhập thành công!')
@@ -42,6 +43,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // ignore
     } finally {
       localStorage.removeItem('itracker-token')
+      localStorage.removeItem('itracker-refresh-token')
       localStorage.removeItem('itracker-user')
       set({ token: null, user: null })
     }

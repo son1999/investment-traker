@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next'
 import { usePrices } from '@/hooks/usePrices'
-import { useAssets } from '@/hooks/useAssets'
 import { useCurrencies } from '@/hooks/useCurrencies'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
@@ -16,15 +15,10 @@ function formatNum(v: number): string {
 export default function PriceTable() {
   const { t } = useTranslation()
   const { data: prices, isLoading } = usePrices()
-  const { data: assets } = useAssets()
   const { data: currencies } = useCurrencies()
   const items = prices || []
 
-  // Build lookup maps
-  const assetCurrencyMap: Record<string, string> = {}
-  for (const a of assets || []) {
-    assetCurrencyMap[a.code] = a.currency || 'VND'
-  }
+  // Build rate lookup
   const rateMap: Record<string, number> = { VND: 1 }
   for (const c of currencies || []) {
     rateMap[c.code] = c.rateToVnd
@@ -50,7 +44,7 @@ export default function PriceTable() {
           </TableHeader>
           <TableBody>
             {items.map((p) => {
-              const currency = assetCurrencyMap[p.code] || 'VND'
+              const currency = p.currency || 'VND'
               const rate = rateMap[currency] || 1
               const isVND = currency === 'VND'
               const priceInVnd = p.price * rate

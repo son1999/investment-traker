@@ -24,8 +24,9 @@ export default function HoldingsTable() {
 
   const items = holdings || []
   const totalValue = items.reduce((s, h) => s + h.value, 0)
-  const totalCost = items.reduce((s, h) => s + h.averageCost * h.quantity, 0)
-  const totalPnlPct = totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : 0
+  const totalPnlAmount = items.reduce((s, h) => s + h.profitLossAmount, 0)
+  const totalCost = totalValue - totalPnlAmount
+  const totalPnlPct = totalCost > 0 ? (totalPnlAmount / totalCost) * 100 : 0
   const totalPositive = totalPnlPct >= 0
 
   if (isLoading) return <Skeleton className="h-[300px] w-full rounded-lg" />

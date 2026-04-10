@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { assetsApi } from '@/lib/api'
 import { toast } from 'sonner'
-import type { AssetDetail, AssetTransaction, Paginated, Period, AssetType, CreateAssetRequest, UpdateAssetRequest, Asset } from '@/types/api'
+import type { AssetDetail, AssetTransaction, AssetTransactionFilters, Paginated, AssetType, CreateAssetRequest, UpdateAssetRequest, Asset } from '@/types/api'
 
 export function useAssets(type?: AssetType) {
   return useQuery<Asset[]>({
@@ -64,7 +64,7 @@ export function useAssetDetail(code: string) {
 
 export function useAssetTransactions(
   code: string,
-  params: { period?: Period; page?: number; limit?: number } = {},
+  params: AssetTransactionFilters = {},
 ) {
   return useQuery<Paginated<AssetTransaction>>({
     queryKey: ['assets', code, 'transactions', params],

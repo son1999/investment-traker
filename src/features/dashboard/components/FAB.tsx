@@ -1,9 +1,13 @@
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router-dom'
+import { useIsGuest } from '@/hooks/useIsGuest'
 
 export default function FAB() {
   const navigate = useNavigate()
+  const isGuest = useIsGuest()
+
+  if (isGuest) return null
 
   return (
     <Button

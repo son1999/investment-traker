@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import AssetForm from './components/AssetForm'
+import { useIsGuest } from '@/hooks/useIsGuest'
 import type { Asset, AssetType } from '@/types/api'
 
 const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'common.crypto', stock: 'common.stock', savings: 'common.savings' }
@@ -18,6 +19,7 @@ const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'com
 export default function AssetsScreen() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const isGuest = useIsGuest()
   const [typeFilter, setTypeFilter] = useState<string>('')
   const [formOpen, setFormOpen] = useState(false)
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null)
@@ -63,10 +65,12 @@ export default function AssetsScreen() {
           <h1 className="text-xl font-semibold text-heading">{t('assets.title')}</h1>
           <p className="text-sm text-caption">{t('assets.subtitle')}</p>
         </div>
-        <Button onClick={handleAdd} size="lg" className="gap-2">
-          <Plus size={14} />
-          {t('assets.addAsset')}
-        </Button>
+        {!isGuest && (
+          <Button onClick={handleAdd} size="lg" className="gap-2">
+            <Plus size={14} />
+            {t('assets.addAsset')}
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center justify-between">
@@ -89,10 +93,12 @@ export default function AssetsScreen() {
           <CardContent className="flex flex-col items-center justify-center gap-4 py-16">
             <Package size={48} className="text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground">{t('assets.noAssets')}</p>
-            <Button onClick={handleAdd} variant="outline" className="gap-2">
-              <Plus size={14} />
-              {t('assets.addAsset')}
-            </Button>
+            {!isGuest && (
+              <Button onClick={handleAdd} variant="outline" className="gap-2">
+                <Plus size={14} />
+                {t('assets.addAsset')}
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -113,7 +119,7 @@ export default function AssetsScreen() {
                   <TableHead>{t('assets.colType')}</TableHead>
                   <TableHead>{t('currencies.code')}</TableHead>
                   <TableHead>{t('assets.colCreated')}</TableHead>
-                  <TableHead className="pr-6 text-right">{t('assets.colActions')}</TableHead>
+                  {!isGuest && <TableHead className="pr-6 text-right">{t('assets.colActions')}</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -135,16 +141,18 @@ export default function AssetsScreen() {
                     </TableCell>
                     <TableCell className="font-['JetBrains_Mono'] text-xs text-muted-foreground">{asset.currency || 'VND'}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{new Date(asset.createdAt).toLocaleDateString('vi-VN')}</TableCell>
-                    <TableCell className="pr-6 text-right">
-                      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon-xs" onClick={() => handleEdit(asset)}>
-                          <Pencil size={14} />
-                        </Button>
-                        <Button variant="ghost" size="icon-xs" onClick={() => setDeleteCode(asset.code)}>
-                          <Trash2 size={14} className="text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {!isGuest && (
+                      <TableCell className="pr-6 text-right">
+                        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon-xs" onClick={() => handleEdit(asset)}>
+                            <Pencil size={14} />
+                          </Button>
+                          <Button variant="ghost" size="icon-xs" onClick={() => setDeleteCode(asset.code)}>
+                            <Trash2 size={14} className="text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

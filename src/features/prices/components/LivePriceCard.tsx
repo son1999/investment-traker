@@ -10,16 +10,17 @@ export default function LivePriceCard() {
   const { t } = useTranslation()
   const { data: holdings } = useHoldings()
   const [selectedCode, setSelectedCode] = useState('')
-  const [selectedType, setSelectedType] = useState<'crypto' | 'stock'>('crypto')
+  const [selectedType, setSelectedType] = useState<'crypto' | 'stock' | 'metal'>('crypto')
 
   const liveableAssets = (holdings || []).filter(
-    (h) => h.assetType === 'crypto' || h.assetType === 'stock',
+    (h) => h.assetType === 'crypto' || h.assetType === 'stock' || h.assetType === 'metal',
   )
 
-  const handleSelect = (code: string) => {
+  const handleSelect = (code: string | null) => {
+    if (!code) return;
     setSelectedCode(code)
     const asset = liveableAssets.find((a) => a.assetCode === code)
-    if (asset) setSelectedType(asset.assetType as 'crypto' | 'stock')
+    if (asset) setSelectedType(asset.assetType as 'crypto' | 'stock' | 'metal')
   }
 
   const { data: livePrice, isLoading, isFetching } = useLivePrice(selectedCode, selectedType)
@@ -54,7 +55,9 @@ export default function LivePriceCard() {
               <Loader2 size={16} className="animate-spin text-caption" />
             ) : livePrice?.price != null ? (
               <span className="font-['JetBrains_Mono'] text-lg font-bold text-heading">
-                {livePrice.price.toLocaleString('vi-VN')} ₫
+                {livePrice.currency === 'VND'
+                  ? livePrice.price.toLocaleString('vi-VN') + ' ₫'
+                  : livePrice.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 }) + ' ' + livePrice.currency}
               </span>
             ) : (
               <span className="text-sm text-caption">{t('prices.livePriceUnavailable')}</span>

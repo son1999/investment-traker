@@ -6,12 +6,14 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useIsGuest } from '@/hooks/useIsGuest'
 import type { AssetType } from '@/types/api'
 
 const typeIcons: Record<string, string> = { metal: '✨', crypto: '₿', stock: '📈' }
 
 export default function PriceForm() {
   const { t } = useTranslation()
+  const isGuest = useIsGuest()
   const createPrice = useCreateOrUpdatePrice()
   const [assetType, setAssetType] = useState<AssetType>('metal')
   const [assetCode, setAssetCode] = useState('')
@@ -23,6 +25,8 @@ export default function PriceForm() {
     await createPrice.mutateAsync({ code: assetCode.toUpperCase(), icon: typeIcons[assetType] || '💰', type: assetType, price: p })
     setAssetCode(''); setPrice('')
   }
+
+  if (isGuest) return null
 
   return (
     <Card className="border-edge shadow-sm">

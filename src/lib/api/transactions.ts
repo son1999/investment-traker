@@ -2,6 +2,7 @@ import client from './client'
 import type {
   Transaction,
   CreateTransactionRequest,
+  UpdateTransactionRequest,
   TransactionFilters,
   Paginated,
   CSVImportResult,
@@ -20,6 +21,11 @@ export async function getRecentTransactions(limit = 4): Promise<Transaction[]> {
 
 export async function createTransaction(data: CreateTransactionRequest): Promise<Transaction> {
   const res = await client.post<{ data: Transaction }>('/api/transactions', data)
+  return res.data.data
+}
+
+export async function updateTransaction(id: string, data: UpdateTransactionRequest): Promise<Transaction> {
+  const res = await client.patch<{ data: Transaction }>(`/api/transactions/${id}`, data)
   return res.data.data
 }
 

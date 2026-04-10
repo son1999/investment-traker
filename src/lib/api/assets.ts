@@ -1,5 +1,5 @@
 import client from './client'
-import type { Asset, CreateAssetRequest, UpdateAssetRequest, AssetDetail, AssetTransaction, Paginated, Period, AssetType } from '@/types/api'
+import type { Asset, CreateAssetRequest, UpdateAssetRequest, AssetDetail, AssetTransaction, AssetTransactionFilters, Paginated, AssetType } from '@/types/api'
 
 export async function getAssets(type?: AssetType): Promise<Asset[]> {
   const params = type ? { type } : {}
@@ -28,7 +28,7 @@ export async function getAssetDetail(code: string): Promise<AssetDetail> {
 
 export async function getAssetTransactions(
   code: string,
-  params: { period?: Period; page?: number; limit?: number } = {},
+  params: AssetTransactionFilters = {},
 ): Promise<Paginated<AssetTransaction>> {
   const res = await client.get<Paginated<AssetTransaction>>(`/api/assets/${code}/transactions`, { params })
   return res.data

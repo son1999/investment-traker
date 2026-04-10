@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { reportsApi } from '@/lib/api'
+import { toast } from 'sonner'
 import type {
   Period,
   PerformanceData,
@@ -10,6 +11,7 @@ import type {
   DCAChartData,
   DCAHistoryEntry,
   DCAComparisonData,
+  ReportExportParams,
 } from '@/types/api'
 
 export function usePerformance(period?: Period) {
@@ -68,5 +70,23 @@ export function useDCAComparison(code: string) {
     queryKey: ['reports', 'dca-comparison', code],
     queryFn: () => reportsApi.getDCAComparison(code),
     enabled: !!code,
+  })
+}
+
+export function useExportReport() {
+  return useMutation({
+    mutationFn: (params: ReportExportParams) => reportsApi.exportReport(params),
+    onSuccess: (blob, params) => {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `report.${params.format}`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('Đã xuất báo cáo')
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Xuất báo cáo thất bại')
+    },
   })
 }

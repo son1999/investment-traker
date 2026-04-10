@@ -9,15 +9,31 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useIsGuest } from '@/hooks/useIsGuest'
 import type { Period } from '@/types/api'
 
 const typeLabels: Record<string, string> = { metal: 'common.metal', crypto: 'common.crypto', stock: 'common.stock', savings: 'common.savings' }
-function formatVND(v: number): string { return v.toLocaleString('vi-VN') }
+
+function formatAmount(v: number, currency: string): string {
+  if (currency === 'VND') return v.toLocaleString('vi-VN') + ' ₫'
+  return v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 }) + ' ' + currency
+}
+
+function formatNumber(v: number, currency: string): string {
+  if (currency === 'VND') return v.toLocaleString('vi-VN')
+  return v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 })
+}
+
+function currencySymbol(currency: string): string {
+  if (currency === 'VND') return '₫'
+  return currency
+}
 
 export default function AssetDetailScreen() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { code } = useParams<{ code: string }>()
+  const isGuest = useIsGuest()
   const [period, setPeriod] = useState<Period>('1y')
 
   const { data: asset, isLoading } = useAssetDetail(code || '')
@@ -36,11 +52,13 @@ export default function AssetDetailScreen() {
   }
 
   const { holdings, avgCost, currentPrice, profit } = asset.metrics
+  const cur = asset.currency || 'VND'
+  const curSym = currencySymbol(cur)
   const metrics = [
     { label: t('assetDetail.holdings'), value: String(holdings.quantity), unit: holdings.unit, sub: holdings.detail, border: '#454747' },
-    { label: t('assetDetail.avgCost'), value: formatVND(avgCost.value), unit: '₫', sub: `${t('assetDetail.totalCostLabel')}: ${formatVND(asset.unrealizedPnl.totalCost)} ₫`, border: '#454747' },
-    { label: t('assetDetail.currentPrice'), value: formatVND(currentPrice.value), unit: '₫', sub: currentPrice.updatedAt ? new Date(currentPrice.updatedAt).toLocaleString('vi-VN') : '', border: '#f8a010', hasRefresh: true },
-    { label: t('assetDetail.profit'), value: (profit.positive ? '+' : '') + formatVND(profit.amount), unit: '₫', sub: `${profit.positive ? '+' : ''}${profit.percent.toFixed(2)}%`, border: '#22c55e', isProfit: true },
+    { label: t('assetDetail.avgCost'), value: formatNumber(avgCost.value, cur), unit: curSym, sub: `${t('assetDetail.totalCostLabel')}: ${formatAmount(asset.unrealizedPnl.totalCost, cur)}`, border: '#454747' },
+    { label: t('assetDetail.currentPrice'), value: formatNumber(currentPrice.value, cur), unit: curSym, sub: currentPrice.updatedAt ? new Date(currentPrice.updatedAt).toLocaleString('vi-VN') : '', border: '#f8a010', hasRefresh: true },
+    { label: t('assetDetail.profit'), value: (profit.positive ? '+' : '') + formatNumber(profit.amount, cur), unit: curSym, sub: `${profit.positive ? '+' : ''}${profit.percent.toFixed(2)}%`, border: profit.positive ? '#22c55e' : '#ef4444', isProfit: true, profitPositive: profit.positive },
   ]
 
   const txRows = txRes?.data || []
@@ -69,11 +87,13 @@ export default function AssetDetailScreen() {
         <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2 text-caption">
           <ArrowLeft size={13} />{t('assetDetail.back')}
         </Button>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">{t('assetDetail.updatePrice')}</Button>
-          <Button size="sm" className="gap-2"><Plus size={11} />{t('assetDetail.addTransaction')}</Button>
-          <Button variant="ghost" size="icon-sm"><MoreVertical size={16} /></Button>
-        </div>
+        {!isGuest && (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm">{t('assetDetail.updatePrice')}</Button>
+            <Button size="sm" className="gap-2"><Plus size={11} />{t('assetDetail.addTransaction')}</Button>
+            <Button variant="ghost" size="icon-sm"><MoreVertical size={16} /></Button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-10">
@@ -98,12 +118,12 @@ export default function AssetDetailScreen() {
               <CardContent className="flex flex-col gap-2 p-0">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-caption">{m.label}</span>
                 <div className="flex items-baseline gap-1 pt-1">
-                  <span className={`font-['JetBrains_Mono'] text-xl font-semibold ${m.isProfit ? 'text-positive' : 'text-heading'}`}>{m.value}</span>
-                  <span className={`font-['JetBrains_Mono'] text-sm ${m.isProfit ? 'text-positive/70' : 'text-caption'}`}>{m.unit}</span>
+                  <span className={`font-['JetBrains_Mono'] text-xl font-semibold ${m.isProfit ? (m.profitPositive ? 'text-positive' : 'text-destructive') : 'text-heading'}`}>{m.value}</span>
+                  <span className={`font-['JetBrains_Mono'] text-sm ${m.isProfit ? (m.profitPositive ? 'text-positive/70' : 'text-destructive/70') : 'text-caption'}`}>{m.unit}</span>
                   {m.hasRefresh && <ExternalLink size={9} className="ml-1 text-caption" />}
                 </div>
                 {m.isProfit
-                  ? <Badge variant="secondary" className="w-fit bg-positive/10 text-[10px] font-bold text-positive">{m.sub}</Badge>
+                  ? <Badge variant="secondary" className={`w-fit text-[10px] font-bold ${m.profitPositive ? 'bg-positive/10 text-positive' : 'bg-destructive/10 text-destructive'}`}>{m.sub}</Badge>
                   : <span className="text-xs text-muted-foreground">{m.sub}</span>
                 }
               </CardContent>
@@ -142,7 +162,7 @@ export default function AssetDetailScreen() {
           <Card style={{ borderLeft: '2px solid rgba(34,197,94,0.3)' }}>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle className="text-sm uppercase tracking-wider text-caption">{t('assetDetail.realizedPnl')}</CardTitle>
-              <span className="font-['JetBrains_Mono'] text-lg font-bold text-positive">{asset.realizedPnl.total >= 0 ? '+' : ''}{formatVND(asset.realizedPnl.total)} ₫</span>
+              <span className="font-['JetBrains_Mono'] text-lg font-bold text-positive">{asset.realizedPnl.total >= 0 ? '+' : ''}{formatAmount(asset.realizedPnl.total, cur)}</span>
             </CardHeader>
             <CardContent className="p-0 px-6 pb-6">
               <Table>
@@ -152,7 +172,7 @@ export default function AssetDetailScreen() {
                     <TableRow key={i}>
                       <TableCell className="text-xs">{new Date(rpnl.date).toLocaleDateString('vi-VN')}</TableCell>
                       <TableCell className="font-['JetBrains_Mono'] text-xs">{rpnl.quantity} {asset.assetCode}</TableCell>
-                      <TableCell className={`text-right font-['JetBrains_Mono'] text-xs ${rpnl.profit >= 0 ? 'text-positive' : 'text-destructive'}`}>{rpnl.profit >= 0 ? '+' : ''}{formatVND(rpnl.profit)} ₫</TableCell>
+                      <TableCell className={`text-right font-['JetBrains_Mono'] text-xs ${rpnl.profit >= 0 ? 'text-positive' : 'text-destructive'}`}>{rpnl.profit >= 0 ? '+' : ''}{formatAmount(rpnl.profit, cur)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -163,11 +183,11 @@ export default function AssetDetailScreen() {
           <Card style={{ borderLeft: '2px solid rgba(248,160,16,0.3)' }}>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle className="text-sm uppercase tracking-wider text-caption">{t('assetDetail.unrealizedPnl')}</CardTitle>
-              <span className={`font-['JetBrains_Mono'] text-lg font-bold ${asset.unrealizedPnl.total >= 0 ? 'text-positive' : 'text-destructive'}`}>{asset.unrealizedPnl.total >= 0 ? '+' : ''}{formatVND(asset.unrealizedPnl.total)} ₫</span>
+              <span className={`font-['JetBrains_Mono'] text-lg font-bold ${asset.unrealizedPnl.total >= 0 ? 'text-positive' : 'text-destructive'}`}>{asset.unrealizedPnl.total >= 0 ? '+' : ''}{formatAmount(asset.unrealizedPnl.total, cur)}</span>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b pb-2"><span className="text-xs text-caption">{t('assetDetail.currentValue')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatVND(asset.unrealizedPnl.currentValue)} ₫</span></div>
-              <div className="flex items-center justify-between border-b pb-2"><span className="text-xs text-caption">{t('assetDetail.totalCost')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatVND(asset.unrealizedPnl.totalCost)} ₫</span></div>
+              <div className="flex items-center justify-between border-b pb-2"><span className="text-xs text-caption">{t('assetDetail.currentValue')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatAmount(asset.unrealizedPnl.currentValue, cur)}</span></div>
+              <div className="flex items-center justify-between border-b pb-2"><span className="text-xs text-caption">{t('assetDetail.totalCost')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatAmount(asset.unrealizedPnl.totalCost, cur)}</span></div>
             </CardContent>
           </Card>
         </div>
@@ -201,8 +221,8 @@ export default function AssetDetailScreen() {
                       </Badge>
                     </TableCell>
                     <TableCell className="font-['JetBrains_Mono'] text-sm">{row.quantity}</TableCell>
-                    <TableCell className="font-['JetBrains_Mono'] text-sm">{formatVND(row.unitPrice)}</TableCell>
-                    <TableCell className="font-['JetBrains_Mono'] text-sm">{formatVND(row.total)}</TableCell>
+                    <TableCell className="font-['JetBrains_Mono'] text-sm">{formatAmount(row.unitPrice, cur)}</TableCell>
+                    <TableCell className="font-['JetBrains_Mono'] text-sm">{formatAmount(row.total, cur)}</TableCell>
                     <TableCell className="text-sm italic text-caption">{row.note || '—'}</TableCell>
                     <TableCell className="pr-8 text-right">
                       <Button variant="ghost" size="icon-xs"><Pencil size={14} /></Button>

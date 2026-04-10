@@ -8,10 +8,12 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import CurrencyForm from './components/CurrencyForm'
+import { useIsGuest } from '@/hooks/useIsGuest'
 import type { Currency } from '@/types/api'
 
 export default function CurrenciesScreen() {
   const { t } = useTranslation()
+  const isGuest = useIsGuest()
   const [formOpen, setFormOpen] = useState(false)
   const [editingCurrency, setEditingCurrency] = useState<Currency | null>(null)
   const [deleteCode, setDeleteCode] = useState<string | null>(null)
@@ -56,10 +58,12 @@ export default function CurrenciesScreen() {
           <h1 className="text-xl font-semibold text-heading">{t('currencies.title')}</h1>
           <p className="text-sm text-caption">{t('currencies.subtitle')}</p>
         </div>
-        <Button onClick={handleAdd} size="lg" className="gap-2">
-          <Plus size={14} />
-          {t('currencies.addCurrency')}
-        </Button>
+        {!isGuest && (
+          <Button onClick={handleAdd} size="lg" className="gap-2">
+            <Plus size={14} />
+            {t('currencies.addCurrency')}
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
@@ -69,10 +73,12 @@ export default function CurrenciesScreen() {
           <CardContent className="flex flex-col items-center justify-center gap-4 py-16">
             <Coins size={48} className="text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground">{t('currencies.noCurrencies')}</p>
-            <Button onClick={handleAdd} variant="outline" className="gap-2">
-              <Plus size={14} />
-              {t('currencies.addCurrency')}
-            </Button>
+            {!isGuest && (
+              <Button onClick={handleAdd} variant="outline" className="gap-2">
+                <Plus size={14} />
+                {t('currencies.addCurrency')}
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -92,7 +98,7 @@ export default function CurrenciesScreen() {
                   <TableHead>{t('currencies.colSymbol')}</TableHead>
                   <TableHead className="text-right">{t('currencies.colRate')}</TableHead>
                   <TableHead>{t('currencies.colUpdated')}</TableHead>
-                  <TableHead className="pr-6 text-right">{t('currencies.colActions')}</TableHead>
+                  {!isGuest && <TableHead className="pr-6 text-right">{t('currencies.colActions')}</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -103,16 +109,18 @@ export default function CurrenciesScreen() {
                     <TableCell className="text-lg">{c.symbol}</TableCell>
                     <TableCell className="text-right font-['JetBrains_Mono'] text-sm font-bold text-heading">{c.rateToVnd.toLocaleString('vi-VN')}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{new Date(c.updatedAt).toLocaleDateString('vi-VN')}</TableCell>
-                    <TableCell className="pr-6 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="icon-xs" onClick={() => handleEdit(c)}>
-                          <Pencil size={14} />
-                        </Button>
-                        <Button variant="ghost" size="icon-xs" onClick={() => setDeleteCode(c.code)}>
-                          <Trash2 size={14} className="text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    {!isGuest && (
+                      <TableCell className="pr-6 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="icon-xs" onClick={() => handleEdit(c)}>
+                            <Pencil size={14} />
+                          </Button>
+                          <Button variant="ghost" size="icon-xs" onClick={() => setDeleteCode(c.code)}>
+                            <Trash2 size={14} className="text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

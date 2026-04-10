@@ -9,12 +9,14 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { useCurrentAllocation, useAllocationRecommendation, useSetAllocationTargets } from '@/hooks/useAllocation'
+import { useIsGuest } from '@/hooks/useIsGuest'
 import type { AssetType } from '@/types/api'
 
 const statusColors: Record<string, string> = { metal: '#ffb148', crypto: '#f7931a', stock: 'var(--btn)' }
 
 export default function AllocationScreen() {
   const { t } = useTranslation()
+  const isGuest = useIsGuest()
   const { data: allocations } = useCurrentAllocation()
   const { data: recommendation } = useAllocationRecommendation()
   const setTargetsMut = useSetAllocationTargets()
@@ -117,34 +119,36 @@ export default function AllocationScreen() {
           </Card>
 
           {/* Target form */}
-          <Card className="border-edge">
-            <CardHeader className="flex-row items-center gap-2">
-              <Settings size={17} className="text-caption" />
-              <CardTitle className="text-sm uppercase tracking-wider">{t('allocation.setTarget')}</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-6">
-              <div className="grid grid-cols-3 gap-6">
-                {(['metal', 'crypto', 'stock'] as const).map((key) => (
-                  <div key={key} className="flex flex-col gap-2">
-                    <Label className="text-[11px] uppercase tracking-wider text-dim">{t(`common.${key}`)} (%)</Label>
-                    <Input value={targets[key]} onChange={(e) => setTargets((p) => ({ ...p, [key]: e.target.value }))} className="h-12 font-['JetBrains_Mono'] text-base" />
-                  </div>
-                ))}
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 size={14} className="text-muted-foreground" />
-                  <span className="text-[13px] text-muted-foreground">
-                    {t('allocation.totalAllocation')}: {total}% {total === 100 ? `(${t('allocation.valid')})` : `(${t('allocation.invalid')})`}
-                  </span>
+          {!isGuest && (
+            <Card className="border-edge">
+              <CardHeader className="flex-row items-center gap-2">
+                <Settings size={17} className="text-caption" />
+                <CardTitle className="text-sm uppercase tracking-wider">{t('allocation.setTarget')}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-6">
+                <div className="grid grid-cols-3 gap-6">
+                  {(['metal', 'crypto', 'stock'] as const).map((key) => (
+                    <div key={key} className="flex flex-col gap-2">
+                      <Label className="text-[11px] uppercase tracking-wider text-dim">{t(`common.${key}`)} (%)</Label>
+                      <Input value={targets[key]} onChange={(e) => setTargets((p) => ({ ...p, [key]: e.target.value }))} className="h-12 font-['JetBrains_Mono'] text-base" />
+                    </div>
+                  ))}
                 </div>
-                <Button onClick={handleSave} disabled={setTargetsMut.isPending || total !== 100}>
-                  {setTargetsMut.isPending ? '...' : t('allocation.saveChanges')}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={14} className="text-muted-foreground" />
+                    <span className="text-[13px] text-muted-foreground">
+                      {t('allocation.totalAllocation')}: {total}% {total === 100 ? `(${t('allocation.valid')})` : `(${t('allocation.invalid')})`}
+                    </span>
+                  </div>
+                  <Button onClick={handleSave} disabled={setTargetsMut.isPending || total !== 100}>
+                    {setTargetsMut.isPending ? '...' : t('allocation.saveChanges')}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Recommendation */}
           <Alert className="border-l-4 border-l-gold bg-muted/40">

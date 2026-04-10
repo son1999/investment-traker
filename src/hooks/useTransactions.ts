@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { transactionsApi } from '@/lib/api'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import type { TransactionFilters, CreateTransactionRequest, Transaction, Paginated } from '@/types/api'
+import type { TransactionFilters, CreateTransactionRequest, UpdateTransactionRequest, Transaction, Paginated } from '@/types/api'
 
 export function useTransactions(filters: TransactionFilters = {}) {
   return useQuery<Paginated<Transaction>>({
@@ -29,6 +29,22 @@ export function useCreateTransaction() {
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Tạo giao dịch thất bại')
+    },
+  })
+}
+
+export function useUpdateTransaction() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateTransactionRequest }) => transactionsApi.updateTransaction(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['transactions'] })
+      qc.invalidateQueries({ queryKey: ['portfolio'] })
+      qc.invalidateQueries({ queryKey: ['assets'] })
+      toast.success('Đã cập nhật giao dịch')
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Cập nhật giao dịch thất bại')
     },
   })
 }

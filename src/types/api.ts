@@ -44,6 +44,7 @@ export interface UpdateCurrencyRequest {
 export interface User {
   id: string
   email: string
+  isGuest?: boolean
 }
 
 export interface LoginRequest {
@@ -85,6 +86,15 @@ export interface CreateTransactionRequest {
   iconBg: string
 }
 
+export interface UpdateTransactionRequest {
+  date?: string
+  action?: TransactionAction
+  quantity?: number
+  unitPrice?: number
+  totalAmount?: number
+  note?: string
+}
+
 export interface TransactionFilters {
   filter?: AssetType
   search?: string
@@ -99,6 +109,7 @@ export interface PriceEntry {
   icon: string
   type: AssetType
   price: number
+  currency: string
   updatedAt: string
 }
 
@@ -107,6 +118,7 @@ export interface CreatePriceRequest {
   icon: string
   type: AssetType
   price: number
+  currency?: string
 }
 
 // ── Portfolio ───────────────────────────────────────────
@@ -129,7 +141,7 @@ export interface Holding {
   quantity: number
   averageCost: number
   currentPrice: number
-  currency?: string
+  currency: string
   value: number
   profitLossPercent: number
   profitLossAmount: number
@@ -203,6 +215,7 @@ export interface UpdateAssetRequest {
 export interface AssetDetail {
   assetCode: string
   assetType: AssetType
+  currency: string
   icon: string
   iconBg: string
   metrics: {
@@ -243,6 +256,17 @@ export interface RealizedPnlTx {
   quantity: number
   sellPrice: number
   profit: number
+}
+
+export interface AssetTransactionFilters {
+  period?: Period
+  action?: TransactionAction
+  fromDate?: string
+  toDate?: string
+  minPrice?: number
+  maxPrice?: number
+  page?: number
+  limit?: number
 }
 
 export interface AssetTransaction {
@@ -371,6 +395,7 @@ export interface CSVImportResult {
 // ── Price Refresh ──────────────────────────────────────
 export interface PriceRefreshResult {
   updated: { code: string; type: string; price: number }[]
+  exchangeRates: { code: string; rate: number }[]
   count: number
 }
 
@@ -379,4 +404,11 @@ export interface LivePriceResult {
   code: string
   type: string
   price: number | null
+  currency: string
+}
+
+// ── Report Export ──────────────────────────────────────
+export interface ReportExportParams {
+  format: 'csv' | 'pdf'
+  period?: Period
 }

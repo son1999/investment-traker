@@ -58,11 +58,11 @@ export function useRefreshAllPrices() {
   })
 }
 
-export function useLivePrice(code: string, type: 'crypto' | 'stock') {
+export function useLivePrice(code: string, type: 'crypto' | 'stock' | 'metal') {
   return useQuery<LivePriceResult>({
     queryKey: ['prices', 'live', code, type],
     queryFn: () => pricesApi.getLivePrice(code, type),
-    enabled: !!code && (type === 'crypto' || type === 'stock'),
+    enabled: !!code && (type === 'crypto' || type === 'stock' || type === 'metal'),
     staleTime: 5 * 60 * 1000,
   })
 }

@@ -22,7 +22,7 @@ export async function refreshAllPrices(): Promise<PriceRefreshResult> {
   return res.data.data
 }
 
-export async function getLivePrice(code: string, type: 'crypto' | 'stock'): Promise<LivePriceResult> {
+export async function getLivePrice(code: string, type: 'crypto' | 'stock' | 'metal'): Promise<LivePriceResult> {
   const res = await client.get<{ data: LivePriceResult }>(`/api/prices/${code}/live`, { params: { type } })
   return res.data.data
 }

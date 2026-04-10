@@ -9,6 +9,7 @@ import type {
   DCAHistoryEntry,
   DCAComparisonData,
   Period,
+  ReportExportParams,
 } from '@/types/api'
 
 export async function getPerformance(period?: Period): Promise<PerformanceData> {
@@ -49,4 +50,12 @@ export async function getDCAHistory(code: string): Promise<DCAHistoryEntry[]> {
 export async function getDCAComparison(code: string): Promise<DCAComparisonData> {
   const res = await client.get<{ data: DCAComparisonData }>('/api/reports/dca-comparison', { params: { code } })
   return res.data.data
+}
+
+export async function exportReport(params: ReportExportParams): Promise<Blob> {
+  const res = await client.get('/api/reports/export', {
+    params,
+    responseType: 'blob',
+  })
+  return res.data
 }
