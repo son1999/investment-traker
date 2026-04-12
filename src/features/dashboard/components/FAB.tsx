@@ -13,7 +13,7 @@ export default function FAB() {
     <Button
       size="icon-lg"
       onClick={() => navigate('/transactions')}
-      className="fixed bottom-8 right-8 z-50 size-14 rounded-xl shadow-lg"
+      className="fixed bottom-4 right-4 z-50 size-12 rounded-xl shadow-lg sm:bottom-8 sm:right-8 sm:size-14"
     >
       <Plus size={16} />
     </Button>

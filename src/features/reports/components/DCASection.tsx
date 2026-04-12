@@ -15,17 +15,13 @@ export default function DCASection() {
   const [selectedCode, setSelectedCode] = useState('')
 
   const assetCodes = summary?.assetCodes || []
-
-  // Auto-select first asset if none selected
-  if (!selectedCode && assetCodes.length > 0 && assetCodes[0] !== selectedCode) {
-    setSelectedCode(assetCodes[0])
-  }
+  const activeCode = selectedCode || assetCodes[0] || ''
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex min-w-0 flex-col gap-6">
       {/* Section header with asset selector */}
-      <Card className="border-edge">
-        <CardHeader className="flex-row items-center justify-between">
+      <Card className="border-border">
+        <CardHeader className="flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
               <TrendingUp size={18} className="text-primary" />
@@ -36,10 +32,10 @@ export default function DCASection() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
             <span className="text-sm text-muted-foreground">{t('reports.asset')}:</span>
-            <Select value={selectedCode} onValueChange={(v) => v && setSelectedCode(v)}>
-              <SelectTrigger className="w-36">
+            <Select value={activeCode} onValueChange={(v) => v && setSelectedCode(v)}>
+              <SelectTrigger className="w-full sm:w-36">
                 <SelectValue placeholder={t('reports.asset')} />
               </SelectTrigger>
               <SelectContent>
@@ -52,14 +48,14 @@ export default function DCASection() {
         </CardHeader>
       </Card>
 
-      {selectedCode ? (
+      {activeCode ? (
         <>
-          <DCAHeroChart code={selectedCode} />
-          <DCAComparison code={selectedCode} />
+          <DCAHeroChart code={activeCode} />
+          <DCAComparison code={activeCode} />
 
           <Separator />
 
-          <DCAHistory code={selectedCode} />
+          <DCAHistory code={activeCode} />
         </>
       ) : (
         <Card className="border-dashed">

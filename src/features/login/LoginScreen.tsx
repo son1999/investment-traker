@@ -1,13 +1,17 @@
 import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Eye, EyeOff } from 'lucide-react'
+
+import { FormField, SectionCard } from '@/components/app'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-const logoUrl = '/logo.png'
-import { Eye, EyeOff } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
+
+const logoUrl = '/logo.png'
 
 export default function LoginScreen() {
   const navigate = useNavigate()
@@ -17,9 +21,10 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false)
   const { login, isLoading, error } = useAuthStore()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
     if (!email || !password) return
+
     try {
       await login(email, password)
       navigate('/dashboard')
@@ -29,73 +34,84 @@ export default function LoginScreen() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-page px-6">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
       <div className="flex w-full max-w-[400px] flex-col items-center">
-        <div className="flex flex-col items-center">
-          <div className="flex size-10 items-center justify-center rounded-md border border-edge bg-panel">
+        <div className="flex flex-col items-center text-center">
+          <div className="flex size-12 items-center justify-center rounded-xl border bg-card shadow-sm">
             <img src={logoUrl} alt="" className="size-8" />
           </div>
           <div className="flex flex-col items-center gap-1 pt-4">
-            <h1 className="text-xl font-semibold text-heading">{t('login.title')}</h1>
-            <p className="text-sm text-caption">{t('login.subtitle')}</p>
+            <h1 className="text-2xl font-semibold tracking-tight">{t('login.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('login.subtitle')}</p>
           </div>
         </div>
 
-        <Card className="mt-8 w-full border-edge bg-panel">
-          <CardHeader className="px-6 pt-6 pb-0">
-            <CardTitle className="text-sm font-medium text-heading">{t('login.heading')}</CardTitle>
-            <CardDescription className="text-sm text-caption">{t('login.description')}</CardDescription>
-          </CardHeader>
-          <CardContent className="px-6 pt-5 pb-6">
-            <form onSubmit={handleLogin} className="flex flex-col gap-4">
-              {error && (
-                <div className="rounded-md bg-negative/10 px-3 py-2 text-sm text-negative">
-                  {error}
-                </div>
-              )}
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-sm text-label">{t('login.email')}</Label>
+        <SectionCard
+          title={t('login.heading')}
+          description={t('login.description')}
+          className="mt-8 w-full"
+          contentClassName="space-y-0"
+        >
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            {error ? (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+
+            <FormField label={t('login.email')}>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t('login.emailPlaceholder')}
+                className="h-10"
+              />
+            </FormField>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <Label htmlFor="password">{t('login.password')}</Label>
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="h-auto shrink-0 px-0 py-0 text-xs"
+                >
+                  {t('login.forgotPassword')}
+                </Button>
+              </div>
+
+              <div className="relative">
                 <Input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t('login.emailPlaceholder')}
-                  className="h-9 border-edge bg-field text-sm text-heading placeholder:text-dim"
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t('login.passwordPlaceholder')}
+                  className="h-10 pr-10"
                 />
+                <Button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  variant="ghost"
+                  size="icon-xs"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                >
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </Button>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm text-label">{t('login.password')}</Label>
-                  <button type="button" className="cursor-pointer bg-transparent text-xs text-caption transition-colors hover:text-label">
-                    {t('login.forgotPassword')}
-                  </button>
-                </div>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={t('login.passwordPlaceholder')}
-                    className="h-9 border-edge bg-field pr-10 text-sm text-heading placeholder:text-dim"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer bg-transparent text-dim transition-colors hover:text-label"
-                  >
-                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                </div>
-              </div>
-              <Button type="submit" disabled={isLoading} className="mt-1 h-9 w-full cursor-pointer bg-btn text-sm font-medium text-on-btn hover:bg-btn-hover">
-                {isLoading ? t('login.submitting') : t('login.submit')}
-              </Button>
-            </form>
+            </div>
 
-          </CardContent>
-        </Card>
+            <Button type="submit" disabled={isLoading} className="mt-1 h-10 w-full">
+              {isLoading ? t('login.submitting') : t('login.submit')}
+            </Button>
+          </form>
+        </SectionCard>
 
-        <p className="mt-10 text-xs text-dim">{t('app.brand')} &middot; {t('app.version')}</p>
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          {t('app.brand')} &middot; {t('app.version')}
+        </p>
       </div>
     </div>
   )

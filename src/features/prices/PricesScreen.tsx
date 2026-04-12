@@ -1,31 +1,27 @@
 import { useTranslation } from 'react-i18next'
+
+import { PageHeader } from '@/components/app'
+
+import LivePriceCard from './components/LivePriceCard'
 import PriceForm from './components/PriceForm'
 import PriceTable from './components/PriceTable'
 import QuickUpdate from './components/QuickUpdate'
 import RefreshCard from './components/RefreshCard'
-import LivePriceCard from './components/LivePriceCard'
 
 export default function PricesScreen() {
   const { t } = useTranslation()
 
   return (
-    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-8 px-6 py-8">
-      {/* Header */}
-      <div className="mb-12 flex flex-col gap-2">
-        <h1 className="text-xl font-semibold text-heading">{t('prices.title')}</h1>
-        <p className="text-base text-caption">{t('prices.subtitle')}</p>
-      </div>
+    <div className="mx-auto flex w-full min-w-0 max-w-[1400px] flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8">
+      <PageHeader title={t('prices.title')} description={t('prices.subtitle')} />
 
-      {/* 12-col grid: 8 left + 4 right */}
-      <div className="grid grid-cols-12 gap-8">
-        {/* Left column */}
-        <div className="col-span-8 flex flex-col gap-8">
+      <div className="grid min-w-0 gap-8 lg:grid-cols-12">
+        <div className="flex min-w-0 flex-col gap-8 lg:col-span-8">
           <PriceForm />
           <PriceTable />
         </div>
 
-        {/* Right column */}
-        <div className="col-span-4 flex flex-col gap-8">
+        <div className="flex min-w-0 flex-col gap-8 lg:col-span-4">
           <RefreshCard />
           <QuickUpdate />
           <LivePriceCard />

@@ -4,9 +4,9 @@ import AppFooter from './AppFooter'
 
 export default function MasterLayout() {
   return (
-    <div className="min-h-screen bg-page">
+    <div className="min-h-screen overflow-x-clip bg-background">
       <AppHeader />
-      <main className="pt-12">
+      <main className="min-w-0 overflow-x-clip pt-14">
         <Outlet />
       </main>
       <AppFooter />

@@ -169,38 +169,38 @@ export default function AssetAllocationChart() {
   }, [])
 
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-edge bg-panel p-5">
+    <div className="flex h-full w-full min-w-0 flex-col rounded-2xl border border-border bg-card p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-bold text-heading">{t('dashboard.allocation')}</h3>
+        <h3 className="text-base font-bold text-foreground">{t('dashboard.allocation')}</h3>
       </div>
-      <div className="flex flex-1 flex-col items-center gap-0">
+      <div className="flex min-w-0 flex-1 flex-col items-center gap-0">
         <div className="relative shrink-0 overflow-hidden">
-          <canvas ref={canvasRef} className="h-[260px] w-[260px] cursor-pointer" onMouseMove={handleMouseMove} onMouseLeave={() => { setHovered(-1); setTooltip(null) }} />
+          <canvas ref={canvasRef} className="h-[220px] w-[220px] cursor-pointer sm:h-[260px] sm:w-[260px]" onMouseMove={handleMouseMove} onMouseLeave={() => { setHovered(-1); setTooltip(null) }} />
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center" style={{ marginTop: '-7px' }}>
-            <span className="font-['JetBrains_Mono'] text-[26px] font-bold tracking-tight text-heading">
+            <span className="font-['JetBrains_Mono'] text-[22px] font-bold tracking-tight text-foreground sm:text-[26px]">
               {totalAmount >= 1e9 ? (totalAmount / 1e9).toFixed(2) : formatCompact(totalAmount)}
             </span>
-            <span className="mt-0.5 text-xs font-medium text-caption">{totalAmount >= 1e9 ? 'tỷ ₫' : '₫'}</span>
+            <span className="mt-0.5 text-xs font-medium text-muted-foreground">{totalAmount >= 1e9 ? 'tỷ ₫' : '₫'}</span>
           </div>
           {tooltip && tooltip.idx >= 0 && allocationData[tooltip.idx] && (
-            <div className="pointer-events-none absolute z-50 rounded-lg border border-edge-strong bg-panel-alt px-4 py-3 shadow-xl" style={{ left: Math.min(tooltip.x + 12, 120), top: Math.max(tooltip.y - 50, 0) }}>
+            <div className="pointer-events-none absolute z-50 rounded-lg border border-border bg-muted/40 px-4 py-3 shadow-xl" style={{ left: Math.min(tooltip.x + 12, 120), top: Math.max(tooltip.y - 50, 0) }}>
               <div className="flex items-center gap-2">
                 <div className="size-3 rounded-sm" style={{ backgroundColor: allocationData[tooltip.idx].color }} />
-                <span className="text-sm font-semibold text-heading">{allocationData[tooltip.idx].label}</span>
+                <span className="text-sm font-semibold text-foreground">{allocationData[tooltip.idx].label}</span>
               </div>
               <div className="mt-1.5 flex items-baseline gap-2">
-                <span className="font-['JetBrains_Mono'] text-lg font-bold text-heading">{allocationData[tooltip.idx].value}%</span>
-                <span className="font-['JetBrains_Mono'] text-xs text-caption">{allocationData[tooltip.idx].amount}</span>
+                <span className="font-['JetBrains_Mono'] text-lg font-bold text-foreground">{allocationData[tooltip.idx].value}%</span>
+                <span className="font-['JetBrains_Mono'] text-xs text-muted-foreground">{allocationData[tooltip.idx].amount}</span>
               </div>
             </div>
           )}
         </div>
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex w-full min-w-0 flex-1 flex-col gap-1">
           {allocationData.map((item, i) => (
-            <div key={item.label} className={`group flex items-center gap-4 rounded-xl px-3 py-2 transition-colors ${hovered === i ? 'bg-field/60' : 'hover:bg-field/50'}`} onMouseEnter={() => setHovered(i)} onMouseLeave={() => { setHovered(-1); setTooltip(null) }}>
+            <div key={item.label} className={`group flex items-center gap-4 rounded-xl px-3 py-2 transition-colors ${hovered === i ? 'bg-muted/70' : 'hover:bg-muted/50'}`} onMouseEnter={() => setHovered(i)} onMouseLeave={() => { setHovered(-1); setTooltip(null) }}>
               <div className="size-2.5 shrink-0 rounded-full transition-transform" style={{ backgroundColor: item.color, transform: hovered === i ? 'scale(1.4)' : 'scale(1)' }} />
-              <span className="flex-1 text-sm font-medium text-body">{item.label}</span>
-              <span className="font-['JetBrains_Mono'] text-xs text-caption">{item.amount}</span>
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{item.label}</span>
+              <span className="hidden font-['JetBrains_Mono'] text-xs text-muted-foreground sm:inline">{item.amount}</span>
               <span className="w-12 text-right font-['JetBrains_Mono'] text-sm font-bold" style={{ color: item.color }}>{item.value}%</span>
             </div>
           ))}

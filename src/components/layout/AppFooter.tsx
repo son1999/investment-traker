@@ -4,17 +4,17 @@ export default function AppFooter() {
   const { t } = useTranslation()
 
   return (
-    <footer className="border-t border-edge-subtle px-8 py-10">
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between opacity-40">
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-caption">{t('footer.copyright')}</span>
-          <div className="size-1 rounded-full bg-dim" />
-          <span className="text-xs text-caption">{t('footer.encryption')}</span>
+    <footer className="border-t bg-muted/20 px-4 py-8 sm:px-6">
+      <div className="mx-auto flex min-w-0 max-w-[1400px] flex-col gap-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+          <span className="text-xs">{t('footer.copyright')}</span>
+          <div className="size-1 rounded-full bg-border" />
+          <span className="text-xs">{t('footer.encryption')}</span>
         </div>
-        <div className="flex gap-6">
-          <span className="text-[10px] font-bold uppercase tracking-[1px] text-caption">{t('footer.policy')}</span>
-          <span className="text-[10px] font-bold uppercase tracking-[1px] text-caption">{t('footer.support')}</span>
-          <span className="text-[10px] font-bold uppercase tracking-[1px] text-caption">{t('footer.legal')}</span>
+        <div className="flex flex-wrap gap-4 sm:gap-6">
+          <span className="text-[10px] font-semibold uppercase tracking-[1px]">{t('footer.policy')}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-[1px]">{t('footer.support')}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-[1px]">{t('footer.legal')}</span>
         </div>
       </div>
     </footer>

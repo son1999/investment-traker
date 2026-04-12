@@ -13,7 +13,7 @@ export default function PerformanceComparison() {
   const items = data || []
 
   return (
-    <Card className="border-edge">
+    <Card className="w-full min-w-0 border-border">
       <CardHeader>
         <CardTitle className="text-sm">{t('reports.comparison')}</CardTitle>
         <CardDescription>{t('reports.comparisonSub')}</CardDescription>
@@ -26,8 +26,8 @@ export default function PerformanceComparison() {
           const color = a.positive ? '#f59e0b' : '#ef4444'
           return (
             <div key={a.assetCode} className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">{a.name}</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="min-w-0 text-xs font-medium">{a.name}</span>
                 <span className="font-mono text-xs font-medium" style={{ color: a.positive ? 'var(--positive)' : 'var(--negative)' }}>{a.positive ? '+' : ''}{a.profitPercent.toFixed(1)}%</span>
               </div>
               <div className="flex h-2 overflow-hidden rounded-full bg-muted">
@@ -38,9 +38,9 @@ export default function PerformanceComparison() {
           )
         })}
         <Separator />
-        <div className="flex gap-4">
-          <div className="flex items-center gap-1.5"><div className="size-2 rounded-sm bg-muted-foreground/30" /><span className="text-[11px] text-caption">{t('reports.invested')}</span></div>
-          <div className="flex items-center gap-1.5"><div className="size-2 rounded-sm bg-gold" /><span className="text-[11px] text-caption">{t('reports.profitLoss')}</span></div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-1.5"><div className="size-2 rounded-sm bg-muted-foreground/30" /><span className="text-[11px] text-muted-foreground">{t('reports.invested')}</span></div>
+          <div className="flex items-center gap-1.5"><div className="size-2 rounded-sm bg-gold" /><span className="text-[11px] text-muted-foreground">{t('reports.profitLoss')}</span></div>
         </div>
       </CardContent>
     </Card>

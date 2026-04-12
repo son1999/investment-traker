@@ -1,17 +1,18 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { useHoldings } from '@/hooks/usePortfolio'
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useHoldings } from '@/hooks/usePortfolio'
 
 function formatCompact(value: number): string {
   const abs = Math.abs(value)
-  if (abs >= 1e9) return (value / 1e9).toFixed(2) + 'B'
-  if (abs >= 1e6) return (value / 1e6).toFixed(1) + 'M'
-  if (abs >= 1e3) return (value / 1e3).toFixed(1) + 'k'
+  if (abs >= 1e9) return `${(value / 1e9).toFixed(2)}B`
+  if (abs >= 1e6) return `${(value / 1e6).toFixed(1)}M`
+  if (abs >= 1e3) return `${(value / 1e3).toFixed(1)}k`
   return value.toLocaleString('vi-VN')
 }
 
@@ -23,8 +24,8 @@ export default function HoldingsTable() {
   const { data: holdings, isLoading } = useHoldings()
 
   const items = holdings || []
-  const totalValue = items.reduce((s, h) => s + h.value, 0)
-  const totalPnlAmount = items.reduce((s, h) => s + h.profitLossAmount, 0)
+  const totalValue = items.reduce((sum, holding) => sum + holding.value, 0)
+  const totalPnlAmount = items.reduce((sum, holding) => sum + holding.profitLossAmount, 0)
   const totalCost = totalValue - totalPnlAmount
   const totalPnlPct = totalCost > 0 ? (totalPnlAmount / totalCost) * 100 : 0
   const totalPositive = totalPnlPct >= 0
@@ -32,59 +33,176 @@ export default function HoldingsTable() {
   if (isLoading) return <Skeleton className="h-[300px] w-full rounded-lg" />
 
   return (
-    <Card className="h-full border-edge bg-panel">
-      <CardHeader className="flex-row items-center justify-between border-b border-edge-subtle px-8 py-6">
-        <CardTitle className="text-base font-bold text-body">{t('dashboard.holdings')}</CardTitle>
-        <Button variant="link" size="sm" className="text-[13px] text-label">{t('dashboard.viewDetails')}</Button>
+    <Card className="h-full w-full min-w-0 overflow-hidden border-border bg-card">
+      <CardHeader className="flex-col gap-3 border-b border-border px-4 py-5 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
+        <CardTitle className="text-base font-bold text-foreground">{t('dashboard.holdings')}</CardTitle>
+        <Button variant="link" size="sm" className="justify-start px-0 text-[13px] text-muted-foreground md:justify-center md:px-2.5">
+          {t('dashboard.viewDetails')}
+        </Button>
       </CardHeader>
-      <CardContent className="p-0">
-        <Table>
+
+      <CardContent className="p-0 md:hidden">
+        <div className="flex flex-col">
+          {items.map((holding) => (
+            <Button
+              key={holding.assetCode}
+              variant="ghost"
+              onClick={() => navigate(`/assets/${holding.assetCode}`)}
+              className="h-auto w-full justify-start whitespace-normal rounded-none px-4 py-4"
+            >
+              <div className="flex w-full min-w-0 flex-col gap-3 text-left">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div
+                      className="flex size-9 shrink-0 items-center justify-center rounded-lg text-base"
+                      style={{ backgroundColor: holding.iconBg }}
+                    >
+                      {holding.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-foreground">{holding.name}</p>
+                      <p className="text-xs text-muted-foreground">{holding.assetCode}</p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="shrink-0 text-[10px] uppercase">
+                    {t(`common.${typeLabel[holding.assetType] || holding.assetType}`)}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="space-y-1">
+                    <p className="text-muted-foreground">{t('dashboard.colQty')}</p>
+                    <p className="font-['JetBrains_Mono'] text-foreground">
+                      {holding.quantity.toLocaleString('en-US')}
+                    </p>
+                  </div>
+                  <div className="space-y-1 text-right">
+                    <p className="text-muted-foreground">Gia tri</p>
+                    <p className="font-['JetBrains_Mono'] font-semibold text-foreground">
+                      {formatCompact(holding.value)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
+                  <span className="text-xs text-muted-foreground">{t('dashboard.colPnl')}</span>
+                  <Badge
+                    variant={holding.positive ? 'secondary' : 'destructive'}
+                    className={`gap-1 rounded-lg px-2.5 py-1 font-['JetBrains_Mono'] text-[11px] font-bold ${holding.positive ? 'bg-positive/15 text-positive' : ''}`}
+                  >
+                    {holding.positive ? '+' : ''}
+                    {holding.profitLossPercent.toFixed(1)}%
+                  </Badge>
+                </div>
+              </div>
+            </Button>
+          ))}
+
+          {items.length > 0 ? (
+            <div className="border-t bg-muted/30 px-4 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="text-sm font-semibold text-foreground">Tong cong</span>
+                <span className="font-['JetBrains_Mono'] text-sm font-bold text-foreground">
+                  {formatCompact(totalValue)}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground">{t('dashboard.colPnl')}</span>
+                <Badge
+                  variant={totalPositive ? 'secondary' : 'destructive'}
+                  className={`gap-1 rounded-lg px-2.5 py-1 font-['JetBrains_Mono'] text-[11px] font-bold ${totalPositive ? 'bg-positive/15 text-positive' : ''}`}
+                >
+                  {totalPositive ? '+' : ''}
+                  {totalPnlPct.toFixed(1)}%
+                </Badge>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </CardContent>
+
+      <CardContent className="hidden p-0 md:block">
+        <Table className="min-w-[780px]">
           <TableHeader>
-            <TableRow className="bg-panel-alt hover:bg-panel-alt">
-              <TableHead className="pl-8">{t('dashboard.colAsset')}</TableHead>
+            <TableRow className="bg-muted/40 hover:bg-muted/40">
+              <TableHead className="pl-4 sm:pl-6 md:pl-8">{t('dashboard.colAsset')}</TableHead>
               <TableHead className="text-right">{t('dashboard.colType')}</TableHead>
               <TableHead className="text-right">{t('dashboard.colQty')}</TableHead>
               <TableHead className="text-right">{t('dashboard.colAvgCost')}</TableHead>
               <TableHead className="text-right">{t('dashboard.colCurrentPrice')}</TableHead>
-              <TableHead className="text-right">Giá trị</TableHead>
-              <TableHead className="pr-8 text-right">{t('dashboard.colPnl')}</TableHead>
+              <TableHead className="text-right">Gia tri</TableHead>
+              <TableHead className="pr-4 text-right sm:pr-6 md:pr-8">{t('dashboard.colPnl')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {items.map((h) => (
-              <TableRow key={h.assetCode} onClick={() => navigate(`/assets/${h.assetCode}`)} className="cursor-pointer">
-                <TableCell className="pl-8">
+            {items.map((holding) => (
+              <TableRow
+                key={holding.assetCode}
+                onClick={() => navigate(`/assets/${holding.assetCode}`)}
+                className="cursor-pointer"
+              >
+                <TableCell className="pl-4 sm:pl-6 md:pl-8">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-7 items-center justify-center rounded-sm text-sm" style={{ backgroundColor: h.iconBg }}>{h.icon}</div>
-                    <span className="text-sm font-semibold text-body">{h.name}</span>
+                    <div
+                      className="flex size-7 items-center justify-center rounded-sm text-sm"
+                      style={{ backgroundColor: holding.iconBg }}
+                    >
+                      {holding.icon}
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">{holding.name}</span>
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Badge variant="outline" className="text-[10px] uppercase">{t(`common.${typeLabel[h.assetType] || h.assetType}`)}</Badge>
+                  <Badge variant="outline" className="text-[10px] uppercase">
+                    {t(`common.${typeLabel[holding.assetType] || holding.assetType}`)}
+                  </Badge>
                 </TableCell>
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-body">{h.quantity.toLocaleString('en-US')}</TableCell>
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-body">{formatCompact(h.averageCost)}</TableCell>
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-body">{formatCompact(h.currentPrice)}</TableCell>
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-body">{formatCompact(h.value)}</TableCell>
-                <TableCell className="pr-8 text-right">
-                  <Badge variant={h.positive ? 'secondary' : 'destructive'} className={`gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${h.positive ? 'bg-positive/15 text-positive' : ''}`}>
-                    {h.positive ? '▲' : '▼'} {h.positive ? '+' : ''}{h.profitLossPercent.toFixed(1)}%
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-foreground">
+                  {holding.quantity.toLocaleString('en-US')}
+                </TableCell>
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-foreground">
+                  {formatCompact(holding.averageCost)}
+                </TableCell>
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-foreground">
+                  {formatCompact(holding.currentPrice)}
+                </TableCell>
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-foreground">
+                  {formatCompact(holding.value)}
+                </TableCell>
+                <TableCell className="pr-4 text-right sm:pr-6 md:pr-8">
+                  <Badge
+                    variant={holding.positive ? 'secondary' : 'destructive'}
+                    className={`gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${holding.positive ? 'bg-positive/15 text-positive' : ''}`}
+                  >
+                    {holding.positive ? '+' : ''}
+                    {holding.profitLossPercent.toFixed(1)}%
                   </Badge>
                 </TableCell>
               </TableRow>
             ))}
-            {items.length > 0 && (
-              <TableRow className="border-t-2 border-edge bg-field/30 hover:bg-field/30">
-                <TableCell className="pl-8"><span className="font-bold text-heading">Tổng cộng</span></TableCell>
-                <TableCell /><TableCell /><TableCell /><TableCell />
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-heading">{formatCompact(totalValue)}</TableCell>
-                <TableCell className="pr-8 text-right">
-                  <Badge variant={totalPositive ? 'secondary' : 'destructive'} className={`gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${totalPositive ? 'bg-positive/15 text-positive' : ''}`}>
-                    {totalPositive ? '+' : ''}{totalPnlPct.toFixed(1)}%
+            {items.length > 0 ? (
+              <TableRow className="border-t-2 border-border bg-muted/30 hover:bg-muted/30">
+                <TableCell className="pl-4 sm:pl-6 md:pl-8">
+                  <span className="font-bold text-foreground">Tong cong</span>
+                </TableCell>
+                <TableCell />
+                <TableCell />
+                <TableCell />
+                <TableCell />
+                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-foreground">
+                  {formatCompact(totalValue)}
+                </TableCell>
+                <TableCell className="pr-4 text-right sm:pr-6 md:pr-8">
+                  <Badge
+                    variant={totalPositive ? 'secondary' : 'destructive'}
+                    className={`gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${totalPositive ? 'bg-positive/15 text-positive' : ''}`}
+                  >
+                    {totalPositive ? '+' : ''}
+                    {totalPnlPct.toFixed(1)}%
                   </Badge>
                 </TableCell>
               </TableRow>
-            )}
+            ) : null}
           </TableBody>
         </Table>
       </CardContent>

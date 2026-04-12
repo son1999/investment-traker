@@ -1,19 +1,30 @@
-import { NavLink, useNavigate } from 'react-router-dom'
-import { Sun, Moon, Languages, LogOut } from 'lucide-react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { ChevronRight, Languages, LogOut, Menu, Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useThemeStore, type Theme } from '@/stores/theme'
-import { useAuthStore } from '@/stores/auth'
-import { Button } from '@/components/ui/button'
+
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
   DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth'
+import { useThemeStore, type Theme } from '@/stores/theme'
+
 const logoUrl = '/logo.png'
 
 const navKeys = [
@@ -35,29 +46,34 @@ export default function AppHeader() {
   const { theme, setTheme } = useThemeStore()
   const { logout, user } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const toggleLang = () => {
     i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi')
   }
 
+  const isLinkActive = (to: string) =>
+    location.pathname === to || location.pathname.startsWith(`${to}/`)
+
   return (
-    <header className="fixed left-0 top-0 z-50 w-full border-b border-edge bg-page">
-      <div className="mx-auto flex h-12 max-w-[1400px] items-center justify-between px-6">
-        <NavLink to="/dashboard" className="flex items-center">
-          <img src={logoUrl} alt="Logo" className="h-14 w-auto" />
+    <header className="fixed left-0 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="mx-auto flex h-14 min-w-0 max-w-[1400px] items-center justify-between px-4 sm:px-6">
+        <NavLink to="/dashboard" className="flex min-w-0 items-center">
+          <img src={logoUrl} alt="Logo" className="h-9 w-auto sm:h-10" />
         </NavLink>
 
-        <nav className="flex items-center gap-1">
+        <nav className="hidden items-center gap-1 md:flex">
           {navKeys.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `rounded-md px-3 py-1.5 text-[13px] transition-colors ${
+                cn(
+                  'rounded-md px-3 py-1.5 text-sm transition-colors',
                   isActive
-                    ? 'font-medium text-heading bg-edge-subtle'
-                    : 'text-label hover:text-heading hover:bg-edge-subtle'
-                }`
+                    ? 'bg-secondary text-secondary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                )
               }
             >
               {t(link.key)}
@@ -65,22 +81,63 @@ export default function AppHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1">
+        <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
+          <Dialog>
+            <DialogTrigger
+              render={<Button variant="ghost" size="icon-sm" className="rounded-2xl md:hidden" />}
+            >
+              <Menu size={18} />
+            </DialogTrigger>
+
+            <DialogContent
+              showCloseButton
+              className="left-auto right-4 top-16 w-[calc(100%-2rem)] max-w-xs translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-3xl p-0 sm:right-6 md:hidden"
+            >
+              <DialogHeader className="border-b px-5 py-4 pr-12">
+                <DialogTitle className="text-lg font-semibold">{t('app.brand')}</DialogTitle>
+                <p className="text-xs text-muted-foreground">{user?.email || 'User'}</p>
+              </DialogHeader>
+
+              <div className="grid gap-1 p-2">
+                {navKeys.map((link) => (
+                  <DialogClose
+                    key={link.to}
+                    render={
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          'h-auto w-full justify-between rounded-2xl px-4 py-3 text-left text-base font-medium',
+                          isLinkActive(link.to)
+                            ? 'bg-secondary text-secondary-foreground'
+                            : 'text-foreground hover:bg-muted',
+                        )}
+                      />
+                    }
+                    onClick={() => navigate(link.to)}
+                  >
+                    <span>{t(link.key)}</span>
+                    <ChevronRight size={16} className="text-muted-foreground" />
+                  </DialogClose>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleLang}
-            className="gap-1 text-caption hover:text-heading"
+            className="gap-1 px-2 min-[380px]:px-2.5 sm:px-3"
           >
             <Languages size={14} />
-            <span className="text-[11px] font-medium uppercase">{i18n.language}</span>
+            <span className="hidden text-[11px] font-medium uppercase min-[380px]:inline">
+              {i18n.language}
+            </span>
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" size="icon-sm" className="ml-1 rounded-full" />
-              }
+              render={<Button variant="ghost" size="icon-sm" className="ml-0.5 rounded-full" />}
             >
               <Avatar size="sm">
                 <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
@@ -93,24 +150,23 @@ export default function AppHeader() {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
 
-              {/* Theme toggle */}
-              <div className="flex rounded-lg bg-muted p-0.5 mx-1 mb-1">
-                {themes.map((thm) => {
-                  const ThemeIcon = thm.icon
-                  const active = theme === thm.value
+              <div className="grid grid-cols-2 gap-1 px-1 pb-1">
+                {themes.map((item) => {
+                  const ThemeIcon = item.icon
+                  const active = theme === item.value
+
                   return (
-                    <button
-                      key={thm.value}
-                      onClick={() => setTheme(thm.value)}
-                      className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md py-1.5 text-[11px] font-medium transition-all ${
-                        active
-                          ? 'bg-background text-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
+                    <Button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setTheme(item.value)}
+                      variant={active ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="justify-center gap-1.5 text-[11px]"
                     >
                       <ThemeIcon size={13} />
-                      {thm.label}
-                    </button>
+                      {item.label}
+                    </Button>
                   )
                 })}
               </div>

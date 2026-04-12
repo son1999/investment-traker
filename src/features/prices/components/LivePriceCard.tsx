@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLivePrice } from '@/hooks/usePrices'
-import { useHoldings } from '@/hooks/usePortfolio'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Loader2, Radio } from 'lucide-react'
+
+import { SectionCard } from '@/components/app'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Radio, Loader2 } from 'lucide-react'
+import { useHoldings } from '@/hooks/usePortfolio'
+import { useLivePrice } from '@/hooks/usePrices'
 
 export default function LivePriceCard() {
   const { t } = useTranslation()
@@ -13,58 +14,65 @@ export default function LivePriceCard() {
   const [selectedType, setSelectedType] = useState<'crypto' | 'stock' | 'metal'>('crypto')
 
   const liveableAssets = (holdings || []).filter(
-    (h) => h.assetType === 'crypto' || h.assetType === 'stock' || h.assetType === 'metal',
+    (holding) =>
+      holding.assetType === 'crypto' ||
+      holding.assetType === 'stock' ||
+      holding.assetType === 'metal',
   )
 
   const handleSelect = (code: string | null) => {
-    if (!code) return;
+    if (!code) return
     setSelectedCode(code)
-    const asset = liveableAssets.find((a) => a.assetCode === code)
+    const asset = liveableAssets.find((holding) => holding.assetCode === code)
     if (asset) setSelectedType(asset.assetType as 'crypto' | 'stock' | 'metal')
   }
 
   const { data: livePrice, isLoading, isFetching } = useLivePrice(selectedCode, selectedType)
 
   return (
-    <Card className="border-edge">
-      <CardHeader className="border-b border-edge-subtle">
-        <CardTitle className="flex items-center gap-2">
+    <SectionCard
+      title={
+        <span className="flex items-center gap-2">
           <Radio size={16} className="text-positive" />
           {t('prices.livePrice')}
-        </CardTitle>
-        <CardDescription>{t('prices.livePriceDesc')}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4 p-4">
-        <Select value={selectedCode} onValueChange={handleSelect}>
-          <SelectTrigger>
-            <SelectValue placeholder={t('prices.selectAsset')} />
-          </SelectTrigger>
-          <SelectContent>
-            {liveableAssets.map((h) => (
-              <SelectItem key={h.assetCode} value={h.assetCode}>
-                {h.icon} {h.assetCode} ({t(`common.${h.assetType}`)})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        </span>
+      }
+      description={t('prices.livePriceDesc')}
+    >
+      <Select value={selectedCode} onValueChange={handleSelect}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder={t('prices.selectAsset')} />
+        </SelectTrigger>
+        <SelectContent>
+          {liveableAssets.map((holding) => (
+            <SelectItem key={holding.assetCode} value={holding.assetCode}>
+              {holding.icon} {holding.assetCode} ({t(`common.${holding.assetType}`)})
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-        {selectedCode && (
-          <div className="flex items-center justify-between rounded-lg border border-edge bg-muted/30 px-4 py-3">
-            <span className="text-sm font-medium text-heading">{selectedCode}</span>
-            {isLoading || isFetching ? (
-              <Loader2 size={16} className="animate-spin text-caption" />
-            ) : livePrice?.price != null ? (
-              <span className="font-['JetBrains_Mono'] text-lg font-bold text-heading">
-                {livePrice.currency === 'VND'
-                  ? livePrice.price.toLocaleString('vi-VN') + ' ₫'
-                  : livePrice.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 }) + ' ' + livePrice.currency}
-              </span>
-            ) : (
-              <span className="text-sm text-caption">{t('prices.livePriceUnavailable')}</span>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {selectedCode ? (
+        <div className="flex min-w-0 flex-col gap-2 rounded-lg border bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <span className="break-all text-sm font-medium">{selectedCode}</span>
+          {isLoading || isFetching ? (
+            <Loader2 size={16} className="animate-spin text-muted-foreground" />
+          ) : livePrice?.price != null ? (
+            <span className="min-w-0 break-all text-left font-mono text-lg font-semibold sm:text-right">
+              {livePrice.currency === 'VND'
+                ? `${livePrice.price.toLocaleString('vi-VN')} \u20ab`
+                : `${livePrice.price.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 6,
+                  })} ${livePrice.currency}`}
+            </span>
+          ) : (
+            <span className="text-sm text-muted-foreground sm:text-right">
+              {t('prices.livePriceUnavailable')}
+            </span>
+          )}
+        </div>
+      ) : null}
+    </SectionCard>
   )
 }

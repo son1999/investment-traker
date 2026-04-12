@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { SectionCard } from '@/components/app'
+import { Button } from '@/components/ui/button'
+import { PriceInputDialog } from '@/components/ui/price-input-dialog'
+import { Separator } from '@/components/ui/separator'
 import { useHoldings } from '@/hooks/usePortfolio'
 import { useUpdatePriceByCode } from '@/hooks/usePrices'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { PriceInputDialog } from '@/components/ui/price-input-dialog'
 
 export default function QuickUpdate() {
   const { t } = useTranslation()
@@ -22,39 +23,49 @@ export default function QuickUpdate() {
 
   return (
     <>
-      <Card className="border-edge">
-        <CardHeader className="border-b border-edge-subtle">
-          <CardTitle>{t('prices.quickUpdate')}</CardTitle>
-          <CardDescription>{t('prices.selectFromHoldings')}</CardDescription>
-        </CardHeader>
-        <CardContent className="p-2">
-          {items.map((h, idx) => (
-            <div key={h.assetCode}>
-              <div className="flex items-center justify-between rounded px-4 py-4">
-                <div className="flex items-center gap-4">
-                  <div className="flex size-10 items-center justify-center rounded bg-muted text-lg">{h.icon}</div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-heading">{h.assetCode}</span>
-                    <span className="text-[11px] text-caption">
-                      {t('prices.cost')} <span className="font-['JetBrains_Mono']">{h.averageCost.toLocaleString('vi-VN')}</span>
-                      {' · ' + t('prices.current') + ': '}<span className="font-['JetBrains_Mono']">{h.currentPrice.toLocaleString('vi-VN')}</span>
-                    </span>
-                  </div>
+      <SectionCard
+        title={t('prices.quickUpdate')}
+        description={t('prices.selectFromHoldings')}
+        contentClassName="space-y-0"
+      >
+        {items.map((holding, idx) => (
+          <div key={holding.assetCode}>
+            <div className="flex min-w-0 flex-col gap-3 rounded-lg px-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-muted text-lg">
+                  {holding.icon}
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setUpdatingCode(h.assetCode)} disabled={updatePrice.isPending}>
-                  {t('common.update')}
-                </Button>
+                <div className="min-w-0 flex flex-col">
+                  <span className="break-all text-sm font-semibold">{holding.assetCode}</span>
+                  <span className="break-words text-[11px] text-muted-foreground">
+                    {t('prices.cost')}{' '}
+                    <span className="font-mono">{holding.averageCost.toLocaleString('vi-VN')}</span>
+                    {' · '}
+                    {t('prices.current')}: <span className="font-mono">{holding.currentPrice.toLocaleString('vi-VN')}</span>
+                  </span>
+                </div>
               </div>
-              {idx < items.length - 1 && <Separator className="mx-4 opacity-20" />}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setUpdatingCode(holding.assetCode)}
+                disabled={updatePrice.isPending}
+                className="w-full sm:w-auto"
+              >
+                {t('common.update')}
+              </Button>
             </div>
-          ))}
-        </CardContent>
-      </Card>
+            {idx < items.length - 1 ? <Separator className="my-1" /> : null}
+          </div>
+        ))}
+      </SectionCard>
 
       <PriceInputDialog
         open={!!updatingCode}
-        onOpenChange={(open) => { if (!open) setUpdatingCode(null) }}
-        title={`${t('prices.quickUpdate')} — ${updatingCode}`}
+        onOpenChange={(open) => {
+          if (!open) setUpdatingCode(null)
+        }}
+        title={`${t('prices.quickUpdate')} - ${updatingCode}`}
         description={t('prices.quickUpdateDesc')}
         label={t('prices.currentPrice')}
         onSubmit={handleSubmitPrice}

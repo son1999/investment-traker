@@ -41,9 +41,9 @@ export default function AssetDetailScreen() {
 
   if (isLoading || !asset) {
     return (
-      <div className="mx-auto max-w-[1400px] px-6 py-6">
+      <div className="mx-auto min-w-0 max-w-[1400px] px-4 py-6 sm:px-6">
         <Skeleton className="mb-6 h-8 w-32" />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[1,2,3,4].map(i => <Skeleton key={i} className="h-32 rounded-lg" />)}
         </div>
         <Skeleton className="mt-6 h-80 rounded-2xl" />
@@ -81,14 +81,14 @@ export default function AssetDetailScreen() {
     : []
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 pb-16 pt-6">
+    <div className="mx-auto min-w-0 max-w-[1400px] px-4 pb-16 pt-6 sm:px-6">
       {/* Back bar */}
-      <div className="mb-10 flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2 text-caption">
+      <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="gap-2 text-muted-foreground">
           <ArrowLeft size={13} />{t('assetDetail.back')}
         </Button>
         {!isGuest && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size="sm">{t('assetDetail.updatePrice')}</Button>
             <Button size="sm" className="gap-2"><Plus size={11} />{t('assetDetail.addTransaction')}</Button>
             <Button variant="ghost" size="icon-sm"><MoreVertical size={16} /></Button>
@@ -96,31 +96,31 @@ export default function AssetDetailScreen() {
         )}
       </div>
 
-      <div className="flex flex-col gap-10">
+      <div className="flex min-w-0 flex-col gap-10">
         {/* Asset Header */}
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
           <div className="flex size-14 items-center justify-center rounded-lg shadow-sm" style={{ backgroundColor: asset.iconBg }}>
             <span className="text-[30px]">{asset.icon}</span>
           </div>
           <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-semibold tracking-tight text-heading">{asset.assetCode}</h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-xl font-semibold tracking-tight text-foreground">{asset.assetCode}</h1>
               <Badge variant="outline" className="text-[11px] uppercase tracking-wider">{t(typeLabels[asset.assetType] || asset.assetType)}</Badge>
             </div>
-            <p className="text-sm text-caption">{t('assetDetail.assetDescription')}</p>
+            <p className="text-sm text-muted-foreground">{t('assetDetail.assetDescription')}</p>
           </div>
         </div>
 
         {/* Metric Cards */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {metrics.map(m => (
             <Card key={m.label} className="py-6 pl-6 pr-6" style={{ borderLeft: `2px solid ${m.border}` }}>
               <CardContent className="flex flex-col gap-2 p-0">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-caption">{m.label}</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{m.label}</span>
                 <div className="flex items-baseline gap-1 pt-1">
-                  <span className={`font-['JetBrains_Mono'] text-xl font-semibold ${m.isProfit ? (m.profitPositive ? 'text-positive' : 'text-destructive') : 'text-heading'}`}>{m.value}</span>
-                  <span className={`font-['JetBrains_Mono'] text-sm ${m.isProfit ? (m.profitPositive ? 'text-positive/70' : 'text-destructive/70') : 'text-caption'}`}>{m.unit}</span>
-                  {m.hasRefresh && <ExternalLink size={9} className="ml-1 text-caption" />}
+                  <span className={`font-['JetBrains_Mono'] text-xl font-semibold ${m.isProfit ? (m.profitPositive ? 'text-positive' : 'text-destructive') : 'text-foreground'}`}>{m.value}</span>
+                  <span className={`font-['JetBrains_Mono'] text-sm ${m.isProfit ? (m.profitPositive ? 'text-positive/70' : 'text-destructive/70') : 'text-muted-foreground'}`}>{m.unit}</span>
+                  {m.hasRefresh && <ExternalLink size={9} className="ml-1 text-muted-foreground" />}
                 </div>
                 {m.isProfit
                   ? <Badge variant="secondary" className={`w-fit text-[10px] font-bold ${m.profitPositive ? 'bg-positive/10 text-positive' : 'bg-destructive/10 text-destructive'}`}>{m.sub}</Badge>
@@ -133,10 +133,10 @@ export default function AssetDetailScreen() {
 
         {/* Chart Section */}
         <Card className="shadow-sm">
-          <CardHeader className="flex-row items-start justify-between">
+          <CardHeader className="flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div><CardTitle className="text-xl">{t('assetDetail.valueChart')}</CardTitle><CardDescription>{t('assetDetail.valueChartDesc')}</CardDescription></div>
             <Tabs value={period} onValueChange={(v) => setPeriod(v as Period)}>
-              <TabsList>
+              <TabsList className="h-auto flex-wrap">
                 <TabsTrigger value="1m">{t('assetDetail.periodMonth')}</TabsTrigger>
                 <TabsTrigger value="1y">{t('assetDetail.periodYear')}</TabsTrigger>
                 <TabsTrigger value="all">{t('assetDetail.periodAll')}</TabsTrigger>
@@ -144,7 +144,8 @@ export default function AssetDetailScreen() {
             </Tabs>
           </CardHeader>
           <CardContent>
-            <div className="relative h-80">
+            <div className="overflow-x-auto">
+              <div className="relative h-80 min-w-[640px]">
               {[0,1,2,3].map(i => <div key={i} className="absolute left-0 right-0 border-t border-border opacity-30" style={{ top: `${8 + i * (304 / 3)}px` }} />)}
               {svgLine && (
                 <svg className="absolute left-0 top-6 h-66 w-full" viewBox={`0 0 ${svgW} ${svgH}`} fill="none" preserveAspectRatio="none">
@@ -152,20 +153,21 @@ export default function AssetDetailScreen() {
                   <path d={svgArea} fill="url(#chartGrad)" /><path d={svgLine} stroke="#f8a010" strokeWidth="2" fill="none" />
                 </svg>
               )}
-              <div className="absolute bottom-0 left-0 right-0 flex justify-between">{chartLabels.map(l => <span key={l} className="font-['JetBrains_Mono'] text-[10px] uppercase text-caption">{l}</span>)}</div>
+              <div className="absolute bottom-0 left-0 right-0 flex justify-between">{chartLabels.map((label, index) => <span key={`${label}-${index}`} className="font-['JetBrains_Mono'] text-[10px] uppercase text-muted-foreground">{label}</span>)}</div>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* P&L Details */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid gap-6 xl:grid-cols-2">
           <Card style={{ borderLeft: '2px solid rgba(34,197,94,0.3)' }}>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle className="text-sm uppercase tracking-wider text-caption">{t('assetDetail.realizedPnl')}</CardTitle>
+            <CardHeader className="flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">{t('assetDetail.realizedPnl')}</CardTitle>
               <span className="font-['JetBrains_Mono'] text-lg font-bold text-positive">{asset.realizedPnl.total >= 0 ? '+' : ''}{formatAmount(asset.realizedPnl.total, cur)}</span>
             </CardHeader>
             <CardContent className="p-0 px-6 pb-6">
-              <Table>
+              <Table className="min-w-[480px]">
                 <TableHeader><TableRow className="hover:bg-transparent"><TableHead>{t('assetDetail.colDate')}</TableHead><TableHead>{t('assetDetail.colQty')}</TableHead><TableHead className="text-right">{t('reports.profitLoss')}</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {asset.realizedPnl.transactions.map((rpnl, i) => (
@@ -181,13 +183,13 @@ export default function AssetDetailScreen() {
           </Card>
 
           <Card style={{ borderLeft: '2px solid rgba(248,160,16,0.3)' }}>
-            <CardHeader className="flex-row items-center justify-between">
-              <CardTitle className="text-sm uppercase tracking-wider text-caption">{t('assetDetail.unrealizedPnl')}</CardTitle>
+            <CardHeader className="flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">{t('assetDetail.unrealizedPnl')}</CardTitle>
               <span className={`font-['JetBrains_Mono'] text-lg font-bold ${asset.unrealizedPnl.total >= 0 ? 'text-positive' : 'text-destructive'}`}>{asset.unrealizedPnl.total >= 0 ? '+' : ''}{formatAmount(asset.unrealizedPnl.total, cur)}</span>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b pb-2"><span className="text-xs text-caption">{t('assetDetail.currentValue')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatAmount(asset.unrealizedPnl.currentValue, cur)}</span></div>
-              <div className="flex items-center justify-between border-b pb-2"><span className="text-xs text-caption">{t('assetDetail.totalCost')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatAmount(asset.unrealizedPnl.totalCost, cur)}</span></div>
+              <div className="flex flex-col gap-1 border-b pb-2 sm:flex-row sm:items-center sm:justify-between"><span className="text-xs text-muted-foreground">{t('assetDetail.currentValue')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatAmount(asset.unrealizedPnl.currentValue, cur)}</span></div>
+              <div className="flex flex-col gap-1 border-b pb-2 sm:flex-row sm:items-center sm:justify-between"><span className="text-xs text-muted-foreground">{t('assetDetail.totalCost')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatAmount(asset.unrealizedPnl.totalCost, cur)}</span></div>
             </CardContent>
           </Card>
         </div>
@@ -199,22 +201,22 @@ export default function AssetDetailScreen() {
             <CardDescription>{t('assetDetail.transactionsCount', { count: txRes?.meta?.total || 0 })}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
+            <Table className="min-w-[760px]">
               <TableHeader>
                 <TableRow className="bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="pl-8">{t('assetDetail.colDate')}</TableHead>
+                  <TableHead className="pl-4 sm:pl-6 md:pl-8">{t('assetDetail.colDate')}</TableHead>
                   <TableHead>{t('assetDetail.colType')}</TableHead>
                   <TableHead>{t('assetDetail.colQty')}</TableHead>
                   <TableHead>{t('assetDetail.colUnitPrice')}</TableHead>
                   <TableHead>{t('assetDetail.colTotal')}</TableHead>
                   <TableHead>{t('assetDetail.colNote')}</TableHead>
-                  <TableHead className="pr-8 text-right">{t('assetDetail.colAction')}</TableHead>
+                  <TableHead className="pr-4 text-right sm:pr-6 md:pr-8">{t('assetDetail.colAction')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {txRows.map(row => (
                   <TableRow key={row.id}>
-                    <TableCell className="pl-8 font-['JetBrains_Mono'] text-sm">{new Date(row.date).toLocaleDateString('vi-VN')}</TableCell>
+                    <TableCell className="pl-4 font-['JetBrains_Mono'] text-sm sm:pl-6 md:pl-8">{new Date(row.date).toLocaleDateString('vi-VN')}</TableCell>
                     <TableCell>
                       <Badge variant={row.action === 'MUA' ? 'secondary' : 'destructive'} className={`text-[10px] font-bold ${row.action === 'MUA' ? 'bg-positive/10 text-positive' : ''}`}>
                         {row.action === 'MUA' ? t('common.buy') : t('common.sell')}
@@ -223,8 +225,8 @@ export default function AssetDetailScreen() {
                     <TableCell className="font-['JetBrains_Mono'] text-sm">{row.quantity}</TableCell>
                     <TableCell className="font-['JetBrains_Mono'] text-sm">{formatAmount(row.unitPrice, cur)}</TableCell>
                     <TableCell className="font-['JetBrains_Mono'] text-sm">{formatAmount(row.total, cur)}</TableCell>
-                    <TableCell className="text-sm italic text-caption">{row.note || '—'}</TableCell>
-                    <TableCell className="pr-8 text-right">
+                    <TableCell className="text-sm italic text-muted-foreground">{row.note || '—'}</TableCell>
+                    <TableCell className="pr-4 text-right sm:pr-6 md:pr-8">
                       <Button variant="ghost" size="icon-xs"><Pencil size={14} /></Button>
                     </TableCell>
                   </TableRow>

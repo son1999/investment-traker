@@ -16,10 +16,10 @@ export default function RecentTransactions() {
   const items = transactions || []
 
   return (
-    <Card className="border-edge bg-panel">
-      <CardHeader className="flex-row items-center justify-between border-b border-edge-subtle px-8 py-6">
-        <CardTitle className="text-base font-bold text-body">{t('dashboard.recentTransactions')}</CardTitle>
-        <Button variant="link" size="sm" onClick={() => navigate('/transactions')} className="text-[13px] text-label">
+    <Card className="w-full min-w-0 border-border bg-card">
+      <CardHeader className="flex-col gap-3 border-b border-border px-4 py-5 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
+        <CardTitle className="text-base font-bold text-foreground">{t('dashboard.recentTransactions')}</CardTitle>
+        <Button variant="link" size="sm" onClick={() => navigate('/transactions')} className="text-[13px] text-muted-foreground">
           {t('dashboard.allTransactions')}
         </Button>
       </CardHeader>
@@ -28,18 +28,18 @@ export default function RecentTransactions() {
           const isBuy = tx.action === 'MUA'
           const dateStr = new Date(tx.date).toLocaleDateString('vi-VN')
           return (
-            <div key={tx.id} className="flex items-center justify-between px-8 py-3 transition-colors hover:bg-muted/50">
-              <div className="flex items-center gap-4">
-                <span className="w-24 font-['JetBrains_Mono'] text-xs text-caption">{dateStr}</span>
+            <div key={tx.id} className="flex flex-col gap-3 px-4 py-3 transition-colors hover:bg-muted/50 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                <span className="font-['JetBrains_Mono'] text-xs text-muted-foreground sm:w-24">{dateStr}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{tx.icon}</span>
-                  <span className="text-sm font-bold uppercase text-body">{tx.assetCode}</span>
+                  <span className="text-sm font-bold uppercase text-foreground">{tx.assetCode}</span>
                 </div>
                 <Badge variant={isBuy ? 'secondary' : 'destructive'} className={`text-[10px] font-bold ${isBuy ? 'bg-positive/10 text-positive' : ''}`}>
                   {isBuy ? t('common.buy') : t('common.sell')}
                 </Badge>
               </div>
-              <span className="font-['JetBrains_Mono'] text-sm font-bold text-body">{tx.quantity} {tx.assetCode}</span>
+              <span className="font-['JetBrains_Mono'] text-sm font-bold text-foreground">{tx.quantity} {tx.assetCode}</span>
             </div>
           )
         })}

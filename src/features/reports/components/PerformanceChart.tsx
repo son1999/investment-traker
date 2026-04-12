@@ -32,15 +32,16 @@ export default function PerformanceChart({ period }: { period: Period }) {
   const legend = [{ label: t('common.metal'), color: '#f59e0b' }, { label: t('common.crypto'), color: '#f97316' }, { label: t('common.stock'), color: '#60a5fa' }, { label: t('common.savings'), color: '#22c55e' }]
 
   return (
-    <Card className="border-edge">
-      <CardHeader className="flex-row items-center justify-between">
+    <Card className="w-full min-w-0 border-border">
+      <CardHeader className="flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <CardTitle className="text-sm">{t('reports.performance')}</CardTitle>
-        <div className="flex gap-5">{legend.map(l => (
-          <div key={l.label} className="flex items-center gap-1.5"><div className="size-2 rounded-full" style={{ backgroundColor: l.color }} /><span className="text-xs text-caption">{l.label}</span></div>
+        <div className="flex flex-wrap gap-4 md:gap-5">{legend.map(l => (
+          <div key={l.label} className="flex items-center gap-1.5"><div className="size-2 rounded-full" style={{ backgroundColor: l.color }} /><span className="text-xs text-muted-foreground">{l.label}</span></div>
         ))}</div>
       </CardHeader>
-      <CardContent>
-        <div className="flex gap-3">
+      <CardContent className="min-w-0">
+        <div className="w-full min-w-0 overflow-x-auto">
+          <div className="flex min-w-[640px] gap-3">
           <div className="flex w-10 flex-col justify-between pb-7 text-right">
             {[maxVal, maxVal * 0.66, maxVal * 0.33, 0].map((v, i) => (<span key={i} className="font-mono text-[10px] text-muted-foreground">{v >= 1e6 ? (v / 1e6).toFixed(0) + 'M' : v.toFixed(0)}</span>))}
           </div>
@@ -58,7 +59,8 @@ export default function PerformanceChart({ period }: { period: Period }) {
               {stockPath.line && <><path d={stockPath.area} fill="url(#stockFill)" /><path d={stockPath.line} stroke="#60a5fa" strokeWidth="1.5" fill="none" /></>}
               {savingsPath.line && <><path d={savingsPath.area} fill="url(#savingsFill)" /><path d={savingsPath.line} stroke="#22c55e" strokeWidth="1.5" fill="none" /></>}
             </svg>
-            <div className="flex justify-between pt-3">{months.map(m => (<span key={m} className="text-[11px] text-caption">{m}</span>))}</div>
+            <div className="flex justify-between pt-3">{months.map((m, index) => (<span key={`${m}-${index}`} className="text-[11px] text-muted-foreground">{m}</span>))}</div>
+          </div>
           </div>
         </div>
       </CardContent>

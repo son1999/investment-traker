@@ -1,15 +1,19 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useCreateOrUpdatePrice } from '@/hooks/usePrices'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+
+import { FormField, SectionCard } from '@/components/app'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useIsGuest } from '@/hooks/useIsGuest'
+import { useCreateOrUpdatePrice } from '@/hooks/usePrices'
 import type { AssetType } from '@/types/api'
 
-const typeIcons: Record<string, string> = { metal: '✨', crypto: '₿', stock: '📈' }
+const typeIcons: Record<string, string> = {
+  metal: '✨',
+  crypto: '₿',
+  stock: '📈',
+}
 
 export default function PriceForm() {
   const { t } = useTranslation()
@@ -20,46 +24,63 @@ export default function PriceForm() {
   const [price, setPrice] = useState('')
 
   const handleSubmit = async () => {
-    const p = parseFloat(price) || 0
-    if (!assetCode || p <= 0) return
-    await createPrice.mutateAsync({ code: assetCode.toUpperCase(), icon: typeIcons[assetType] || '💰', type: assetType, price: p })
-    setAssetCode(''); setPrice('')
+    const nextPrice = parseFloat(price) || 0
+    if (!assetCode || nextPrice <= 0) return
+
+    await createPrice.mutateAsync({
+      code: assetCode.toUpperCase(),
+      icon: typeIcons[assetType] || '💰',
+      type: assetType,
+      price: nextPrice,
+    })
+
+    setAssetCode('')
+    setPrice('')
   }
 
   if (isGuest) return null
 
   return (
-    <Card className="border-edge shadow-sm">
-      <CardHeader><CardTitle>{t('prices.newPrice')}</CardTitle></CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-4 gap-6">
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] uppercase tracking-wider">{t('prices.type')}</Label>
-            <Select value={assetType} onValueChange={(v) => setAssetType(v as AssetType)}>
-              <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="metal">{t('common.metal')}</SelectItem>
-                <SelectItem value="crypto">{t('common.crypto')}</SelectItem>
-                <SelectItem value="stock">{t('common.stock')}</SelectItem>
-                <SelectItem value="savings">{t('common.savings')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] uppercase tracking-wider">{t('prices.code')}</Label>
-            <Input value={assetCode} onChange={(e) => setAssetCode(e.target.value)} placeholder="Vd: BTC, PNJ" className="h-11" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-[11px] uppercase tracking-wider">{t('prices.currentPrice')}</Label>
-            <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" className="h-11 font-['JetBrains_Mono']" />
-          </div>
-          <div className="flex flex-col justify-end">
-            <Button onClick={handleSubmit} disabled={createPrice.isPending} className="h-11">
-              {createPrice.isPending ? '...' : t('prices.update')}
-            </Button>
-          </div>
+    <SectionCard title={t('prices.newPrice')} contentClassName="space-y-0">
+      <div className="grid gap-4 md:grid-cols-4">
+        <FormField label={t('prices.type')}>
+          <Select value={assetType} onValueChange={(v) => setAssetType(v as AssetType)}>
+            <SelectTrigger className="h-11">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="metal">{t('common.metal')}</SelectItem>
+              <SelectItem value="crypto">{t('common.crypto')}</SelectItem>
+              <SelectItem value="stock">{t('common.stock')}</SelectItem>
+              <SelectItem value="savings">{t('common.savings')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormField>
+
+        <FormField label={t('prices.code')}>
+          <Input
+            value={assetCode}
+            onChange={(e) => setAssetCode(e.target.value)}
+            placeholder="Vd: BTC, PNJ"
+            className="h-11"
+          />
+        </FormField>
+
+        <FormField label={t('prices.currentPrice')}>
+          <Input
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="0"
+            className="h-11 font-mono"
+          />
+        </FormField>
+
+        <div className="flex flex-col justify-end">
+          <Button onClick={handleSubmit} disabled={createPrice.isPending} className="h-11">
+            {createPrice.isPending ? '...' : t('prices.update')}
+          </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </SectionCard>
   )
 }

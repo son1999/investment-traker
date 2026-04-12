@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+
+import { FormField } from '@/components/app'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import type { Currency } from '@/types/api'
 
 interface CurrencyFormProps {
@@ -14,28 +16,20 @@ interface CurrencyFormProps {
   isPending: boolean
 }
 
-export default function CurrencyForm({ open, onOpenChange, currency, onSave, isPending }: CurrencyFormProps) {
+export default function CurrencyForm({
+  open,
+  onOpenChange,
+  currency,
+  onSave,
+  isPending,
+}: CurrencyFormProps) {
   const { t } = useTranslation()
   const isEdit = !!currency
 
-  const [code, setCode] = useState('')
-  const [name, setName] = useState('')
-  const [symbol, setSymbol] = useState('')
-  const [rateToVnd, setRateToVnd] = useState('')
-
-  useEffect(() => {
-    if (currency) {
-      setCode(currency.code)
-      setName(currency.name)
-      setSymbol(currency.symbol)
-      setRateToVnd(String(currency.rateToVnd))
-    } else {
-      setCode('')
-      setName('')
-      setSymbol('')
-      setRateToVnd('')
-    }
-  }, [currency, open])
+  const [code, setCode] = useState(currency?.code || '')
+  const [name, setName] = useState(currency?.name || '')
+  const [symbol, setSymbol] = useState(currency?.symbol || '')
+  const [rateToVnd, setRateToVnd] = useState(currency ? String(currency.rateToVnd) : '')
 
   const codeUpper = code.trim().toUpperCase()
   const isVND = codeUpper === 'VND'
@@ -55,38 +49,48 @@ export default function CurrencyForm({ open, onOpenChange, currency, onSave, isP
           <DialogDescription>{t('currencies.subtitle')}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Label>{t('currencies.code')}</Label>
-              <Input
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder={t('currencies.codePlaceholder')}
-                disabled={isEdit}
-                className={isEdit ? 'opacity-50' : ''}
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label>{t('currencies.symbol')}</Label>
-              <Input value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder={t('currencies.symbolPlaceholder')} />
-            </div>
-          </div>
+        <div className="grid gap-4 py-4 md:grid-cols-2">
+          <FormField label={t('currencies.code')}>
+            <Input
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder={t('currencies.codePlaceholder')}
+              disabled={isEdit}
+              className={isEdit ? 'opacity-60' : undefined}
+            />
+          </FormField>
 
-          <div className="flex flex-col gap-2">
-            <Label>{t('currencies.name')}</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('currencies.namePlaceholder')} />
-          </div>
+          <FormField label={t('currencies.symbol')}>
+            <Input
+              value={symbol}
+              onChange={(e) => setSymbol(e.target.value)}
+              placeholder={t('currencies.symbolPlaceholder')}
+            />
+          </FormField>
 
-          <div className="flex flex-col gap-2">
-            <Label>{t('currencies.rateToVnd')}</Label>
-            <Input value={rateToVnd} onChange={(e) => setRateToVnd(e.target.value)} placeholder={t('currencies.rateToVndPlaceholder')} className="font-['JetBrains_Mono']" />
-          </div>
+          <FormField label={t('currencies.name')} className="md:col-span-2">
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t('currencies.namePlaceholder')}
+            />
+          </FormField>
 
-          {isVND && (
-            <p className="text-sm text-destructive">{t('currencies.vndBuiltIn')}</p>
-          )}
+          <FormField label={t('currencies.rateToVnd')} className="md:col-span-2">
+            <Input
+              value={rateToVnd}
+              onChange={(e) => setRateToVnd(e.target.value)}
+              placeholder={t('currencies.rateToVndPlaceholder')}
+              className="font-mono"
+            />
+          </FormField>
         </div>
+
+        {isVND ? (
+          <Alert variant="destructive">
+            <AlertDescription>{t('currencies.vndBuiltIn')}</AlertDescription>
+          </Alert>
+        ) : null}
 
         <DialogFooter>
           <DialogClose render={<Button variant="outline">{t('currencies.cancel')}</Button>} />

@@ -16,7 +16,7 @@ export default function TransactionFilters() {
 
   return (
     <Tabs value={filter} onValueChange={setFilter}>
-      <TabsList>
+      <TabsList className="h-auto flex-wrap">
         {filters.map((f) => (
           <TabsTrigger key={f.value} value={f.value}>{f.label}</TabsTrigger>
         ))}

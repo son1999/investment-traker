@@ -24,13 +24,13 @@ export default function TopAssets({ period }: { period: Period }) {
   const rows = data || []
 
   return (
-    <Card className="border-edge">
-      <CardHeader className="flex-row items-center justify-between">
+    <Card className="w-full min-w-0 border-border">
+      <CardHeader className="flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <CardTitle className="text-sm">{t('reports.topAssets')}</CardTitle>
-        <Button variant="link" size="sm" className="text-xs text-caption">{t('reports.details')}</Button>
+        <Button variant="link" size="sm" className="justify-start px-0 text-xs text-muted-foreground md:justify-center md:px-2.5">{t('reports.details')}</Button>
       </CardHeader>
-      <CardContent className="p-0">
-        <Table>
+      <CardContent className="min-w-0 p-0">
+        <Table className="min-w-[720px]">
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-8">#</TableHead>
@@ -46,11 +46,11 @@ export default function TopAssets({ period }: { period: Period }) {
               const color = assetColors[r.assetCode] || '#888'
               return (
                 <TableRow key={r.rank}>
-                  <TableCell className="font-mono text-xs text-caption">{String(r.rank).padStart(2, '0')}</TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">{String(r.rank).padStart(2, '0')}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2.5">
                       <div className="flex size-7 items-center justify-center rounded bg-muted"><span className="text-xs font-bold" style={{ color }}>{r.icon}</span></div>
-                      <div className="flex flex-col"><span className="text-xs font-medium">{r.name}</span><span className="text-[10px] text-caption">{r.assetCode}</span></div>
+                      <div className="flex flex-col"><span className="text-xs font-medium">{r.name}</span><span className="text-[10px] text-muted-foreground">{r.assetCode}</span></div>
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-mono text-xs">{formatCompact(r.invested)}</TableCell>
@@ -64,7 +64,7 @@ export default function TopAssets({ period }: { period: Period }) {
                   <TableCell>
                     <div className="flex items-center gap-2 pl-2">
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full" style={{ width: `${r.weight}%`, backgroundColor: color }} /></div>
-                      <span className="font-mono text-[10px] text-caption">{r.weight}%</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">{r.weight}%</span>
                     </div>
                   </TableCell>
                 </TableRow>
