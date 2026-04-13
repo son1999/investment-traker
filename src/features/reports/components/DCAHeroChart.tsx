@@ -31,8 +31,12 @@ export default function DCAHeroChart({ code }: { code: string }) {
   const currency = data.currency || 'VND'
   const barHeights = data.purchaseAmounts
   const maxBar = Math.max(...barHeights, 1)
+  const finalAvgCost =
+    data.avgCostPrices.length > 0 ? data.avgCostPrices[data.avgCostPrices.length - 1] : 0
   const maxAvg = data.avgCostPrices.length > 0 ? Math.max(...data.avgCostPrices, data.currentPrice, 1) : 1
   const currentPricePct = Math.min(95, (data.currentPrice / maxAvg) * 65)
+  const avgCostPct = Math.min(95, (finalAvgCost / maxAvg) * 65)
+  const isProfit = data.currentPrice >= finalAvgCost
 
   const formatAvg = (v: number, cur: string): string => {
     if (cur === 'VND') {
@@ -44,6 +48,9 @@ export default function DCAHeroChart({ code }: { code: string }) {
     return `${v.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${cur}`
   }
 
+  const plPct = finalAvgCost > 0 ? ((data.currentPrice - finalAvgCost) / finalAvgCost) * 100 : 0
+  const plTone = isProfit ? 'text-positive' : 'text-negative'
+
   const stats = [
     { label: t('reports.numPurchases'), value: String(data.numPurchases) },
     { label: t('reports.avgInterval'), value: `${data.avgIntervalDays} ngay` },
@@ -52,16 +59,30 @@ export default function DCAHeroChart({ code }: { code: string }) {
       value: formatAvg(data.avgPerPurchase, currency),
     },
     {
+      label: t('reports.avgCostPrice'),
+      value: formatAvg(finalAvgCost, currency),
+      tone: 'text-gold',
+    },
+    {
       label: t('reports.currentPrice'),
       value: formatAvg(data.currentPrice, currency),
+      tone: plTone,
+    },
+    {
+      label: t('reports.profitLoss'),
+      value: `${plPct >= 0 ? '+' : ''}${plPct.toFixed(2)}%`,
+      tone: plTone,
     },
   ]
 
   const hovered = hoverIndex != null ? hoverIndex : null
-  const tooltipLeftPct =
+  const rawTooltipPct =
     hovered != null && barHeights.length > 0
       ? ((hovered + 0.5) / barHeights.length) * 100
       : 50
+  const tooltipLeftPct = Math.min(95, Math.max(5, rawTooltipPct))
+  const tooltipTranslate =
+    rawTooltipPct < 15 ? '0%' : rawTooltipPct > 85 ? '-100%' : '-50%'
 
   return (
     <Card className="w-full min-w-0 border-border">
@@ -77,7 +98,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
               <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                 {stat.label}
               </span>
-              <span className="font-mono text-base font-semibold text-foreground">
+              <span className={`font-mono text-base font-semibold ${stat.tone ?? 'text-foreground'}`}>
                 {stat.value}
               </span>
             </div>
@@ -89,8 +110,8 @@ export default function DCAHeroChart({ code }: { code: string }) {
         <div className="relative pt-14">
           {hovered != null ? (
             <div
-              className="pointer-events-none absolute top-0 z-30 -translate-x-1/2 whitespace-nowrap rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
-              style={{ left: `${tooltipLeftPct}%` }}
+              className="pointer-events-none absolute top-0 z-30 max-w-[calc(100%-1rem)] whitespace-nowrap rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
+              style={{ left: `${tooltipLeftPct}%`, transform: `translateX(${tooltipTranslate})` }}
             >
               <div className="mb-1 font-medium text-muted-foreground">
                 #{hovered + 1} · {formatDate(data.purchaseDates?.[hovered] ?? '')}
@@ -122,7 +143,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
           ) : null}
 
           <div className="relative flex h-44 min-w-0 items-end sm:h-50">
-            <div className="flex min-w-0 flex-1 items-end justify-between gap-1.5 px-2 sm:gap-2 sm:px-8 lg:px-12">
+            <div className="relative flex min-w-0 flex-1 items-end justify-between gap-1.5 px-2 sm:gap-2 sm:px-8 lg:px-12">
               {barHeights.map((height, index) => {
                 const isHover = hoverIndex === index
                 return (
@@ -132,19 +153,31 @@ export default function DCAHeroChart({ code }: { code: string }) {
                     style={{ height: `${(height / maxBar) * 170}px` }}
                     onMouseEnter={() => setHoverIndex(index)}
                     onMouseLeave={() => setHoverIndex(null)}
-                  >
-                    <div className="absolute right-0 left-0 top-0 h-0.5 rounded-full bg-gold" />
-                  </div>
+                  />
                 )
               })}
+
             </div>
 
+            {finalAvgCost > 0 ? (
+              <div
+                className="pointer-events-none absolute right-2 left-2 border-t border-gold/70 sm:right-8 sm:left-8 lg:right-12 lg:left-12"
+                style={{ bottom: `${avgCostPct}%` }}
+              >
+                <span className="absolute -top-2 left-0 rounded-sm border border-gold/40 bg-card px-1.5 font-mono text-[10px] font-semibold text-gold">
+                  {formatAmount(finalAvgCost, currency)} {currency}
+                </span>
+              </div>
+            ) : null}
+
             <div
-              className="pointer-events-none absolute right-2 left-2 border-t border-dashed border-positive/60 sm:right-8 sm:left-8 lg:right-12 lg:left-12"
+              className={`pointer-events-none absolute right-2 left-2 border-t border-dashed sm:right-8 sm:left-8 lg:right-12 lg:left-12 ${isProfit ? 'border-positive/70' : 'border-negative/70'}`}
               style={{ bottom: `${currentPricePct}%` }}
             >
-              <span className="absolute -top-2 right-0 bg-card px-1.5 text-[10px] font-semibold text-positive">
-                {t('reports.currentPrice')}: {formatAmount(data.currentPrice, currency)} {currency}
+              <span
+                className={`absolute -top-2 right-0 rounded-sm border bg-card px-1.5 font-mono text-[10px] font-semibold ${isProfit ? 'border-positive/40 text-positive' : 'border-negative/40 text-negative'}`}
+              >
+                {formatAmount(data.currentPrice, currency)} {currency}
               </span>
             </div>
           </div>
@@ -160,7 +193,9 @@ export default function DCAHeroChart({ code }: { code: string }) {
             <span className="text-[11px] text-muted-foreground">{t('reports.avgCostPrice')}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-px w-3 border-t border-dashed border-positive" />
+            <div
+              className={`h-px w-3 border-t border-dashed ${isProfit ? 'border-positive' : 'border-negative'}`}
+            />
             <span className="text-[11px] text-muted-foreground">{t('reports.currentPrice')}</span>
           </div>
         </div>

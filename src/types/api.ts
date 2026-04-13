@@ -385,6 +385,7 @@ export interface DCAHistoryEntry {
 }
 
 export interface DCAComparisonData {
+  currency: string
   dca: {
     avgCost: number
     totalCapital: number

@@ -6,8 +6,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
-function formatVND(value: number): string {
-  return `${value.toLocaleString('vi-VN')} \u20ab`
+function formatMoney(value: number, currency: string): string {
+  if (currency === 'VND') {
+    return `${value.toLocaleString('vi-VN')} \u20ab`
+  }
+  return `${value.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${currency}`
 }
 
 export default function DCAComparison({ code }: { code: string }) {
@@ -15,6 +18,9 @@ export default function DCAComparison({ code }: { code: string }) {
   const { data } = useDCAComparison(code)
 
   if (!data) return null
+
+  const currency = data.currency || 'VND'
+  const fmt = (v: number) => formatMoney(v, currency)
 
   return (
     <div className="grid min-w-0 gap-4 xl:grid-cols-2">
@@ -29,7 +35,7 @@ export default function DCAComparison({ code }: { code: string }) {
           <div className="flex flex-col gap-0.5">
             <span className="text-xs text-muted-foreground">{t('reports.avgCost')}</span>
             <span className="font-mono text-lg font-semibold text-foreground">
-              {formatVND(data.dca.avgCost)}
+              {fmt(data.dca.avgCost)}
             </span>
           </div>
           <Separator />
@@ -38,13 +44,13 @@ export default function DCAComparison({ code }: { code: string }) {
               <span className="text-[10px] uppercase text-muted-foreground">
                 {t('reports.totalCapital')}
               </span>
-              <span className="font-mono text-sm">{formatVND(data.dca.totalCapital)}</span>
+              <span className="font-mono text-sm">{fmt(data.dca.totalCapital)}</span>
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-[10px] uppercase text-muted-foreground">
                 {t('reports.currentValue')}
               </span>
-              <span className="font-mono text-sm">{formatVND(data.dca.currentValue)}</span>
+              <span className="font-mono text-sm">{fmt(data.dca.currentValue)}</span>
             </div>
           </div>
           <Separator />
@@ -57,7 +63,7 @@ export default function DCAComparison({ code }: { code: string }) {
                 }`}
               >
                 {data.dca.profit >= 0 ? '+' : ''}
-                {formatVND(data.dca.profit)}
+                {fmt(data.dca.profit)}
               </span>
               <Badge
                 variant={data.dca.profitPercent >= 0 ? 'secondary' : 'destructive'}
@@ -82,12 +88,12 @@ export default function DCAComparison({ code }: { code: string }) {
           <p className="text-xs italic text-muted-foreground">{t('reports.lumpSumNote')}</p>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-xs text-muted-foreground">{t('reports.priceAtThatTime')}</span>
-            <span className="font-mono text-sm">{formatVND(data.lumpSum.priceAtFirstBuy)}</span>
+            <span className="font-mono text-sm">{fmt(data.lumpSum.priceAtFirstBuy)}</span>
           </div>
           <Separator />
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-xs text-muted-foreground">{t('reports.currentValue')}</span>
-            <span className="font-mono text-sm">{formatVND(data.lumpSum.currentValue)}</span>
+            <span className="font-mono text-sm">{fmt(data.lumpSum.currentValue)}</span>
           </div>
           <Separator />
           <div className="flex flex-col gap-0.5">
@@ -99,7 +105,7 @@ export default function DCAComparison({ code }: { code: string }) {
                 }`}
               >
                 {data.lumpSum.profit >= 0 ? '+' : ''}
-                {formatVND(data.lumpSum.profit)}
+                {fmt(data.lumpSum.profit)}
               </span>
               <Badge
                 variant="outline"
