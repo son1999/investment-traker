@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useTopAssets } from '@/hooks/useReports'
+import { AssetIcon } from '@/components/ui/asset-icon'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
@@ -49,8 +50,16 @@ export default function TopAssets({ period }: { period: Period }) {
                   <TableCell className="font-mono text-xs text-muted-foreground">{String(r.rank).padStart(2, '0')}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2.5">
-                      <div className="flex size-7 items-center justify-center rounded bg-muted"><span className="text-xs font-bold" style={{ color }}>{r.icon}</span></div>
-                      <div className="flex flex-col"><span className="text-xs font-medium">{r.name}</span><span className="text-[10px] text-muted-foreground">{r.assetCode}</span></div>
+                      <AssetIcon
+                        code={r.assetCode}
+                        assetType={r.assetType}
+                        fallback={r.icon}
+                        sizeClass="size-7"
+                      />
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium">{r.name}</span>
+                        <span className="text-[10px] text-muted-foreground">{r.assetCode}</span>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-mono text-xs">{formatCompact(r.invested)}</TableCell>

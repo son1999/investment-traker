@@ -37,9 +37,7 @@ export default function LoginScreen() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
       <div className="flex w-full max-w-[400px] flex-col items-center">
         <div className="flex flex-col items-center text-center">
-          <div className="flex size-12 items-center justify-center rounded-xl border bg-card shadow-sm">
-            <img src={logoUrl} alt="" className="size-8" />
-          </div>
+          <img src={logoUrl} alt="" className="h-24 w-40 object-contain" />
           <div className="flex flex-col items-center gap-1 pt-4">
             <h1 className="text-2xl font-semibold tracking-tight">{t('login.title')}</h1>
             <p className="text-sm text-muted-foreground">{t('login.subtitle')}</p>

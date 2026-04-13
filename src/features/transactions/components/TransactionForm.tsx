@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { EmptyState, FormField, SectionCard } from '@/components/app'
+import { AssetIcon } from '@/components/ui/asset-icon'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,7 +12,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAssets } from '@/hooks/useAssets'
 import { useCurrencies } from '@/hooks/useCurrencies'
-import { useCreateTransaction } from '@/hooks/useTransactions'
+import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 import { useTransactionsUIStore } from '@/stores/transactions'
 import type { AssetType, TransactionAction } from '@/types/api'
 
@@ -25,7 +26,27 @@ const defaultModeByType: Record<AssetType, InputMode> = {
 }
 
 function parseNum(s: string): number {
-  return parseFloat(s.replace(/,/g, '.')) || 0
+  return parseFloat(s.replace(/,/g, '')) || 0
+}
+
+function formatNumberInput(raw: string): string {
+  let cleaned = raw.replace(/[^\d.]/g, '')
+  const firstDot = cleaned.indexOf('.')
+  if (firstDot !== -1) {
+    cleaned =
+      cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '')
+  }
+  const [intPart, decPart] = cleaned.split('.')
+  const withSep =
+    intPart && intPart !== ''
+      ? Number(intPart).toLocaleString('en-US', { maximumFractionDigits: 0 })
+      : ''
+  return decPart !== undefined ? `${withSep}.${decPart}` : withSep
+}
+
+function formatNumberDisplay(value: number): string {
+  if (!Number.isFinite(value) || value === 0) return ''
+  return value.toLocaleString('en-US', { maximumFractionDigits: 8 })
 }
 
 function formatCurrency(amount: number, currency: string): string {
@@ -39,8 +60,10 @@ function formatCurrency(amount: number, currency: string): string {
 export default function TransactionForm() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { setShowForm } = useTransactionsUIStore()
+  const { setShowForm, editingTx, cancelEdit } = useTransactionsUIStore()
   const createTx = useCreateTransaction()
+  const updateTx = useUpdateTransaction()
+  const isEdit = Boolean(editingTx)
   const { data: assets } = useAssets()
   const { data: currencies } = useCurrencies()
 
@@ -51,6 +74,17 @@ export default function TransactionForm() {
   const [priceInput, setPriceInput] = useState('')
   const [date, setDate] = useState('')
   const [note, setNote] = useState('')
+
+  useEffect(() => {
+    if (!editingTx) return
+    setSelectedAssetCode(editingTx.assetCode)
+    setAction(editingTx.action)
+    setInputMode('unitPrice')
+    setQuantity(formatNumberDisplay(editingTx.quantity))
+    setPriceInput(formatNumberDisplay(editingTx.unitPrice))
+    setDate(editingTx.date.slice(0, 10))
+    setNote(editingTx.note || '')
+  }, [editingTx])
 
   const selectedAsset = (assets || []).find((asset) => asset.code === selectedAssetCode)
   const currency = selectedAsset?.currency || 'VND'
@@ -94,10 +128,23 @@ export default function TransactionForm() {
       iconBg: selectedAsset.iconBg,
     }
 
-    if (inputMode === 'totalAmount') {
-      await createTx.mutateAsync({ ...base, totalAmount: priceVal })
+    if (isEdit && editingTx) {
+      const updateData = {
+        date: base.date,
+        action,
+        quantity: qty,
+        note,
+        ...(inputMode === 'totalAmount'
+          ? { totalAmount: priceVal }
+          : { unitPrice: priceVal }),
+      }
+      await updateTx.mutateAsync({ id: editingTx.id, data: updateData })
     } else {
-      await createTx.mutateAsync({ ...base, unitPrice: priceVal })
+      const createData =
+        inputMode === 'totalAmount'
+          ? { ...base, totalAmount: priceVal }
+          : { ...base, unitPrice: priceVal }
+      await createTx.mutateAsync(createData)
     }
 
     setSelectedAssetCode('')
@@ -105,7 +152,11 @@ export default function TransactionForm() {
     setPriceInput('')
     setDate('')
     setNote('')
-    setShowForm(false)
+    if (isEdit) {
+      cancelEdit()
+    } else {
+      setShowForm(false)
+    }
   }
 
   const assetItems = assets || []
@@ -121,8 +172,8 @@ export default function TransactionForm() {
 
   return (
     <SectionCard
-      title={t('transactions.newTitle')}
-      description={t('transactions.newSubtitle')}
+      title={isEdit ? t('transactions.editTitle') : t('transactions.newTitle')}
+      description={isEdit ? t('transactions.editSubtitle') : t('transactions.newSubtitle')}
       className="shadow-sm"
       contentClassName="space-y-6"
     >
@@ -146,7 +197,18 @@ export default function TransactionForm() {
                 <SelectContent>
                   {assetItems.map((asset) => (
                     <SelectItem key={asset.code} value={asset.code}>
-                      {asset.icon} {asset.code} - {asset.name}
+                      <div className="flex items-center gap-2">
+                        <AssetIcon
+                          code={asset.code}
+                          assetType={asset.type}
+                          fallback={asset.icon}
+                          fallbackBg={asset.iconBg}
+                          sizeClass="size-5"
+                        />
+                        <span>
+                          {asset.code} - {asset.name}
+                        </span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -194,8 +256,9 @@ export default function TransactionForm() {
             <FormField label={t('transactions.quantity')}>
               <Input
                 value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
+                onChange={(e) => setQuantity(formatNumberInput(e.target.value))}
                 placeholder="0.00"
+                inputMode="decimal"
                 className="h-10 font-mono"
               />
             </FormField>
@@ -204,8 +267,9 @@ export default function TransactionForm() {
             >
               <Input
                 value={priceInput}
-                onChange={(e) => setPriceInput(e.target.value)}
+                onChange={(e) => setPriceInput(formatNumberInput(e.target.value))}
                 placeholder="0"
+                inputMode="decimal"
                 className="h-10 font-mono"
               />
             </FormField>
@@ -219,14 +283,14 @@ export default function TransactionForm() {
             </FormField>
           </div>
 
-          <FormField label={t('transactions.note')} description="Optional">
+          {/* <FormField label={t('transactions.note')} description="Optional"> */}
             <Input
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t('transactions.notePlaceholder')}
               className="h-10"
             />
-          </FormField>
+          {/* </FormField> */}
 
           <Separator />
 
@@ -264,12 +328,16 @@ export default function TransactionForm() {
           <div className="flex flex-wrap gap-3 pt-2">
             <Button
               onClick={handleSave}
-              disabled={createTx.isPending || !selectedAsset || !computed}
+              disabled={createTx.isPending || updateTx.isPending || !selectedAsset || !computed}
               size="lg"
             >
-              {createTx.isPending ? '...' : t('transactions.save')}
+              {createTx.isPending || updateTx.isPending ? '...' : t('transactions.save')}
             </Button>
-            <Button variant="outline" size="lg" onClick={() => setShowForm(false)}>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => (isEdit ? cancelEdit() : setShowForm(false))}
+            >
               {t('transactions.cancel')}
             </Button>
           </div>

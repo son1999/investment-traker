@@ -5,16 +5,15 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Pencil,
-  Trash2,
 } from 'lucide-react'
 
 import { StatusBadge } from '@/components/app'
+import { AssetIcon } from '@/components/ui/asset-icon'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { useBulkDeleteTransactions, useDeleteTransaction, useTransactions } from '@/hooks/useTransactions'
+import { useTransactions } from '@/hooks/useTransactions'
 import { useIsGuest } from '@/hooks/useIsGuest'
 import { useTransactionsUIStore } from '@/stores/transactions'
 import type { AssetType } from '@/types/api'
@@ -45,10 +44,7 @@ export default function TransactionTable() {
     limit,
     setPage,
     setLimit,
-    selectedIds,
-    toggleSelect,
-    selectAll,
-    deselectAll,
+    startEdit,
   } = useTransactionsUIStore()
 
   const { data, isLoading } = useTransactions({
@@ -58,14 +54,9 @@ export default function TransactionTable() {
     limit,
   })
 
-  const deleteTx = useDeleteTransaction()
-  const bulkDelete = useBulkDeleteTransactions()
-
   const transactions = data?.data || []
   const meta = data?.meta
   const totalPages = meta?.pages || 1
-  const allSelected =
-    transactions.length > 0 && transactions.every((tx) => selectedIds.includes(tx.id))
 
   if (isLoading) return <Skeleton className="h-96 w-full rounded-lg" />
 
@@ -75,18 +66,6 @@ export default function TransactionTable() {
         <Table className="min-w-[980px]">
           <TableHeader>
             <TableRow className="bg-muted/40 hover:bg-muted/40">
-              {!isGuest ? (
-                <TableHead className="w-16 px-6">
-                  <Checkbox
-                    checked={allSelected}
-                    onCheckedChange={() =>
-                      allSelected
-                        ? deselectAll()
-                        : selectAll(transactions.map((tx) => tx.id))
-                    }
-                  />
-                </TableHead>
-              ) : null}
               <TableHead className="pl-6">{t('assetDetail.colDate')}</TableHead>
               <TableHead className="pl-12">{t('dashboard.colAsset')}</TableHead>
               <TableHead>{t('dashboard.colType')}</TableHead>
@@ -99,27 +78,22 @@ export default function TransactionTable() {
           </TableHeader>
           <TableBody>
             {transactions.map((tx) => {
-              const isSelected = selectedIds.includes(tx.id)
               const isBuy = tx.action === 'MUA'
 
               return (
-                <TableRow key={tx.id} data-state={isSelected ? 'selected' : undefined}>
-                  {!isGuest ? (
-                    <TableCell className="w-16 px-6">
-                      <Checkbox checked={isSelected} onCheckedChange={() => toggleSelect(tx.id)} />
-                    </TableCell>
-                  ) : null}
+                <TableRow key={tx.id}>
                   <TableCell className="px-6 font-mono text-sm text-muted-foreground">
                     {new Date(tx.date).toLocaleDateString('vi-VN')}
                   </TableCell>
                   <TableCell className="px-6">
                     <div className="flex items-center gap-2">
-                      <div
-                        className="flex size-6 items-center justify-center rounded-full text-[10px]"
-                        style={{ backgroundColor: tx.iconBg }}
-                      >
-                        {tx.icon}
-                      </div>
+                      <AssetIcon
+                        code={tx.assetCode}
+                        assetType={tx.assetType}
+                        fallback={tx.icon}
+                        fallbackBg={tx.iconBg}
+                        sizeClass="size-6"
+                      />
                       <span className="text-base font-semibold">{tx.assetCode}</span>
                     </div>
                   </TableCell>
@@ -142,16 +116,13 @@ export default function TransactionTable() {
                   </TableCell>
                   {!isGuest ? (
                     <TableCell className="px-6">
-                      <div className="flex items-center justify-center gap-2">
-                        <Button variant="ghost" size="icon-xs">
-                          <Pencil size={13} />
-                        </Button>
+                      <div className="flex items-center justify-center">
                         <Button
                           variant="ghost"
                           size="icon-xs"
-                          onClick={() => deleteTx.mutate(tx.id)}
+                          onClick={() => startEdit(tx)}
                         >
-                          <Trash2 size={13} className="text-destructive" />
+                          <Pencil size={13} />
                         </Button>
                       </div>
                     </TableCell>
@@ -232,32 +203,6 @@ export default function TransactionTable() {
         </div>
       </div>
 
-      {!isGuest && selectedIds.length > 0 ? (
-        <div className="fixed inset-x-4 bottom-4 z-50 flex flex-col gap-4 rounded-xl border bg-popover px-4 py-3.5 shadow-lg sm:inset-x-auto sm:left-1/2 sm:w-auto sm:-translate-x-1/2 sm:flex-row sm:items-center sm:gap-6 sm:px-6 sm:bottom-8">
-          <div className="flex items-center gap-2">
-            <div className="size-2 rounded-full bg-primary" />
-            <span className="text-sm font-semibold">
-              {t('transactions.selected', { count: selectedIds.length })}
-            </span>
-          </div>
-          <div className="hidden h-4 w-px bg-border sm:block" />
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => {
-                bulkDelete.mutate(selectedIds)
-                deselectAll()
-              }}
-            >
-              <Trash2 size={12} /> {t('transactions.delete')}
-            </Button>
-            <Button variant="outline" size="sm" onClick={deselectAll}>
-              {t('transactions.deselect')}
-            </Button>
-          </div>
-        </div>
-      ) : null}
     </>
   )
 }

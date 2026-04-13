@@ -19,28 +19,64 @@ export default function PerformanceComparison() {
         <CardDescription>{t('reports.comparisonSub')}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-5">
-        {items.map(a => {
-          const maxInvest = Math.max(...items.map(i => i.invested), 1)
-          const investPct = (a.invested / maxInvest) * 60
-          const gainPct = Math.abs(a.profitPercent) / 100 * 30
-          const color = a.positive ? '#f59e0b' : '#ef4444'
-          return (
-            <div key={a.assetCode} className="flex flex-col gap-1.5">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="min-w-0 text-xs font-medium">{a.name}</span>
-                <span className="font-mono text-xs font-medium" style={{ color: a.positive ? 'var(--positive)' : 'var(--negative)' }}>{a.positive ? '+' : ''}{a.profitPercent.toFixed(1)}%</span>
-              </div>
-              <div className="flex h-2 overflow-hidden rounded-full bg-muted">
-                <div className="h-full bg-muted-foreground/30" style={{ width: `${investPct}%` }} />
-                <div className="h-full" style={{ width: `${gainPct}%`, backgroundColor: color }} />
-              </div>
-            </div>
+        {(() => {
+          const maxBase = Math.max(
+            ...items.map((i) => Math.max(i.invested, i.currentValue)),
+            1,
           )
-        })}
+          return items.map((a) => {
+            const profit = a.currentValue - a.invested
+            const investWidth = (a.invested / maxBase) * 100
+            const gainWidth = (Math.max(profit, 0) / maxBase) * 100
+            const lossWidth = (Math.max(-profit, 0) / maxBase) * 100
+            const grayLeft = a.positive ? investWidth : investWidth - lossWidth
+            return (
+              <div key={a.assetCode} className="flex flex-col gap-1.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="min-w-0 text-xs font-medium">{a.name}</span>
+                  <span
+                    className="font-mono text-xs font-medium"
+                    style={{ color: a.positive ? 'var(--positive)' : 'var(--negative)' }}
+                  >
+                    {a.positive ? '+' : ''}
+                    {a.profitPercent.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted/40">
+                  <div
+                    className="absolute top-0 bottom-0 left-0 bg-muted-foreground/40"
+                    style={{ width: `${grayLeft}%` }}
+                  />
+                  {a.positive ? (
+                    <div
+                      className="absolute top-0 bottom-0 bg-positive"
+                      style={{ left: `${investWidth}%`, width: `${gainWidth}%` }}
+                    />
+                  ) : (
+                    <div
+                      className="absolute top-0 bottom-0 bg-negative"
+                      style={{ left: `${grayLeft}%`, width: `${lossWidth}%` }}
+                    />
+                  )}
+                </div>
+              </div>
+            )
+          })
+        })()}
         <Separator />
         <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-1.5"><div className="size-2 rounded-sm bg-muted-foreground/30" /><span className="text-[11px] text-muted-foreground">{t('reports.invested')}</span></div>
-          <div className="flex items-center gap-1.5"><div className="size-2 rounded-sm bg-gold" /><span className="text-[11px] text-muted-foreground">{t('reports.profitLoss')}</span></div>
+          <div className="flex items-center gap-1.5">
+            <div className="size-2 rounded-sm bg-muted-foreground/40" />
+            <span className="text-[11px] text-muted-foreground">{t('reports.invested')}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="size-2 rounded-sm bg-positive" />
+            <span className="text-[11px] text-muted-foreground">{t('common.profit')}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="size-2 rounded-sm bg-negative" />
+            <span className="text-[11px] text-muted-foreground">{t('common.loss')}</span>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { AssetIcon } from '@/components/ui/asset-icon'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -53,12 +54,13 @@ export default function HoldingsTable() {
               <div className="flex w-full min-w-0 flex-col gap-3 text-left">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div
-                      className="flex size-9 shrink-0 items-center justify-center rounded-lg text-base"
-                      style={{ backgroundColor: holding.iconBg }}
-                    >
-                      {holding.icon}
-                    </div>
+                    <AssetIcon
+                      code={holding.assetCode}
+                      assetType={holding.assetType}
+                      fallback={holding.icon}
+                      fallbackBg={holding.iconBg}
+                      sizeClass="size-9"
+                    />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-foreground">{holding.name}</p>
                       <p className="text-xs text-muted-foreground">{holding.assetCode}</p>
@@ -77,7 +79,7 @@ export default function HoldingsTable() {
                     </p>
                   </div>
                   <div className="space-y-1 text-right">
-                    <p className="text-muted-foreground">Gia tri</p>
+                    <p className="text-muted-foreground">{t('dashboard.colValue')}</p>
                     <p className="font-['JetBrains_Mono'] font-semibold text-foreground">
                       {formatCompact(holding.value)}
                     </p>
@@ -101,7 +103,7 @@ export default function HoldingsTable() {
           {items.length > 0 ? (
             <div className="border-t bg-muted/30 px-4 py-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-foreground">Tong cong</span>
+                <span className="text-sm font-semibold text-foreground">{t('dashboard.total')}</span>
                 <span className="font-['JetBrains_Mono'] text-sm font-bold text-foreground">
                   {formatCompact(totalValue)}
                 </span>
@@ -130,7 +132,7 @@ export default function HoldingsTable() {
               <TableHead className="text-right">{t('dashboard.colQty')}</TableHead>
               <TableHead className="text-right">{t('dashboard.colAvgCost')}</TableHead>
               <TableHead className="text-right">{t('dashboard.colCurrentPrice')}</TableHead>
-              <TableHead className="text-right">Gia tri</TableHead>
+              <TableHead className="text-right">{t('dashboard.colValue')}</TableHead>
               <TableHead className="pr-4 text-right sm:pr-6 md:pr-8">{t('dashboard.colPnl')}</TableHead>
             </TableRow>
           </TableHeader>
@@ -143,12 +145,13 @@ export default function HoldingsTable() {
               >
                 <TableCell className="pl-4 sm:pl-6 md:pl-8">
                   <div className="flex items-center gap-3">
-                    <div
-                      className="flex size-7 items-center justify-center rounded-sm text-sm"
-                      style={{ backgroundColor: holding.iconBg }}
-                    >
-                      {holding.icon}
-                    </div>
+                    <AssetIcon
+                      code={holding.assetCode}
+                      assetType={holding.assetType}
+                      fallback={holding.icon}
+                      fallbackBg={holding.iconBg}
+                      sizeClass="size-7"
+                    />
                     <span className="text-sm font-semibold text-foreground">{holding.name}</span>
                   </div>
                 </TableCell>
@@ -183,7 +186,7 @@ export default function HoldingsTable() {
             {items.length > 0 ? (
               <TableRow className="border-t-2 border-border bg-muted/30 hover:bg-muted/30">
                 <TableCell className="pl-4 sm:pl-6 md:pl-8">
-                  <span className="font-bold text-foreground">Tong cong</span>
+                  <span className="font-bold text-foreground">{t('dashboard.total')}</span>
                 </TableCell>
                 <TableCell />
                 <TableCell />

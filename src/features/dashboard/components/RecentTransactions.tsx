@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useRecentTransactions } from '@/hooks/useTransactions'
+import { AssetIcon } from '@/components/ui/asset-icon'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -32,7 +33,12 @@ export default function RecentTransactions() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <span className="font-['JetBrains_Mono'] text-xs text-muted-foreground sm:w-24">{dateStr}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{tx.icon}</span>
+                  <AssetIcon
+                    code={tx.assetCode}
+                    assetType={tx.assetType}
+                    fallback={tx.icon}
+                    sizeClass="size-6"
+                  />
                   <span className="text-sm font-bold uppercase text-foreground">{tx.assetCode}</span>
                 </div>
                 <Badge variant={isBuy ? 'secondary' : 'destructive'} className={`text-[10px] font-bold ${isBuy ? 'bg-positive/10 text-positive' : ''}`}>

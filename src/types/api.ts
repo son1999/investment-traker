@@ -157,6 +157,15 @@ export interface AllocationItem {
 
 export interface ProfitByAsset {
   symbol: string
+  assetType: AssetType
+  icon: string
+  iconBg: string
+  currency: string
+  costNative: number
+  valueNative: number
+  cost: number
+  value: number
+  profit: number
   profitPercent: number
   positive: boolean
 }
@@ -164,6 +173,9 @@ export interface ProfitByAsset {
 export interface PortfolioHistoryPoint {
   date: string
   value: number
+  cost: number
+  profit: number
+  profitPercentage: number
 }
 
 export interface PortfolioHistory {
@@ -331,6 +343,7 @@ export interface CashFlowItem {
 export interface TopAsset {
   rank: number
   assetCode: string
+  assetType: AssetType
   name: string
   icon: string
   invested: number
@@ -352,10 +365,13 @@ export interface PerformanceComparison {
 
 export interface DCAChartData {
   assetCode: string
+  currency: string
   numPurchases: number
   avgIntervalDays: number
   avgPerPurchase: number
   purchaseAmounts: number[]
+  purchaseDates: string[]
+  purchaseUnitPrices: number[]
   avgCostPrices: number[]
   currentPrice: number
 }

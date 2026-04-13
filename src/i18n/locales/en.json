@@ -87,6 +87,8 @@
     "searchPlaceholder": "Search by asset code, notes...",
     "newTitle": "New Transaction",
     "newSubtitle": "Enter buy or sell details",
+    "editTitle": "Edit Transaction",
+    "editSubtitle": "Update transaction details",
     "assetType": "Asset Type",
     "assetCode": "Asset Code",
     "action": "Action",
@@ -110,6 +112,7 @@
     "of": "/",
     "selected": "{{count}} transactions selected",
     "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this transaction?",
     "deselect": "Deselect",
     "total": "Total",
     "type": "Type",
@@ -185,10 +188,10 @@
     "totalWithdrawn": "Total Withdrawn",
     "realizedPnl": "Realized P&L",
     "unrealizedPnl": "Unrealized P&L",
-    "fromYearStart": "VND · Year to date",
+    "fromYearStart": "VND",
     "paymentAccount": "VND · Payment account",
-    "realizedProfit": "↑ 3.4% · Realized profit",
-    "marketValue": "↑ 12.8% · Market value",
+    "realizedProfit": "Realized profit",
+    "marketValue": "Market value",
     "dca": "Dollar Cost Averaging",
     "dcaSub": "DCA strategy analysis",
     "numPurchases": "Purchases",
@@ -377,6 +380,8 @@
     "savings": "Savings",
     "buy": "BUY",
     "sell": "SELL",
-    "update": "Update"
+    "update": "Update",
+    "profit": "Profit",
+    "loss": "Loss"
   }
 }

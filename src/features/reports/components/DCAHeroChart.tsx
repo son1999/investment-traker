@@ -1,29 +1,67 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useDCAChart } from '@/hooks/useReports'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
+function formatAmount(v: number, currency: string): string {
+  if (currency === 'VND') {
+    if (v >= 1e9) return `${(v / 1e9).toFixed(2)} tỷ`
+    if (v >= 1e6) return `${(v / 1e6).toFixed(2)} tr`
+    if (v >= 1e3) return `${(v / 1e3).toFixed(0)}k`
+    return v.toFixed(0)
+  }
+  return v.toLocaleString('en-US', { maximumFractionDigits: 4 })
+}
+
+function formatDate(iso: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 export default function DCAHeroChart({ code }: { code: string }) {
   const { t } = useTranslation()
   const { data } = useDCAChart(code)
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null)
 
   if (!data) return null
 
+  const currency = data.currency || 'VND'
   const barHeights = data.purchaseAmounts
   const maxBar = Math.max(...barHeights, 1)
-  const currentPricePct =
-    data.avgCostPrices.length > 0
-      ? Math.min(95, (data.currentPrice / Math.max(...data.avgCostPrices)) * 65)
-      : 65
+  const maxAvg = data.avgCostPrices.length > 0 ? Math.max(...data.avgCostPrices, data.currentPrice, 1) : 1
+  const currentPricePct = Math.min(95, (data.currentPrice / maxAvg) * 65)
+
+  const formatAvg = (v: number, cur: string): string => {
+    if (cur === 'VND') {
+      if (v >= 1e9) return `${(v / 1e9).toFixed(2)} tỷ VND`
+      if (v >= 1e6) return `${(v / 1e6).toFixed(1)} tr VND`
+      if (v >= 1e3) return `${(v / 1e3).toFixed(0)}k VND`
+      return `${v.toFixed(0)} VND`
+    }
+    return `${v.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${cur}`
+  }
 
   const stats = [
     { label: t('reports.numPurchases'), value: String(data.numPurchases) },
     { label: t('reports.avgInterval'), value: `${data.avgIntervalDays} ngay` },
     {
       label: t('reports.avgPerPurchase'),
-      value: `${(data.avgPerPurchase / 1e6).toFixed(1)} tr VND`,
+      value: formatAvg(data.avgPerPurchase, currency),
+    },
+    {
+      label: t('reports.currentPrice'),
+      value: formatAvg(data.currentPrice, currency),
     },
   ]
+
+  const hovered = hoverIndex != null ? hoverIndex : null
+  const tooltipLeftPct =
+    hovered != null && barHeights.length > 0
+      ? ((hovered + 0.5) / barHeights.length) * 100
+      : 50
 
   return (
     <Card className="w-full min-w-0 border-border">
@@ -35,7 +73,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
 
         <div className="flex flex-wrap gap-3 sm:gap-5 md:justify-end">
           {stats.map((stat) => (
-            <div key={stat.label} className="flex min-w-[96px] flex-col gap-0.5 md:items-end">
+            <div key={stat.label} className="flex min-w-24 flex-col gap-0.5 md:items-end">
               <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                 {stat.label}
               </span>
@@ -48,26 +86,67 @@ export default function DCAHeroChart({ code }: { code: string }) {
       </CardHeader>
 
       <CardContent className="min-w-0 space-y-5">
-        <div className="relative flex h-44 min-w-0 items-end pt-2 sm:h-50">
-          <div className="flex min-w-0 flex-1 items-end justify-between gap-1.5 px-2 sm:gap-2 sm:px-8 lg:px-12">
-            {barHeights.map((height, index) => (
-              <div
-                key={index}
-                className="relative flex-1 rounded-t bg-muted-foreground/20"
-                style={{ height: `${(height / maxBar) * 170}px` }}
-              >
-                <div className="absolute left-0 right-0 top-0 h-0.5 rounded-full bg-gold" />
+        <div className="relative pt-14">
+          {hovered != null ? (
+            <div
+              className="pointer-events-none absolute top-0 z-30 -translate-x-1/2 whitespace-nowrap rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
+              style={{ left: `${tooltipLeftPct}%` }}
+            >
+              <div className="mb-1 font-medium text-muted-foreground">
+                #{hovered + 1} · {formatDate(data.purchaseDates?.[hovered] ?? '')}
               </div>
-            ))}
-          </div>
+              <div className="flex flex-col gap-0.5 font-['JetBrains_Mono']">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">{t('reports.purchaseAmount')}</span>
+                  <span className="font-semibold text-foreground">
+                    {formatAmount(data.purchaseAmounts?.[hovered] ?? 0, currency)} {currency}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">{t('assetDetail.colUnitPrice')}</span>
+                  <span className="font-semibold text-foreground">
+                    {formatAmount(data.purchaseUnitPrices?.[hovered] ?? 0, currency)} {currency}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3 border-t pt-0.5">
+                  <span className="flex items-center gap-1.5">
+                    <span className="inline-block size-2 rounded-sm bg-gold" />
+                    <span className="text-muted-foreground">{t('reports.avgCostPrice')}</span>
+                  </span>
+                  <span className="font-semibold text-foreground">
+                    {formatAmount(data.avgCostPrices?.[hovered] ?? 0, currency)} {currency}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
-          <div
-            className="absolute left-2 right-2 border-t border-dashed border-positive/50 sm:left-8 sm:right-8 lg:left-12 lg:right-12"
-            style={{ bottom: `${currentPricePct}%` }}
-          >
-            <span className="absolute -top-2 right-0 bg-card px-1.5 text-[10px] text-positive">
-              {t('reports.currentPrice')}
-            </span>
+          <div className="relative flex h-44 min-w-0 items-end sm:h-50">
+            <div className="flex min-w-0 flex-1 items-end justify-between gap-1.5 px-2 sm:gap-2 sm:px-8 lg:px-12">
+              {barHeights.map((height, index) => {
+                const isHover = hoverIndex === index
+                return (
+                  <div
+                    key={index}
+                    className={`relative flex-1 cursor-pointer rounded-t transition-colors ${isHover ? 'bg-muted-foreground/40' : 'bg-muted-foreground/20'}`}
+                    style={{ height: `${(height / maxBar) * 170}px` }}
+                    onMouseEnter={() => setHoverIndex(index)}
+                    onMouseLeave={() => setHoverIndex(null)}
+                  >
+                    <div className="absolute right-0 left-0 top-0 h-0.5 rounded-full bg-gold" />
+                  </div>
+                )
+              })}
+            </div>
+
+            <div
+              className="pointer-events-none absolute right-2 left-2 border-t border-dashed border-positive/60 sm:right-8 sm:left-8 lg:right-12 lg:left-12"
+              style={{ bottom: `${currentPricePct}%` }}
+            >
+              <span className="absolute -top-2 right-0 bg-card px-1.5 text-[10px] font-semibold text-positive">
+                {t('reports.currentPrice')}: {formatAmount(data.currentPrice, currency)} {currency}
+              </span>
+            </div>
           </div>
         </div>
 

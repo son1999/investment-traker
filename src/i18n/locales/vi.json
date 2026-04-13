@@ -87,6 +87,8 @@
     "searchPlaceholder": "Tìm theo mã tài sản, ghi chú...",
     "newTitle": "Giao dịch mới",
     "newSubtitle": "Nhập thông tin mua hoặc bán",
+    "editTitle": "Sửa giao dịch",
+    "editSubtitle": "Cập nhật thông tin giao dịch",
     "assetType": "Loại tài sản",
     "assetCode": "Mã tài sản",
     "action": "Hành động",
@@ -110,6 +112,7 @@
     "of": "/",
     "selected": "Đã chọn {{count}} giao dịch",
     "delete": "Xóa",
+    "confirmDelete": "Bạn có chắc muốn xóa giao dịch này?",
     "deselect": "Bỏ chọn",
     "total": "Tổng tiền",
     "type": "Loại",
@@ -185,10 +188,10 @@
     "totalWithdrawn": "Tổng rút vốn",
     "realizedPnl": "Lãi/Lỗ đã thực hiện",
     "unrealizedPnl": "Lãi/Lỗ chưa thực hiện",
-    "fromYearStart": "VND · Tính từ đầu năm",
+    "fromYearStart": "VND",
     "paymentAccount": "VND · Tài khoản thanh toán",
-    "realizedProfit": "↑ 3.4% · Lợi nhuận chốt lời",
-    "marketValue": "↑ 12.8% · Giá trị thị trường",
+    "realizedProfit": "Lợi nhuận chốt lời",
+    "marketValue": "Giá trị thị trường",
     "dca": "Dollar Cost Averaging",
     "dcaSub": "Phân tích chiến lược mua trung bình",
     "numPurchases": "Số lần mua",
@@ -377,6 +380,8 @@
     "savings": "Tiết kiệm",
     "buy": "MUA",
     "sell": "BÁN",
-    "update": "Cập nhật"
+    "update": "Cập nhật",
+    "profit": "Lãi",
+    "loss": "Lỗ"
   }
 }
