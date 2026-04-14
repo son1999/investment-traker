@@ -1,5 +1,24 @@
 // ── Common ──────────────────────────────────────────────
 export type AssetType = 'metal' | 'crypto' | 'stock' | 'savings'
+
+export type SavingsEventType = 'DEPOSIT' | 'WITHDRAW' | 'INTEREST' | 'FEE' | 'MATURITY'
+
+export interface SavingsEvent {
+  id: string
+  type: SavingsEventType
+  amount: number
+  date: string
+  note?: string | null
+  createdAt?: string
+}
+
+export interface CreateSavingsEventRequest {
+  assetCode: string
+  type: SavingsEventType
+  amount: number
+  date: string
+  note?: string
+}
 export type TransactionAction = 'MUA' | 'BAN'
 export type Period = '1m' | '3m' | '6m' | '1y' | 'all'
 export type AllocationStatus = 'on-target' | 'overweight' | 'underweight'
@@ -196,6 +215,7 @@ export interface Asset {
   termMonths?: number
   bankName?: string
   maturityDate?: string
+  principalAmount?: number
   createdAt: string
   updatedAt: string
 }
@@ -211,6 +231,7 @@ export interface CreateAssetRequest {
   termMonths?: number
   bankName?: string
   maturityDate?: string
+  principalAmount?: number
 }
 
 export interface UpdateAssetRequest {
@@ -222,6 +243,7 @@ export interface UpdateAssetRequest {
   termMonths?: number
   bankName?: string
   maturityDate?: string
+  principalAmount?: number
 }
 
 export interface AssetDetail {

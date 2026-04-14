@@ -1,11 +1,14 @@
 import { useTranslation } from 'react-i18next'
+import { RefreshCw } from 'lucide-react'
 
 import { DataTableCard } from '@/components/app'
+import { AssetIcon } from '@/components/ui/asset-icon'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useCurrencies } from '@/hooks/useCurrencies'
-import { usePrices } from '@/hooks/usePrices'
+import { usePrices, useRefreshAllPrices } from '@/hooks/usePrices'
 
 const typeLabels: Record<string, string> = {
   metal: 'common.metal',
@@ -22,6 +25,7 @@ export default function PriceTable() {
   const { t } = useTranslation()
   const { data: prices, isLoading } = usePrices()
   const { data: currencies } = useCurrencies()
+  const refresh = useRefreshAllPrices()
   const items = prices || []
 
   const rateMap: Record<string, number> = { VND: 1 }
@@ -35,6 +39,17 @@ export default function PriceTable() {
     <DataTableCard
       title={t('prices.savedPrices')}
       description={`${items.length} ${t('prices.records')}`}
+      action={
+        <Button
+          onClick={() => refresh.mutate()}
+          disabled={refresh.isPending}
+          size="sm"
+          className="gap-2"
+        >
+          <RefreshCw size={14} className={refresh.isPending ? 'animate-spin' : ''} />
+          {refresh.isPending ? t('prices.refreshing') : t('prices.refreshAll')}
+        </Button>
+      }
     >
       <Table className="min-w-[620px]">
         <TableHeader>
@@ -56,7 +71,12 @@ export default function PriceTable() {
               <TableRow key={price.id}>
                 <TableCell className="px-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-lg">{price.icon}</span>
+                    <AssetIcon
+                      code={price.code}
+                      assetType={price.type}
+                      fallback={price.icon}
+                      sizeClass="size-8"
+                    />
                     <span className="text-base font-semibold">{price.code}</span>
                   </div>
                 </TableCell>

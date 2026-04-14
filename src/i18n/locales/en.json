@@ -364,7 +364,29 @@
     "termMonthsPlaceholder": "e.g. 12",
     "bankName": "Bank Name",
     "bankNamePlaceholder": "e.g. Vietcombank",
-    "maturityDate": "Maturity Date"
+    "maturityDate": "Maturity Date",
+    "principalAmount": "Principal Amount (₫)"
+  },
+  "savings": {
+    "amount": "Amount",
+    "balance": "Current Balance",
+    "principal": "Principal",
+    "interestEarned": "Interest Earned",
+    "interestRate": "Interest Rate",
+    "term": "Term",
+    "months": "months",
+    "maturityDate": "Maturity Date",
+    "openTerm": "No fixed term",
+    "addEvent": "Add Event",
+    "eventsTitle": "Savings Events",
+    "eventsCount": "{{count}} events",
+    "eventType": "Type",
+    "noEvents": "No events yet",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "interest": "Interest",
+    "fee": "Fee",
+    "maturity": "Maturity"
   },
   "common": {
     "all": "All",

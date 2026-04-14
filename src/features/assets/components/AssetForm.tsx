@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FormField } from '@/components/app'
+import { formatMoney, parseMoney } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -24,6 +25,7 @@ interface AssetFormProps {
     termMonths?: number
     bankName?: string
     maturityDate?: string
+    principalAmount?: number
   }) => void
   isPending: boolean
 }
@@ -57,38 +59,46 @@ export default function AssetForm({
   const [name, setName] = useState(asset?.name || '')
   const [type, setType] = useState<AssetType>(asset?.type || 'metal')
   const [currency, setCurrency] = useState(asset?.currency || 'VND')
-  const [icon, setIcon] = useState(asset?.icon || '🥇')
-  const [iconBg, setIconBg] = useState(asset?.iconBg || 'rgba(248,160,16,0.2)')
   const [interestRate, setInterestRate] = useState(asset?.interestRate?.toString() || '')
   const [termMonths, setTermMonths] = useState(asset?.termMonths?.toString() || '')
   const [bankName, setBankName] = useState(asset?.bankName || '')
-  const [maturityDate, setMaturityDate] = useState(asset?.maturityDate || '')
+  const [principalAmount, setPrincipalAmount] = useState(asset?.principalAmount?.toString() || '')
 
   const handleTypeChange = (value: AssetType) => {
     setType(value)
-    if (!isEdit) {
-      setIcon(defaultIcons[value])
-      setIconBg(defaultIconBgs[value])
-    }
   }
 
   const handleSubmit = () => {
-    if (!code || !name) return
+    const isSavings = type === 'savings'
 
-    const data: Parameters<typeof onSave>[0] = {
-      code: code.toUpperCase(),
-      name,
-      type,
-      currency,
-      icon,
-      iconBg,
+    if (isSavings) {
+      if (!bankName || !principalAmount) return
+    } else if (!code || !name) {
+      return
     }
 
-    if (type === 'savings') {
+    const finalCode = isSavings
+      ? asset?.code || `SAV-${Date.now()}`
+      : code.toUpperCase()
+    const finalName = isSavings
+      ? `${t('common.savings')} ${bankName}`
+      : name
+    const finalCurrency = isSavings ? 'VND' : currency
+
+    const data: Parameters<typeof onSave>[0] = {
+      code: finalCode,
+      name: finalName,
+      type,
+      currency: finalCurrency,
+      icon: asset?.icon || defaultIcons[type],
+      iconBg: asset?.iconBg || defaultIconBgs[type],
+    }
+
+    if (isSavings) {
       if (interestRate) data.interestRate = parseFloat(interestRate)
       if (termMonths) data.termMonths = parseInt(termMonths)
-      if (bankName) data.bankName = bankName
-      if (maturityDate) data.maturityDate = maturityDate
+      data.bankName = bankName
+      data.principalAmount = parseFloat(principalAmount)
     }
 
     onSave(data)
@@ -111,19 +121,9 @@ export default function AssetForm({
         </DialogHeader>
 
         <div className="grid gap-4 py-4 md:grid-cols-2">
-          <FormField label={t('assets.code')}>
-            <Input
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder={t('assets.codePlaceholder')}
-              disabled={isEdit}
-              className={isEdit ? 'opacity-60' : undefined}
-            />
-          </FormField>
-
           <FormField label={t('assets.type')}>
             <Select value={type} onValueChange={(value) => handleTypeChange(value as AssetType)}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -135,55 +135,25 @@ export default function AssetForm({
             </Select>
           </FormField>
 
-          <FormField label={t('assets.name')}>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t('assets.namePlaceholder')}
-            />
-          </FormField>
-
-          <FormField label={t('currencies.code')}>
-            <Select value={currency} onValueChange={(value) => value && setCurrency(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {currencyOptions.map((current) => (
-                  <SelectItem key={current.code} value={current.code}>
-                    {current.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormField>
-
-          <FormField label={t('assets.icon')}>
-            <div className="flex items-center gap-2">
-              <div
-                className="flex size-10 items-center justify-center rounded-lg text-xl"
-                style={{ backgroundColor: iconBg }}
-              >
-                {icon}
-              </div>
-              <Input
-                value={icon}
-                onChange={(e) => setIcon(e.target.value)}
-                placeholder={t('assets.iconPlaceholder')}
-              />
-            </div>
-          </FormField>
-
-          <FormField label={t('assets.iconBg')}>
-            <Input
-              value={iconBg}
-              onChange={(e) => setIconBg(e.target.value)}
-              placeholder={t('assets.iconBgPlaceholder')}
-            />
-          </FormField>
-
           {type === 'savings' ? (
             <>
+              <FormField label={t('assets.bankName')}>
+                <Input
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  placeholder={t('assets.bankNamePlaceholder')}
+                />
+              </FormField>
+
+              <FormField label={t('assets.principalAmount')}>
+                <Input
+                  inputMode="numeric"
+                  value={formatMoney(principalAmount)}
+                  onChange={(e) => setPrincipalAmount(parseMoney(e.target.value))}
+                  placeholder="VD: 10,000,000"
+                />
+              </FormField>
+
               <FormField label={t('assets.interestRate')}>
                 <Input
                   type="number"
@@ -202,29 +172,54 @@ export default function AssetForm({
                   placeholder={t('assets.termMonthsPlaceholder')}
                 />
               </FormField>
-
-              <FormField label={t('assets.bankName')}>
+            </>
+          ) : (
+            <>
+              <FormField label={t('assets.code')}>
                 <Input
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
-                  placeholder={t('assets.bankNamePlaceholder')}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder={t('assets.codePlaceholder')}
+                  disabled={isEdit}
+                  className={isEdit ? 'opacity-60' : undefined}
                 />
               </FormField>
 
-              <FormField label={t('assets.maturityDate')}>
+              <FormField label={t('assets.name')}>
                 <Input
-                  type="date"
-                  value={maturityDate}
-                  onChange={(e) => setMaturityDate(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t('assets.namePlaceholder')}
                 />
+              </FormField>
+
+              <FormField label={t('currencies.code')}>
+                <Select value={currency} onValueChange={(value) => value && setCurrency(value)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {currencyOptions.map((current) => (
+                      <SelectItem key={current.code} value={current.code}>
+                        {current.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormField>
             </>
-          ) : null}
+          )}
         </div>
 
         <DialogFooter>
           <DialogClose render={<Button variant="outline">{t('assets.cancel')}</Button>} />
-          <Button onClick={handleSubmit} disabled={isPending || !code || !name}>
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              isPending ||
+              (type === 'savings' ? !bankName || !principalAmount : !code || !name)
+            }
+          >
             {isPending ? '...' : t('assets.save')}
           </Button>
         </DialogFooter>

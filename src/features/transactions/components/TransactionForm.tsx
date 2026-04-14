@@ -12,9 +12,11 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useAssets } from '@/hooks/useAssets'
 import { useCurrencies } from '@/hooks/useCurrencies'
+import { useCreateSavingsEvent } from '@/hooks/useSavingsEvents'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
+import { formatMoney, parseMoney } from '@/lib/format'
 import { useTransactionsUIStore } from '@/stores/transactions'
-import type { AssetType, TransactionAction } from '@/types/api'
+import type { AssetType, SavingsEventType, TransactionAction } from '@/types/api'
 
 type InputMode = 'totalAmount' | 'unitPrice'
 
@@ -63,6 +65,7 @@ export default function TransactionForm() {
   const { setShowForm, editingTx, cancelEdit } = useTransactionsUIStore()
   const createTx = useCreateTransaction()
   const updateTx = useUpdateTransaction()
+  const createSavingsEvent = useCreateSavingsEvent()
   const isEdit = Boolean(editingTx)
   const { data: assets } = useAssets()
   const { data: currencies } = useCurrencies()
@@ -74,6 +77,8 @@ export default function TransactionForm() {
   const [priceInput, setPriceInput] = useState('')
   const [date, setDate] = useState('')
   const [note, setNote] = useState('')
+  const [savingsEventType, setSavingsEventType] = useState<SavingsEventType>('DEPOSIT')
+  const [savingsAmount, setSavingsAmount] = useState('')
 
   useEffect(() => {
     if (!editingTx) return
@@ -88,6 +93,7 @@ export default function TransactionForm() {
 
   const selectedAsset = (assets || []).find((asset) => asset.code === selectedAssetCode)
   const currency = selectedAsset?.currency || 'VND'
+  const isSavings = selectedAsset?.type === 'savings'
 
   const rateMap: Record<string, number> = { VND: 1 }
   for (const current of currencies || []) {
@@ -115,7 +121,27 @@ export default function TransactionForm() {
   }, [inputMode, priceVal, qty, rate])
 
   const handleSave = async () => {
-    if (!selectedAsset || qty <= 0 || priceVal <= 0) return
+    if (!selectedAsset) return
+
+    if (isSavings) {
+      const amount = parseFloat(savingsAmount)
+      if (!amount || amount <= 0) return
+      await createSavingsEvent.mutateAsync({
+        assetCode: selectedAsset.code,
+        type: savingsEventType,
+        amount,
+        date: date || new Date().toISOString().slice(0, 10),
+        note: note || undefined,
+      })
+      setSelectedAssetCode('')
+      setSavingsAmount('')
+      setDate('')
+      setNote('')
+      setShowForm(false)
+      return
+    }
+
+    if (qty <= 0 || priceVal <= 0) return
 
     const base = {
       date: date ? new Date(date).toISOString() : new Date().toISOString(),
@@ -224,64 +250,106 @@ export default function TransactionForm() {
             </FormField>
 
             <FormField label={t('transactions.action')}>
-              <Select value={action} onValueChange={(v) => v && setAction(v as TransactionAction)}>
-                <SelectTrigger className="h-10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="MUA">{t('common.buy')}</SelectItem>
-                  <SelectItem value="BAN">{t('common.sell')}</SelectItem>
-                </SelectContent>
-              </Select>
+              {isSavings ? (
+                <Select
+                  value={savingsEventType}
+                  onValueChange={(v) => v && setSavingsEventType(v as SavingsEventType)}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DEPOSIT">{t('savings.deposit')}</SelectItem>
+                    <SelectItem value="WITHDRAW">{t('savings.withdraw')}</SelectItem>
+                    <SelectItem value="INTEREST">{t('savings.interest')}</SelectItem>
+                    <SelectItem value="FEE">{t('savings.fee')}</SelectItem>
+                    <SelectItem value="MATURITY">{t('savings.maturity')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Select value={action} onValueChange={(v) => v && setAction(v as TransactionAction)}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MUA">{t('common.buy')}</SelectItem>
+                    <SelectItem value="BAN">{t('common.sell')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
             </FormField>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-sm font-medium">{t('transactions.inputMode')}</p>
-            <Tabs
-              value={inputMode}
-              onValueChange={(value) => {
-                setInputMode(value as InputMode)
-                setPriceInput('')
-              }}
-            >
-              <TabsList className="h-auto flex-wrap">
-                <TabsTrigger value="totalAmount">{t('transactions.totalAmount')}</TabsTrigger>
-                <TabsTrigger value="unitPrice">{t('transactions.unitPriceLabel')}</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+          {isSavings ? (
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField label={t('savings.amount')}>
+                <Input
+                  value={formatMoney(savingsAmount)}
+                  onChange={(e) => setSavingsAmount(parseMoney(e.target.value))}
+                  placeholder="VD: 10,000,000"
+                  inputMode="numeric"
+                  className="h-10 font-mono"
+                />
+              </FormField>
+              <FormField label={t('transactions.date')}>
+                <Input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="h-10"
+                />
+              </FormField>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">{t('transactions.inputMode')}</p>
+                <Tabs
+                  value={inputMode}
+                  onValueChange={(value) => {
+                    setInputMode(value as InputMode)
+                    setPriceInput('')
+                  }}
+                >
+                  <TabsList className="h-auto flex-wrap">
+                    <TabsTrigger value="totalAmount">{t('transactions.totalAmount')}</TabsTrigger>
+                    <TabsTrigger value="unitPrice">{t('transactions.unitPriceLabel')}</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <FormField label={t('transactions.quantity')}>
-              <Input
-                value={quantity}
-                onChange={(e) => setQuantity(formatNumberInput(e.target.value))}
-                placeholder="0.00"
-                inputMode="decimal"
-                className="h-10 font-mono"
-              />
-            </FormField>
-            <FormField
-              label={`${inputMode === 'totalAmount' ? t('transactions.totalAmount') : t('transactions.unitPriceLabel')} (${currency})`}
-            >
-              <Input
-                value={priceInput}
-                onChange={(e) => setPriceInput(formatNumberInput(e.target.value))}
-                placeholder="0"
-                inputMode="decimal"
-                className="h-10 font-mono"
-              />
-            </FormField>
-            <FormField label={t('transactions.date')}>
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="h-10"
-              />
-            </FormField>
-          </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <FormField label={t('transactions.quantity')}>
+                  <Input
+                    value={quantity}
+                    onChange={(e) => setQuantity(formatNumberInput(e.target.value))}
+                    placeholder="0.00"
+                    inputMode="decimal"
+                    className="h-10 font-mono"
+                  />
+                </FormField>
+                <FormField
+                  label={`${inputMode === 'totalAmount' ? t('transactions.totalAmount') : t('transactions.unitPriceLabel')} (${currency})`}
+                >
+                  <Input
+                    value={priceInput}
+                    onChange={(e) => setPriceInput(formatNumberInput(e.target.value))}
+                    placeholder="0"
+                    inputMode="decimal"
+                    className="h-10 font-mono"
+                  />
+                </FormField>
+                <FormField label={t('transactions.date')}>
+                  <Input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="h-10"
+                  />
+                </FormField>
+              </div>
+            </>
+          )}
 
           {/* <FormField label={t('transactions.note')} description="Optional"> */}
             <Input
@@ -292,46 +360,56 @@ export default function TransactionForm() {
             />
           {/* </FormField> */}
 
-          <Separator />
+          {!isSavings ? <Separator /> : null}
 
-          <div className="rounded-lg border bg-muted/30 p-4">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-              <span className="text-sm text-muted-foreground">{t('transactions.totalValue')}</span>
-              <span className="font-mono text-xl font-semibold text-foreground">
-                {formatCurrency(computed?.totalAmount || 0, currency)}
-              </span>
-            </div>
-            {computed ? (
-              <div className="mt-3 space-y-2">
-                <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                  <span className="text-muted-foreground">
-                    {inputMode === 'totalAmount'
-                      ? t('transactions.unitPriceCalc')
-                      : t('transactions.unitPriceLabel')}
-                  </span>
-                  <span className="font-mono text-muted-foreground">
-                    {formatCurrency(computed.unitPrice, currency)}/{selectedAsset?.code}
-                  </span>
-                </div>
-                {!isVND ? (
-                  <div className="flex flex-col gap-1 border-t pt-2 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                    <span className="text-muted-foreground">{t('transactions.convertVnd')}</span>
-                    <span className="font-mono font-medium">
-                      ≈ {Math.round(computed.totalVnd).toLocaleString('vi-VN')} ₫
+          {!isSavings ? (
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <span className="text-sm text-muted-foreground">{t('transactions.totalValue')}</span>
+                <span className="font-mono text-xl font-semibold text-foreground">
+                  {formatCurrency(computed?.totalAmount || 0, currency)}
+                </span>
+              </div>
+              {computed ? (
+                <div className="mt-3 space-y-2">
+                  <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                    <span className="text-muted-foreground">
+                      {inputMode === 'totalAmount'
+                        ? t('transactions.unitPriceCalc')
+                        : t('transactions.unitPriceLabel')}
+                    </span>
+                    <span className="font-mono text-muted-foreground">
+                      {formatCurrency(computed.unitPrice, currency)}/{selectedAsset?.code}
                     </span>
                   </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
+                  {!isVND ? (
+                    <div className="flex flex-col gap-1 border-t pt-2 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                      <span className="text-muted-foreground">{t('transactions.convertVnd')}</span>
+                      <span className="font-mono font-medium">
+                        ≈ {Math.round(computed.totalVnd).toLocaleString('vi-VN')} ₫
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="flex flex-wrap gap-3 pt-2">
             <Button
               onClick={handleSave}
-              disabled={createTx.isPending || updateTx.isPending || !selectedAsset || !computed}
+              disabled={
+                createTx.isPending ||
+                updateTx.isPending ||
+                createSavingsEvent.isPending ||
+                !selectedAsset ||
+                (isSavings ? !parseFloat(savingsAmount) : !computed)
+              }
               size="lg"
             >
-              {createTx.isPending || updateTx.isPending ? '...' : t('transactions.save')}
+              {createTx.isPending || updateTx.isPending || createSavingsEvent.isPending
+                ? '...'
+                : t('transactions.save')}
             </Button>
             <Button
               variant="outline"

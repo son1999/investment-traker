@@ -364,7 +364,29 @@
     "termMonthsPlaceholder": "VD: 12",
     "bankName": "Ngân hàng",
     "bankNamePlaceholder": "VD: Vietcombank",
-    "maturityDate": "Ngày đáo hạn"
+    "maturityDate": "Ngày đáo hạn",
+    "principalAmount": "Số tiền (₫)"
+  },
+  "savings": {
+    "amount": "Số tiền",
+    "balance": "Số dư hiện tại",
+    "principal": "Vốn gốc",
+    "interestEarned": "Lãi đã nhận",
+    "interestRate": "Lãi suất",
+    "term": "Kỳ hạn",
+    "months": "tháng",
+    "maturityDate": "Ngày đáo hạn",
+    "openTerm": "Không kỳ hạn",
+    "addEvent": "Thêm giao dịch",
+    "eventsTitle": "Lịch sử giao dịch tiết kiệm",
+    "eventsCount": "{{count}} giao dịch",
+    "eventType": "Loại",
+    "noEvents": "Chưa có giao dịch nào",
+    "deposit": "Gửi tiền",
+    "withdraw": "Rút tiền",
+    "interest": "Nhận lãi",
+    "fee": "Phí",
+    "maturity": "Tất toán"
   },
   "common": {
     "all": "Tất cả",

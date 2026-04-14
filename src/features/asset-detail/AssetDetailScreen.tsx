@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Plus, MoreVertical, ExternalLink } from 'lucide-react'
 import { useAssetDetail, useAssetTransactions } from '@/hooks/useAssets'
+import SavingsAssetDetailView from './SavingsAssetDetailView'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -49,6 +50,10 @@ export default function AssetDetailScreen() {
         <Skeleton className="mt-6 h-80 rounded-2xl" />
       </div>
     )
+  }
+
+  if (asset.assetType === 'savings') {
+    return <SavingsAssetDetailView asset={asset} onBack={() => navigate(-1)} />
   }
 
   const { holdings, avgCost, currentPrice, profit } = asset.metrics

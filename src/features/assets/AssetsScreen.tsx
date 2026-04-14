@@ -50,6 +50,7 @@ export default function AssetsScreen() {
     termMonths?: number
     bankName?: string
     maturityDate?: string
+    principalAmount?: number
   }) => {
     if (editingAsset) {
       await updateAsset.mutateAsync({
@@ -63,6 +64,7 @@ export default function AssetsScreen() {
           termMonths: data.termMonths,
           bankName: data.bankName,
           maturityDate: data.maturityDate,
+          principalAmount: data.principalAmount,
         },
       })
     } else {
