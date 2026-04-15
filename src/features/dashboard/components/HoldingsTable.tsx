@@ -8,14 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useHoldings } from '@/hooks/usePortfolio'
-
-function formatCompact(value: number): string {
-  const abs = Math.abs(value)
-  if (abs >= 1e9) return `${(value / 1e9).toFixed(2)}B`
-  if (abs >= 1e6) return `${(value / 1e6).toFixed(1)}M`
-  if (abs >= 1e3) return `${(value / 1e3).toFixed(1)}k`
-  return value.toLocaleString('vi-VN')
-}
+import { formatCurrency } from '@/lib/format'
 
 const typeLabel: Record<string, string> = { metal: 'commodity', crypto: 'crypto', stock: 'stock' }
 
@@ -81,7 +74,7 @@ export default function HoldingsTable() {
                   <div className="space-y-1 text-right">
                     <p className="text-muted-foreground">{t('dashboard.colValue')}</p>
                     <p className="font-['JetBrains_Mono'] font-semibold text-foreground">
-                      {formatCompact(holding.value)}
+                      {formatCurrency(holding.value)}
                     </p>
                   </div>
                 </div>
@@ -105,7 +98,7 @@ export default function HoldingsTable() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="text-sm font-semibold text-foreground">{t('dashboard.total')}</span>
                 <span className="font-['JetBrains_Mono'] text-sm font-bold text-foreground">
-                  {formatCompact(totalValue)}
+                  {formatCurrency(totalValue)}
                 </span>
               </div>
               <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
@@ -164,13 +157,13 @@ export default function HoldingsTable() {
                   {holding.quantity.toLocaleString('en-US')}
                 </TableCell>
                 <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-foreground">
-                  {formatCompact(holding.averageCost)}
+                  {formatCurrency(holding.averageCost, holding.currency)}
                 </TableCell>
                 <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-foreground">
-                  {formatCompact(holding.currentPrice)}
+                  {formatCurrency(holding.currentPrice, holding.currency)}
                 </TableCell>
                 <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-foreground">
-                  {formatCompact(holding.value)}
+                  {formatCurrency(holding.value)}
                 </TableCell>
                 <TableCell className="pr-4 text-right sm:pr-6 md:pr-8">
                   <Badge
@@ -193,7 +186,7 @@ export default function HoldingsTable() {
                 <TableCell />
                 <TableCell />
                 <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-foreground">
-                  {formatCompact(totalValue)}
+                  {formatCurrency(totalValue)}
                 </TableCell>
                 <TableCell className="pr-4 text-right sm:pr-6 md:pr-8">
                   <Badge

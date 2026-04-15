@@ -5,23 +5,16 @@ import { usePerformance } from '@/hooks/useReports'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Period } from '@/types/api'
+import { formatCurrency, formatAxisCompact } from '@/lib/format'
 
 const SERIES_KEYS = ['savings', 'stock', 'metal', 'crypto'] as const
 type SeriesKey = (typeof SERIES_KEYS)[number]
 
 const COLORS: Record<SeriesKey, string> = {
-  savings: '#22c55e',
-  stock: '#60a5fa',
-  metal: '#f59e0b',
-  crypto: '#f97316',
-}
-
-function formatCompact(v: number): string {
-  const abs = Math.abs(v)
-  if (abs >= 1e9) return `${(v / 1e9).toFixed(2)}B`
-  if (abs >= 1e6) return `${(v / 1e6).toFixed(2)}M`
-  if (abs >= 1e3) return `${(v / 1e3).toFixed(1)}K`
-  return v.toLocaleString('vi-VN')
+  savings: '#10b981',
+  stock: '#3b82f6',
+  metal: '#eab308',
+  crypto: '#ef4444',
 }
 
 function buildLayer(
@@ -62,12 +55,24 @@ export default function PerformanceChart({ period }: { period: Period }) {
   const chartRef = useRef<HTMLDivElement>(null)
   const [hoverIndex, setHoverIndex] = useState<number | null>(null)
   const [containerWidth, setContainerWidth] = useState(0)
+  const [hiddenSeries, setHiddenSeries] = useState<Set<SeriesKey>>(new Set())
+
+  const toggleSeries = (key: SeriesKey) => {
+    setHiddenSeries((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
 
   if (isLoading) return <Skeleton className="h-80 w-full rounded-lg" />
 
   const months = data?.months || []
   const series = data?.series || { metal: [], crypto: [], stock: [], savings: [] }
   const len = months.length
+
+  const visibleKeys = SERIES_KEYS.filter((k) => !hiddenSeries.has(k))
 
   const stacks: Record<SeriesKey, number[]> = {
     savings: [],
@@ -78,19 +83,23 @@ export default function PerformanceChart({ period }: { period: Period }) {
   for (let i = 0; i < len; i++) {
     let cum = 0
     for (const k of SERIES_KEYS) {
-      cum += series[k][i] ?? 0
+      if (!hiddenSeries.has(k)) cum += series[k][i] ?? 0
       stacks[k].push(cum)
     }
   }
 
-  const totals = stacks.crypto
+  const topStackKey = visibleKeys.length > 0 ? visibleKeys[visibleKeys.length - 1] : 'crypto'
+  const totals = stacks[topStackKey]
   const maxVal = Math.max(...totals, 1) * 1.05
   const svgW = 1000
   const svgH = 280
   const pad = 12
 
   const zeros = new Array(len).fill(0)
-  const layers: { key: SeriesKey; d: string; lineD: string }[] = SERIES_KEYS.map((k, idx) => {
+  const layers: { key: SeriesKey; d: string; lineD: string }[] = SERIES_KEYS.filter(
+    (k) => !hiddenSeries.has(k),
+  ).map((k) => {
+    const idx = SERIES_KEYS.indexOf(k)
     const lower = idx === 0 ? zeros : stacks[SERIES_KEYS[idx - 1]]
     const upper = stacks[k]
     return {
@@ -129,7 +138,10 @@ export default function PerformanceChart({ period }: { period: Period }) {
 
   const hoverTotal =
     hoverIndex != null
-      ? seriesList.reduce((sum, s) => sum + (s.values[hoverIndex] ?? 0), 0)
+      ? seriesList.reduce(
+          (sum, s) => sum + (hiddenSeries.has(s.key) ? 0 : s.values[hoverIndex] ?? 0),
+          0,
+        )
       : 0
 
   return (
@@ -137,12 +149,25 @@ export default function PerformanceChart({ period }: { period: Period }) {
       <CardHeader className="flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <CardTitle className="text-sm">{t('reports.performance')}</CardTitle>
         <div className="flex flex-wrap gap-4 md:gap-5">
-          {seriesList.map((s) => (
-            <div key={s.key} className="flex items-center gap-1.5">
-              <div className="size-2.5 rounded-sm" style={{ backgroundColor: s.color }} />
-              <span className="text-xs text-muted-foreground">{s.label}</span>
-            </div>
-          ))}
+          {seriesList.map((s) => {
+            const hidden = hiddenSeries.has(s.key)
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => toggleSeries(s.key)}
+                className={`flex items-center gap-1.5 transition-opacity ${hidden ? 'opacity-40' : 'opacity-100'}`}
+              >
+                <div
+                  className="size-2.5 rounded-sm"
+                  style={{ backgroundColor: hidden ? 'transparent' : s.color, border: `1.5px solid ${s.color}` }}
+                />
+                <span className={`text-xs text-muted-foreground ${hidden ? 'line-through' : ''}`}>
+                  {s.label}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </CardHeader>
       <CardContent className="min-w-0">
@@ -150,7 +175,7 @@ export default function PerformanceChart({ period }: { period: Period }) {
           <div className="flex w-12 flex-col justify-between pt-3 pb-7 text-right">
             {[1, 0.75, 0.5, 0.25, 0].map((r, i) => (
               <span key={i} className="font-mono text-[10px] text-muted-foreground">
-                {formatCompact(maxVal * r)}
+                {formatAxisCompact(maxVal * r)}
               </span>
             ))}
           </div>
@@ -175,8 +200,8 @@ export default function PerformanceChart({ period }: { period: Period }) {
               <defs>
                 {SERIES_KEYS.map((k) => (
                   <linearGradient key={k} id={`grad-${k}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={COLORS[k]} stopOpacity="0.7" />
-                    <stop offset="100%" stopColor={COLORS[k]} stopOpacity="0.35" />
+                    <stop offset="0%" stopColor={COLORS[k]} stopOpacity="1" />
+                    <stop offset="100%" stopColor={COLORS[k]} stopOpacity="0.85" />
                   </linearGradient>
                 ))}
               </defs>
@@ -221,7 +246,7 @@ export default function PerformanceChart({ period }: { period: Period }) {
                     {t('dashboard.total')}
                   </span>
                   <span className="text-xs font-bold text-foreground">
-                    {formatCompact(hoverTotal)} ₫
+                    {formatCurrency(hoverTotal)}
                   </span>
                 </div>
                 <div className="flex flex-col gap-0.5 font-['JetBrains_Mono']">
@@ -229,6 +254,7 @@ export default function PerformanceChart({ period }: { period: Period }) {
                     .slice()
                     .reverse()
                     .map((s) => {
+                      if (hiddenSeries.has(s.key)) return null
                       const v = s.values[hoverIndex] ?? 0
                       if (v === 0) return null
                       return (
@@ -241,7 +267,7 @@ export default function PerformanceChart({ period }: { period: Period }) {
                             <span className="text-muted-foreground">{s.label}</span>
                           </span>
                           <span className="font-semibold text-foreground">
-                            {formatCompact(v)} ₫
+                            {formatCurrency(v)}
                           </span>
                         </div>
                       )

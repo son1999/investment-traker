@@ -4,14 +4,7 @@ import { useCashFlow } from '@/hooks/useReports'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Period } from '@/types/api'
-
-function formatCompact(v: number): string {
-  const abs = Math.abs(v)
-  if (abs >= 1e9) return `${(v / 1e9).toFixed(2)}B`
-  if (abs >= 1e6) return `${(v / 1e6).toFixed(2)}M`
-  if (abs >= 1e3) return `${(v / 1e3).toFixed(1)}K`
-  return v.toLocaleString('vi-VN')
-}
+import { formatCurrency } from '@/lib/format'
 
 export default function CashFlowChart({ period }: { period: Period }) {
   const { t } = useTranslation()
@@ -61,7 +54,7 @@ export default function CashFlowChart({ period }: { period: Period }) {
                     <span className="text-muted-foreground">{t('reports.inflow')}</span>
                   </span>
                   <span className="font-semibold text-foreground">
-                    {formatCompact(hovered.inflow)} ₫
+                    {formatCurrency(hovered.inflow)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
@@ -70,7 +63,7 @@ export default function CashFlowChart({ period }: { period: Period }) {
                     <span className="text-muted-foreground">{t('reports.outflow')}</span>
                   </span>
                   <span className="font-semibold text-foreground">
-                    {formatCompact(hovered.outflow)} ₫
+                    {formatCurrency(hovered.outflow)}
                   </span>
                 </div>
                 <div className="mt-1 flex items-center justify-between gap-3 border-t pt-1">
@@ -78,8 +71,8 @@ export default function CashFlowChart({ period }: { period: Period }) {
                   <span
                     className={`font-semibold ${hovered.inflow - hovered.outflow >= 0 ? 'text-positive' : 'text-negative'}`}
                   >
-                    {hovered.inflow - hovered.outflow >= 0 ? '+' : ''}
-                    {formatCompact(hovered.inflow - hovered.outflow)} ₫
+                    {hovered.inflow - hovered.outflow > 0 ? '+' : ''}
+                    {formatCurrency(hovered.inflow - hovered.outflow)}
                   </span>
                 </div>
               </div>

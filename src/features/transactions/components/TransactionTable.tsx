@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ChevronLeft,
@@ -5,18 +6,30 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Pencil,
+  Trash2,
 } from 'lucide-react'
 
 import { StatusBadge } from '@/components/app'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { AssetIcon } from '@/components/ui/asset-icon'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { useTransactions } from '@/hooks/useTransactions'
+import { useTransactions, useDeleteTransaction } from '@/hooks/useTransactions'
+import { useDeleteSavingsEvent } from '@/hooks/useSavingsEvents'
 import { useIsGuest } from '@/hooks/useIsGuest'
 import { useTransactionsUIStore } from '@/stores/transactions'
-import type { AssetType } from '@/types/api'
+import type { AssetType, Transaction } from '@/types/api'
 
 function formatVND(amount: number): string {
   return `${amount.toLocaleString('vi-VN')} ₫`
@@ -53,6 +66,20 @@ export default function TransactionTable() {
     page,
     limit,
   })
+
+  const deleteTransaction = useDeleteTransaction()
+  const deleteSavingsEvent = useDeleteSavingsEvent()
+  const [txToDelete, setTxToDelete] = useState<Transaction | null>(null)
+
+  const confirmDelete = () => {
+    if (!txToDelete) return
+    if (txToDelete.assetType === 'savings') {
+      deleteSavingsEvent.mutate(txToDelete.id)
+    } else {
+      deleteTransaction.mutate(txToDelete.id)
+    }
+    setTxToDelete(null)
+  }
 
   const transactions = data?.data || []
   const meta = data?.meta
@@ -106,7 +133,7 @@ export default function TransactionTable() {
                     {formatQuantity(tx.quantity)}
                   </TableCell>
                   <TableCell className="px-6 text-right font-mono text-sm text-foreground/80">
-                    {formatCurrency(tx.unitPrice, tx.currency)}
+                    {tx.assetType === 'savings' ? '—' : formatCurrency(tx.unitPrice, tx.currency)}
                   </TableCell>
                   <TableCell className="px-6 text-right font-mono text-sm font-semibold">
                     {formatCurrency(tx.quantity * tx.unitPrice, tx.currency)}
@@ -116,13 +143,21 @@ export default function TransactionTable() {
                   </TableCell>
                   {!isGuest ? (
                     <TableCell className="px-6">
-                      <div className="flex items-center justify-center">
+                      <div className="flex items-center justify-center gap-1">
                         <Button
                           variant="ghost"
                           size="icon-xs"
                           onClick={() => startEdit(tx)}
                         >
                           <Pencil size={13} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => setTxToDelete(tx)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 size={13} />
                         </Button>
                       </div>
                     </TableCell>
@@ -203,6 +238,24 @@ export default function TransactionTable() {
         </div>
       </div>
 
+      <AlertDialog open={txToDelete !== null} onOpenChange={(open) => !open && setTxToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xoá giao dịch?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {txToDelete
+                ? `Xoá giao dịch ${txToDelete.assetCode} ngày ${new Date(txToDelete.date).toLocaleDateString('vi-VN')}. Hành động này không thể hoàn tác.`
+                : ''}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Huỷ</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+              Xoá
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

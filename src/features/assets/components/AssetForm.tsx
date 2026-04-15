@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { FormField } from '@/components/app'
-import { formatMoney, parseMoney } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -25,7 +24,6 @@ interface AssetFormProps {
     termMonths?: number
     bankName?: string
     maturityDate?: string
-    principalAmount?: number
   }) => void
   isPending: boolean
 }
@@ -62,7 +60,6 @@ export default function AssetForm({
   const [interestRate, setInterestRate] = useState(asset?.interestRate?.toString() || '')
   const [termMonths, setTermMonths] = useState(asset?.termMonths?.toString() || '')
   const [bankName, setBankName] = useState(asset?.bankName || '')
-  const [principalAmount, setPrincipalAmount] = useState(asset?.principalAmount?.toString() || '')
 
   const handleTypeChange = (value: AssetType) => {
     setType(value)
@@ -72,7 +69,7 @@ export default function AssetForm({
     const isSavings = type === 'savings'
 
     if (isSavings) {
-      if (!bankName || !principalAmount) return
+      if (!bankName) return
     } else if (!code || !name) {
       return
     }
@@ -98,7 +95,6 @@ export default function AssetForm({
       if (interestRate) data.interestRate = parseFloat(interestRate)
       if (termMonths) data.termMonths = parseInt(termMonths)
       data.bankName = bankName
-      data.principalAmount = parseFloat(principalAmount)
     }
 
     onSave(data)
@@ -142,15 +138,6 @@ export default function AssetForm({
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                   placeholder={t('assets.bankNamePlaceholder')}
-                />
-              </FormField>
-
-              <FormField label={t('assets.principalAmount')}>
-                <Input
-                  inputMode="numeric"
-                  value={formatMoney(principalAmount)}
-                  onChange={(e) => setPrincipalAmount(parseMoney(e.target.value))}
-                  placeholder="VD: 10,000,000"
                 />
               </FormField>
 
@@ -217,7 +204,7 @@ export default function AssetForm({
             onClick={handleSubmit}
             disabled={
               isPending ||
-              (type === 'savings' ? !bankName || !principalAmount : !code || !name)
+              (type === 'savings' ? !bankName : !code || !name)
             }
           >
             {isPending ? '...' : t('assets.save')}

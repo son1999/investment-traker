@@ -3,16 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useDCAChart } from '@/hooks/useReports'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-
-function formatAmount(v: number, currency: string): string {
-  if (currency === 'VND') {
-    if (v >= 1e9) return `${(v / 1e9).toFixed(2)} tỷ`
-    if (v >= 1e6) return `${(v / 1e6).toFixed(2)} tr`
-    if (v >= 1e3) return `${(v / 1e3).toFixed(0)}k`
-    return v.toFixed(0)
-  }
-  return v.toLocaleString('en-US', { maximumFractionDigits: 4 })
-}
+import { formatCurrency } from '@/lib/format'
 
 function formatDate(iso: string): string {
   if (!iso) return ''
@@ -38,15 +29,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
   const avgCostPct = Math.min(95, (finalAvgCost / maxAvg) * 65)
   const isProfit = data.currentPrice >= finalAvgCost
 
-  const formatAvg = (v: number, cur: string): string => {
-    if (cur === 'VND') {
-      if (v >= 1e9) return `${(v / 1e9).toFixed(2)} tỷ VND`
-      if (v >= 1e6) return `${(v / 1e6).toFixed(1)} tr VND`
-      if (v >= 1e3) return `${(v / 1e3).toFixed(0)}k VND`
-      return `${v.toFixed(0)} VND`
-    }
-    return `${v.toLocaleString('en-US', { maximumFractionDigits: 4 })} ${cur}`
-  }
+  const formatAvg = (v: number, cur: string): string => formatCurrency(v, cur)
 
   const plPct = finalAvgCost > 0 ? ((data.currentPrice - finalAvgCost) / finalAvgCost) * 100 : 0
   const plTone = isProfit ? 'text-positive' : 'text-negative'
@@ -120,13 +103,13 @@ export default function DCAHeroChart({ code }: { code: string }) {
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-muted-foreground">{t('reports.purchaseAmount')}</span>
                   <span className="font-semibold text-foreground">
-                    {formatAmount(data.purchaseAmounts?.[hovered] ?? 0, currency)} {currency}
+                    {formatCurrency(data.purchaseAmounts?.[hovered] ?? 0, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-muted-foreground">{t('assetDetail.colUnitPrice')}</span>
                   <span className="font-semibold text-foreground">
-                    {formatAmount(data.purchaseUnitPrices?.[hovered] ?? 0, currency)} {currency}
+                    {formatCurrency(data.purchaseUnitPrices?.[hovered] ?? 0, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3 border-t pt-0.5">
@@ -135,7 +118,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
                     <span className="text-muted-foreground">{t('reports.avgCostPrice')}</span>
                   </span>
                   <span className="font-semibold text-foreground">
-                    {formatAmount(data.avgCostPrices?.[hovered] ?? 0, currency)} {currency}
+                    {formatCurrency(data.avgCostPrices?.[hovered] ?? 0, currency)}
                   </span>
                 </div>
               </div>
@@ -165,7 +148,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
                 style={{ bottom: `${avgCostPct}%` }}
               >
                 <span className="absolute -top-2 left-0 rounded-sm border border-gold/40 bg-card px-1.5 font-mono text-[10px] font-semibold text-gold">
-                  {formatAmount(finalAvgCost, currency)} {currency}
+                  {formatCurrency(finalAvgCost, currency)}
                 </span>
               </div>
             ) : null}
@@ -177,7 +160,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
               <span
                 className={`absolute -top-2 right-0 rounded-sm border bg-card px-1.5 font-mono text-[10px] font-semibold ${isProfit ? 'border-positive/40 text-positive' : 'border-negative/40 text-negative'}`}
               >
-                {formatAmount(data.currentPrice, currency)} {currency}
+                {formatCurrency(data.currentPrice, currency)}
               </span>
             </div>
           </div>

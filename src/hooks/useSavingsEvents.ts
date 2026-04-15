@@ -17,8 +17,10 @@ export function useCreateSavingsEvent() {
     mutationFn: (data: CreateSavingsEventRequest) => savingsEventsApi.createSavingsEvent(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['savings-events'] })
+      qc.invalidateQueries({ queryKey: ['transactions'] })
       qc.invalidateQueries({ queryKey: ['portfolio'] })
       qc.invalidateQueries({ queryKey: ['assets'] })
+      qc.invalidateQueries({ queryKey: ['reports'] })
       toast.success('Đã ghi nhận giao dịch tiết kiệm')
     },
     onError: (err: any) => {
@@ -33,8 +35,10 @@ export function useDeleteSavingsEvent() {
     mutationFn: (id: string) => savingsEventsApi.deleteSavingsEvent(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['savings-events'] })
+      qc.invalidateQueries({ queryKey: ['transactions'] })
       qc.invalidateQueries({ queryKey: ['portfolio'] })
       qc.invalidateQueries({ queryKey: ['assets'] })
+      qc.invalidateQueries({ queryKey: ['reports'] })
       toast.success('Đã xóa giao dịch tiết kiệm')
     },
     onError: (err: any) => {

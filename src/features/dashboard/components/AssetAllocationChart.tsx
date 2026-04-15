@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAllocation } from '@/hooks/usePortfolio'
+import { formatCurrency } from '@/lib/format'
 
 interface Slice {
   label: string
@@ -20,13 +21,7 @@ const typeColors: Record<string, { color: string; darkColor: string; icon: strin
   metal: { color: '#eab308', darkColor: '#a16207', icon: '📀' },
   crypto: { color: '#a855f7', darkColor: '#7e22ce', icon: '₿' },
   stock: { color: '#06b6d4', darkColor: '#0e7490', icon: '📈' },
-}
-
-function formatCompact(value: number): string {
-  const abs = Math.abs(value)
-  if (abs >= 1e9) return (value / 1e9).toFixed(2) + ' tỷ'
-  if (abs >= 1e6) return (value / 1e6).toFixed(1) + 'M'
-  return value.toLocaleString('vi-VN')
+  savings: { color: '#10b981', darkColor: '#047857', icon: '🏦' },
 }
 
 function lighten(hex: string, pct: number): string {
@@ -135,7 +130,7 @@ export default function AssetAllocationChart() {
 
   const allocationData: Slice[] = (apiData || []).map((item) => {
     const colors = typeColors[item.assetType] || { color: '#888', darkColor: '#555', icon: '💰' }
-    return { label: item.label, value: item.value, amount: formatCompact(item.amount) + ' ₫', ...colors }
+    return { label: item.label, value: item.value, amount: formatCurrency(item.amount), ...colors }
   })
 
   const totalAmount = (apiData || []).reduce((s, a) => s + a.amount, 0)
@@ -176,11 +171,11 @@ export default function AssetAllocationChart() {
       <div className="flex min-w-0 flex-1 flex-col items-center gap-0">
         <div className="relative shrink-0 overflow-hidden">
           <canvas ref={canvasRef} className="h-[220px] w-[220px] cursor-pointer sm:h-[260px] sm:w-[260px]" onMouseMove={handleMouseMove} onMouseLeave={() => { setHovered(-1); setTooltip(null) }} />
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center" style={{ marginTop: '-7px' }}>
-            <span className="font-['JetBrains_Mono'] text-[22px] font-bold tracking-tight text-foreground sm:text-[26px]">
-              {totalAmount >= 1e9 ? (totalAmount / 1e9).toFixed(2) : formatCompact(totalAmount)}
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-4 text-center" style={{ marginTop: '-7px' }}>
+            <span className="font-['JetBrains_Mono'] text-[14px] font-bold leading-tight tracking-tight text-foreground sm:text-[16px]">
+              {totalAmount.toLocaleString('vi-VN', { maximumFractionDigits: 0 })}
             </span>
-            <span className="mt-0.5 text-xs font-medium text-muted-foreground">{totalAmount >= 1e9 ? 'tỷ ₫' : '₫'}</span>
+            <span className="mt-0.5 text-xs font-medium text-muted-foreground">₫</span>
           </div>
           {tooltip && tooltip.idx >= 0 && allocationData[tooltip.idx] && (
             <div className="pointer-events-none absolute z-50 rounded-lg border border-border bg-muted/40 px-4 py-3 shadow-xl" style={{ left: Math.min(tooltip.x + 12, 120), top: Math.max(tooltip.y - 50, 0) }}>

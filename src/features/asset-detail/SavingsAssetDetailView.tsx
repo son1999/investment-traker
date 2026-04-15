@@ -7,7 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { useIsGuest } from '@/hooks/useIsGuest'
 import { useTransactionsUIStore } from '@/stores/transactions'
-import { formatMoney } from '@/lib/format'
+import { formatCurrency } from '@/lib/format'
+
+function formatNum(value: number, currency: string): string {
+  return value.toLocaleString('vi-VN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: currency === 'VND' ? 0 : 8,
+  })
+}
 
 interface SavingsDetailData {
   assetCode: string
@@ -60,19 +67,19 @@ export default function SavingsAssetDetailView({ asset, onBack }: Props) {
   const cards = [
     {
       label: t('savings.balance'),
-      value: formatMoney(metrics.balance.value),
+      value: formatNum(metrics.balance.value, cur),
       unit: cur === 'VND' ? '₫' : cur,
       border: '#3b82f6',
     },
     {
       label: t('savings.principal'),
-      value: formatMoney(metrics.principal.value),
+      value: formatNum(metrics.principal.value, cur),
       unit: cur === 'VND' ? '₫' : cur,
       border: '#454747',
     },
     {
       label: t('savings.interestEarned'),
-      value: (metrics.profit.positive ? '+' : '') + formatMoney(metrics.interestEarned.value),
+      value: (metrics.profit.positive && metrics.interestEarned.value > 0 ? '+' : '') + formatNum(metrics.interestEarned.value, cur),
       unit: cur === 'VND' ? '₫' : cur,
       border: metrics.profit.positive ? '#22c55e' : '#ef4444',
       isProfit: true,
@@ -226,7 +233,7 @@ export default function SavingsAssetDetailView({ asset, onBack }: Props) {
                           }`}
                         >
                           {positive ? '+' : '−'}
-                          {formatMoney(ev.amount)} {cur === 'VND' ? '₫' : cur}
+                          {formatCurrency(ev.amount, cur)}
                         </TableCell>
                         <TableCell className="text-sm italic text-muted-foreground">
                           {ev.note || '—'}

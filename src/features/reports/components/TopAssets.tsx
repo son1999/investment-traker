@@ -6,13 +6,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Period } from '@/types/api'
-
-function formatCompact(v: number): string {
-  if (Math.abs(v) >= 1e9) return (v / 1e9).toFixed(2) + 'B'
-  if (Math.abs(v) >= 1e6) return (v / 1e6).toFixed(1) + 'M'
-  if (Math.abs(v) >= 1e3) return (v / 1e3).toFixed(1) + 'k'
-  return v.toLocaleString('vi-VN')
-}
+import { formatCurrency } from '@/lib/format'
 
 const assetColors: Record<string, string> = { BTC: '#f97316', SJC: '#f59e0b', ETH: '#8b5cf6', FPT: '#60a5fa', VNM: '#60a5fa' }
 
@@ -62,12 +56,12 @@ export default function TopAssets({ period }: { period: Period }) {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-mono text-xs">{formatCompact(r.invested)}</TableCell>
-                  <TableCell className="text-right font-mono text-xs" style={{ color: r.positive ? undefined : 'var(--negative)' }}>{formatCompact(r.currentValue)}</TableCell>
+                  <TableCell className="text-right font-mono text-xs">{formatCurrency(r.invested)}</TableCell>
+                  <TableCell className="text-right font-mono text-xs" style={{ color: r.positive ? undefined : 'var(--negative)' }}>{formatCurrency(r.currentValue)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex flex-col items-end">
                       <span className="font-mono text-xs font-medium" style={{ color: r.positive ? 'var(--positive)' : 'var(--negative)' }}>{r.positive ? '+' : ''}{r.profitLossPercent.toFixed(1)}%</span>
-                      <span className="text-[10px] text-muted-foreground">{r.positive ? '+' : ''}{formatCompact(r.profitLossAmount)}</span>
+                      <span className="text-[10px] text-muted-foreground">{r.profitLossAmount > 0 ? '+' : ''}{formatCurrency(r.profitLossAmount)}</span>
                     </div>
                   </TableCell>
                   <TableCell>

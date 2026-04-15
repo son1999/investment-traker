@@ -3,12 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { usePortfolioSummary } from '@/hooks/usePortfolio'
 import { cn } from '@/lib/utils'
 
-function formatCompact(value: number): string {
-  const abs = Math.abs(value)
-  if (abs >= 1e9) return `${(value / 1e9).toFixed(2)} ty`
-  if (abs >= 1e6) return `${(value / 1e6).toFixed(0)}M`
-  if (abs >= 1e3) return `${(value / 1e3).toFixed(1)}k`
-  return value.toLocaleString('vi-VN')
+function formatVnd(value: number): string {
+  return value.toLocaleString('vi-VN', { maximumFractionDigits: 0 })
 }
 
 export default function MetricCards() {
@@ -18,14 +14,14 @@ export default function MetricCards() {
   const stats = [
     {
       label: t('dashboard.capitalInvested'),
-      value: data ? formatCompact(data.capitalInvested) : '—',
+      value: data ? formatVnd(data.capitalInvested) : '—',
       unit: '₫',
       sub: data ? `${data.buyOrdersCount} ${t('dashboard.buyOrders')}` : '',
       color: 'var(--foreground)',
     },
     {
       label: t('dashboard.profit'),
-      value: data ? `${data.profit >= 0 ? '+' : ''}${formatCompact(data.profit)}` : '—',
+      value: data ? `${data.profit >= 0 ? '+' : ''}${formatVnd(data.profit)}` : '—',
       unit: '₫',
       sub: data ? `${data.profitPercentage >= 0 ? '+' : ''}${data.profitPercentage.toFixed(2)}% ${t('dashboard.vsCapital')}` : '',
       color: data && data.profit >= 0 ? 'var(--positive)' : 'var(--negative)',

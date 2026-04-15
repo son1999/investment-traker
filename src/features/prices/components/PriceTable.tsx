@@ -97,7 +97,7 @@ export default function PriceTable() {
                     </div>
                     {!isVND ? (
                       <span className="font-mono text-xs text-muted-foreground">
-                        ≈ {formatNum(Math.round(priceInVnd))} ₫
+                        ≈ {formatNum(priceInVnd)} ₫
                       </span>
                     ) : null}
                   </div>

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Package, Pencil, Plus, Trash2 } from 'lucide-react'
 
 import { DataTableCard, EmptyState, PageHeader } from '@/components/app'
+import { AssetIcon } from '@/components/ui/asset-icon'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -50,7 +51,6 @@ export default function AssetsScreen() {
     termMonths?: number
     bankName?: string
     maturityDate?: string
-    principalAmount?: number
   }) => {
     if (editingAsset) {
       await updateAsset.mutateAsync({
@@ -64,7 +64,6 @@ export default function AssetsScreen() {
           termMonths: data.termMonths,
           bankName: data.bankName,
           maturityDate: data.maturityDate,
-          principalAmount: data.principalAmount,
         },
       })
     } else {
@@ -153,12 +152,13 @@ export default function AssetsScreen() {
                   onClick={() => navigate(`/assets/${asset.code}`)}
                 >
                   <TableCell className="pl-6">
-                    <div
-                      className="flex size-9 items-center justify-center rounded-lg text-lg"
-                      style={{ backgroundColor: asset.iconBg }}
-                    >
-                      {asset.icon}
-                    </div>
+                    <AssetIcon
+                      code={asset.code}
+                      assetType={asset.type}
+                      fallback={asset.icon}
+                      fallbackBg={asset.iconBg}
+                      sizeClass="size-9"
+                    />
                   </TableCell>
                   <TableCell className="font-mono text-sm font-semibold">{asset.code}</TableCell>
                   <TableCell className="text-sm">{asset.name}</TableCell>

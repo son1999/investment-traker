@@ -386,7 +386,7 @@ export default function TransactionForm() {
                     <div className="flex flex-col gap-1 border-t pt-2 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                       <span className="text-muted-foreground">{t('transactions.convertVnd')}</span>
                       <span className="font-mono font-medium">
-                        ≈ {Math.round(computed.totalVnd).toLocaleString('vi-VN')} ₫
+                        ≈ {computed.totalVnd.toLocaleString('vi-VN', { maximumFractionDigits: 0 })} ₫
                       </span>
                     </div>
                   ) : null}

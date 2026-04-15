@@ -3,8 +3,7 @@ import { useReportSummary } from '@/hooks/useReports'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Period } from '@/types/api'
-
-function formatVND(v: number): string { return (v >= 0 ? '+' : '') + v.toLocaleString('vi-VN') }
+import { formatCurrency, formatCurrencySigned } from '@/lib/format'
 
 export default function SummaryCards({ period }: { period: Period }) {
   const { t } = useTranslation()
@@ -13,10 +12,10 @@ export default function SummaryCards({ period }: { period: Period }) {
   if (isLoading) return <div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">{[1,2,3,4].map(i => <Skeleton key={i} className="h-24 rounded-lg" />)}</div>
 
   const cards = [
-    { label: t('reports.totalDeposited'), value: data ? data.totalDeposited.toLocaleString('vi-VN') : '—', sub: t('reports.fromYearStart') },
-    { label: t('reports.totalWithdrawn'), value: data ? data.totalWithdrawn.toLocaleString('vi-VN') : '—', sub: t('reports.paymentAccount') },
-    { label: t('reports.realizedPnl'), value: data ? formatVND(data.realizedPnl) : '—', color: data && data.realizedPnl >= 0 ? 'var(--positive)' : 'var(--negative)', sub: t('reports.realizedProfit') },
-    { label: t('reports.unrealizedPnl'), value: data ? formatVND(data.unrealizedPnl) : '—', color: 'var(--gold)', sub: t('reports.marketValue') },
+    { label: t('reports.totalDeposited'), value: data ? formatCurrency(data.totalDeposited) : '—', sub: t('reports.fromYearStart') },
+    { label: t('reports.totalWithdrawn'), value: data ? formatCurrency(data.totalWithdrawn) : '—', sub: t('reports.paymentAccount') },
+    { label: t('reports.realizedPnl'), value: data ? formatCurrencySigned(data.realizedPnl) : '—', color: data && data.realizedPnl >= 0 ? 'var(--positive)' : 'var(--negative)', sub: t('reports.realizedProfit') },
+    { label: t('reports.unrealizedPnl'), value: data ? formatCurrencySigned(data.unrealizedPnl) : '—', color: data && data.unrealizedPnl >= 0 ? 'var(--positive)' : 'var(--negative)', sub: t('reports.marketValue') },
   ]
 
   return (
