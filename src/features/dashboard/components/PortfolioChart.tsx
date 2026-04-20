@@ -97,7 +97,7 @@ export default function PortfolioChart() {
       >
         {hoverPoint ? (
           <div
-            className="pointer-events-none absolute top-6 z-10 max-w-[calc(100%-2rem)] rounded-[20px] bg-white px-4 py-3 shadow-[var(--shadow-card)]"
+            className="air-tooltip-pop pointer-events-none absolute top-6 z-10 max-w-[calc(100%-2rem)] rounded-[20px] bg-white px-4 py-3 shadow-[var(--shadow-card)]"
             style={{ left: `clamp(1rem, ${hoverLeft}%, calc(100% - 12rem))` }}
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

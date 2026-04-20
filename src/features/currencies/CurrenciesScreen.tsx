@@ -90,9 +90,9 @@ export default function CurrenciesScreen() {
           title={t('currencies.title')}
           description={t('currencies.count', { count: items.length })}
         >
-          <div className="grid gap-3 p-4 md:hidden">
+          <div className="air-stagger-grid grid gap-3 p-4 md:hidden">
             {items.map((currency) => (
-              <article key={currency.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+              <article key={currency.id} className="air-interactive-card rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-mono text-sm font-semibold text-foreground">{currency.code}</p>

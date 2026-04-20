@@ -77,7 +77,7 @@ export default function HeroSection() {
       <img
         src={heroArtwork}
         alt=""
-        className="pointer-events-none absolute -right-12 bottom-0 hidden w-[34rem] max-w-[44%] opacity-90 lg:block"
+        className="air-hero-art pointer-events-none absolute -right-12 bottom-0 hidden w-[34rem] max-w-[44%] opacity-90 lg:block"
       />
       <div className="relative z-10 px-5 py-6 sm:px-8 sm:py-8">
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
@@ -164,7 +164,7 @@ export default function HeroSection() {
               <p className="mt-2 text-sm text-muted-foreground">{t('reports.subtitle')}</p>
             </div>
             {hoverPoint ? (
-              <div className="max-w-full self-start rounded-full bg-[var(--palette-surface-subtle)] px-4 py-2 sm:self-auto sm:text-right">
+              <div className="air-tooltip-pop max-w-full self-start rounded-full bg-[var(--palette-surface-subtle)] px-4 py-2 sm:self-auto sm:text-right">
                 <p className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
                   {formatDate(hoverPoint.date)}
                 </p>

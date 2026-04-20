@@ -11,7 +11,7 @@ export default function SummaryCards({ period }: { period: Period }) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="air-stagger-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[1, 2, 3, 4].map((item) => (
           <Skeleton key={item} className="h-32 rounded-[20px]" />
         ))}
@@ -45,11 +45,11 @@ export default function SummaryCards({ period }: { period: Period }) {
   ]
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="air-stagger-grid grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((card, index) => (
         <article
           key={card.label}
-          className="air-surface relative overflow-hidden px-5 py-5"
+          className="air-surface air-interactive-card relative overflow-hidden px-5 py-5"
           style={{
             background:
               index % 2 === 0

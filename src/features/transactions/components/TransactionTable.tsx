@@ -90,11 +90,11 @@ export default function TransactionTable() {
   return (
     <>
       <div className="w-full min-w-0 overflow-hidden rounded-xl border bg-card">
-        <div className="grid gap-3 p-4 lg:hidden">
+        <div className="air-stagger-grid grid gap-3 p-4 lg:hidden">
           {transactions.map((tx) => {
             const isBuy = tx.action === 'MUA'
             return (
-              <article key={tx.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+              <article key={tx.id} className="air-interactive-card rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <AssetIcon

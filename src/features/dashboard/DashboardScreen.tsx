@@ -14,9 +14,9 @@ export default function DashboardScreen() {
         <HeroSection />
         <MetricCards />
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.7fr)]">
+        <div className="air-stagger-grid grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.7fr)]">
           <HoldingsTable />
-          <div className="flex min-w-0 flex-col gap-6">
+          <div className="air-stagger-list flex min-w-0 flex-col gap-6">
             <AssetAllocationChart />
             <ProfitByAssetChart />
           </div>

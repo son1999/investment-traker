@@ -45,7 +45,7 @@ export default function CashFlowChart({ period }: { period: Period }) {
         <div className="relative pt-12">
           {hovered ? (
             <div
-              className="pointer-events-none absolute top-0 z-20 max-w-[calc(100%-1rem)] -translate-x-1/2 rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
+              className="air-tooltip-pop pointer-events-none absolute top-0 z-20 max-w-[calc(100%-1rem)] -translate-x-1/2 rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
               style={{ left: `${clampedTooltipLeftPct}%` }}
             >
               <div className="mb-1 font-medium text-muted-foreground">{hovered.month}</div>

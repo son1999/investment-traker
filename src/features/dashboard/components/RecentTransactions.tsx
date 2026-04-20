@@ -31,7 +31,7 @@ export default function RecentTransactions() {
         </Button>
       </div>
 
-      <div className="divide-y divide-black/5">
+      <div className="air-stagger-list divide-y divide-black/5">
         {items.map((tx) => {
           const isBuy = tx.action === 'MUA'
 
@@ -40,7 +40,7 @@ export default function RecentTransactions() {
               key={tx.id}
               type="button"
               onClick={() => navigate('/transactions')}
-              className="flex w-full flex-col gap-4 px-6 py-5 text-left transition-colors hover:bg-[rgba(34,34,34,0.02)] sm:px-8 lg:flex-row lg:items-center lg:justify-between"
+              className="air-hover-shift flex w-full flex-col gap-4 px-6 py-5 text-left transition-colors hover:bg-[rgba(34,34,34,0.02)] sm:px-8 lg:flex-row lg:items-center lg:justify-between"
             >
               <div className="flex items-start gap-4">
                 <AssetIcon
@@ -67,7 +67,7 @@ export default function RecentTransactions() {
                 <p className="text-sm font-medium text-foreground">
                   {tx.quantity.toLocaleString('en-US')} {tx.assetCode}
                 </p>
-                <ArrowRight size={16} className="text-muted-foreground" />
+                <ArrowRight size={16} data-air-icon="trail" className="text-muted-foreground" />
               </div>
             </button>
           )

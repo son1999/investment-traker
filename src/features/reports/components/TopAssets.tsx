@@ -25,11 +25,11 @@ export default function TopAssets({ period }: { period: Period }) {
         <Button variant="link" size="sm" className="justify-start px-0 text-xs text-muted-foreground md:justify-center md:px-2.5">{t('reports.details')}</Button>
       </CardHeader>
       <CardContent className="min-w-0 p-0">
-        <div className="grid gap-3 p-4 md:hidden">
+        <div className="air-stagger-grid grid gap-3 p-4 md:hidden">
           {rows.map((r) => {
             const color = assetColors[r.assetCode] || '#888'
             return (
-              <article key={r.rank} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+              <article key={r.rank} className="air-interactive-card rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <AssetIcon
@@ -64,7 +64,7 @@ export default function TopAssets({ period }: { period: Period }) {
                   </div>
                   <div className="flex min-w-24 items-center gap-2">
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full rounded-full" style={{ width: `${r.weight}%`, backgroundColor: color }} />
+                        <div className="air-progress-fill h-full rounded-full" style={{ width: `${r.weight}%`, backgroundColor: color }} />
                     </div>
                     <span className="font-mono text-[10px] text-muted-foreground">{r.weight}%</span>
                   </div>
@@ -116,7 +116,7 @@ export default function TopAssets({ period }: { period: Period }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2 pl-2">
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full" style={{ width: `${r.weight}%`, backgroundColor: color }} /></div>
+                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"><div className="air-progress-fill h-full rounded-full" style={{ width: `${r.weight}%`, backgroundColor: color }} /></div>
                         <span className="font-mono text-[10px] text-muted-foreground">{r.weight}%</span>
                       </div>
                     </TableCell>

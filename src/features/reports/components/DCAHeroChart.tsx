@@ -93,7 +93,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
         <div className="relative pt-14">
           {hovered != null ? (
             <div
-              className="pointer-events-none absolute top-0 z-30 max-w-[calc(100%-1rem)] whitespace-nowrap rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
+              className="air-tooltip-pop pointer-events-none absolute top-0 z-30 max-w-[calc(100%-1rem)] whitespace-nowrap rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
               style={{ left: `${tooltipLeftPct}%`, transform: `translateX(${tooltipTranslate})` }}
             >
               <div className="mb-1 font-medium text-muted-foreground">
@@ -132,7 +132,7 @@ export default function DCAHeroChart({ code }: { code: string }) {
                 return (
                   <div
                     key={index}
-                    className={`relative flex-1 cursor-pointer rounded-t transition-colors ${isHover ? 'bg-muted-foreground/40' : 'bg-muted-foreground/20'}`}
+                    className={`air-progress-fill relative flex-1 cursor-pointer rounded-t transition-colors ${isHover ? 'bg-muted-foreground/40' : 'bg-muted-foreground/20'}`}
                     style={{ height: `${(height / maxBar) * 170}px` }}
                     onMouseEnter={() => setHoverIndex(index)}
                     onMouseLeave={() => setHoverIndex(null)}

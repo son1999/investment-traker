@@ -158,7 +158,7 @@ export default function PerformanceChart({ period }: { period: Period }) {
                 key={s.key}
                 type="button"
                 onClick={() => toggleSeries(s.key)}
-                className={`flex items-center gap-1.5 transition-opacity ${hidden ? 'opacity-40' : 'opacity-100'}`}
+                className={`air-inline-link flex items-center gap-1.5 transition-opacity ${hidden ? 'opacity-40' : 'opacity-100'}`}
               >
                 <div
                   className="size-2.5 rounded-sm"
@@ -237,7 +237,7 @@ export default function PerformanceChart({ period }: { period: Period }) {
 
             {hoverIndex != null && len > 1 ? (
               <div
-                className="pointer-events-none absolute z-20 -translate-x-1/2 whitespace-nowrap rounded-md border bg-popover px-3 py-2 text-[11px] leading-tight shadow-md"
+                className="air-tooltip-pop pointer-events-none absolute z-20 -translate-x-1/2 whitespace-nowrap rounded-md border bg-popover px-3 py-2 text-[11px] leading-tight shadow-md"
                 style={{ left: `${tooltipLeftPx}px`, top: 4 }}
               >
                 <div className="mb-1.5 font-medium text-muted-foreground">

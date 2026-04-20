@@ -132,9 +132,9 @@ export default function AssetsScreen() {
           title={t('assets.title')}
           description={t('assets.count', { count: items.length })}
         >
-          <div className="grid gap-3 p-4 md:hidden">
+          <div className="air-stagger-grid grid gap-3 p-4 md:hidden">
             {items.map((asset) => (
-              <article key={asset.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+              <article key={asset.id} className="air-interactive-card rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
                 <button
                   type="button"
                   className="w-full text-left"

@@ -21,6 +21,21 @@
     "support": "Support",
     "legal": "Legal"
   },
+  "search": {
+    "title": "Quick Search",
+    "subtitle": "Pages, assets, transactions",
+    "workspace": "Workspace",
+    "livePortfolio": "Live portfolio",
+    "previewMode": "Preview mode",
+    "open": "Open quick search",
+    "description": "Search and jump straight to pages, assets, or recent transactions.",
+    "placeholder": "Type an asset code, page name, or transaction note...",
+    "pages": "Navigation",
+    "assets": "Assets",
+    "transactions": "Recent transactions",
+    "emptyTitle": "No matching results",
+    "emptyDescription": "Try an asset code, a page name, or part of a transaction note."
+  },
   "login": {
     "title": "Investment Tracker",
     "subtitle": "Sign in to manage your portfolio",

@@ -51,7 +51,7 @@ export default function PriceTable() {
         </Button>
       }
     >
-      <div className="grid gap-3 p-4 md:hidden">
+      <div className="air-stagger-grid grid gap-3 p-4 md:hidden">
         {items.map((price) => {
           const currency = price.currency || 'VND'
           const rate = rateMap[currency] || 1
@@ -59,7 +59,7 @@ export default function PriceTable() {
           const priceInVnd = price.price * rate
 
           return (
-            <article key={price.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+            <article key={price.id} className="air-interactive-card rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <AssetIcon

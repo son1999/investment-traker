@@ -109,7 +109,7 @@ export default function AllocationScreen() {
               const badge = statusBadge[asset.status] || statusBadge['on-target']
 
               return (
-                <div key={asset.assetType} className="space-y-4 rounded-[24px] bg-[var(--palette-surface-subtle)] px-4 py-4">
+                <div key={asset.assetType} className="air-interactive-card space-y-4 rounded-[24px] bg-[var(--palette-surface-subtle)] px-4 py-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <span className="size-3 rounded-full" style={{ backgroundColor: color }} />
@@ -128,7 +128,7 @@ export default function AllocationScreen() {
 
                   <div className="relative h-4 overflow-hidden rounded-full bg-white">
                     <div
-                      className="absolute inset-y-0 left-0 rounded-full"
+                      className="air-progress-fill absolute inset-y-0 left-0 rounded-full"
                       style={{ width: `${asset.actualPercent}%`, backgroundColor: color }}
                     />
                     <div

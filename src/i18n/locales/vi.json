@@ -21,6 +21,21 @@
     "support": "Hỗ trợ",
     "legal": "Pháp lý"
   },
+  "search": {
+    "title": "Tìm nhanh",
+    "subtitle": "Trang, tài sản, giao dịch",
+    "workspace": "Không gian",
+    "livePortfolio": "Danh mục đang hoạt động",
+    "previewMode": "Chế độ xem thử",
+    "open": "Mở tìm kiếm nhanh",
+    "description": "Tìm và nhảy nhanh tới màn hình, tài sản hoặc giao dịch gần đây.",
+    "placeholder": "Gõ mã tài sản, tên màn hình hoặc ghi chú giao dịch...",
+    "pages": "Điều hướng",
+    "assets": "Tài sản",
+    "transactions": "Giao dịch gần đây",
+    "emptyTitle": "Không có kết quả phù hợp",
+    "emptyDescription": "Thử tìm theo mã tài sản, tên màn hình hoặc một phần ghi chú giao dịch."
+  },
   "login": {
     "title": "Investment Tracker",
     "subtitle": "Đăng nhập để quản lý danh mục đầu tư",

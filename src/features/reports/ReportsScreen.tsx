@@ -40,7 +40,7 @@ export default function ReportsScreen() {
       <PerformanceChart period={period} />
       <SummaryCards period={period} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.35fr)]">
+      <div className="air-stagger-grid grid gap-6 xl:grid-cols-[minmax(320px,0.9fr)_minmax(0,1.35fr)]">
         <PerformanceComparison />
         <TopAssets period={period} />
       </div>

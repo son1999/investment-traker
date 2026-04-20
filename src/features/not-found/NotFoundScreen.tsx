@@ -10,7 +10,7 @@ export default function NotFoundScreen() {
 
   return (
     <div className="min-h-screen bg-background px-4 py-6 sm:px-6 lg:px-10">
-      <div className="air-surface-lg air-photo-art mx-auto flex min-h-[calc(100vh-3rem)] max-w-[1120px] flex-col items-center justify-center px-8 py-12 text-center">
+      <div className="air-surface-lg air-photo-art air-enter mx-auto flex min-h-[calc(100vh-3rem)] max-w-[1120px] flex-col items-center justify-center px-8 py-12 text-center">
         <span className="air-kicker-pill">404</span>
         <h1 className="mt-6 max-w-3xl text-[clamp(2.6rem,7vw,5rem)] leading-[0.92] font-bold tracking-[-0.06em] text-foreground">
           {t('notFound.title')}

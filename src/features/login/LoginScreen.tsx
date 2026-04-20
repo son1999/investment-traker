@@ -36,7 +36,7 @@ export default function LoginScreen() {
   return (
     <div className="min-h-screen bg-background px-4 py-6 sm:px-6 lg:px-10">
       <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-[1520px] gap-6 xl:grid-cols-[minmax(0,1.15fr)_480px]">
-        <section className="air-surface-lg air-photo-art relative overflow-hidden px-7 py-8 sm:px-10 sm:py-10">
+        <section className="air-surface-lg air-photo-art air-enter relative overflow-hidden px-7 py-8 sm:px-10 sm:py-10">
           <div className="relative z-10 max-w-2xl space-y-8">
             <div className="space-y-4">
               <span className="air-kicker-pill">
@@ -54,22 +54,22 @@ export default function LoginScreen() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
-              <div className="air-surface px-5 py-5">
+            <div className="air-stagger-grid grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+              <div className="air-surface air-interactive-card px-5 py-5">
                 <WalletCards size={18} className="text-[var(--palette-bg-primary-core)]" />
                 <p className="mt-4 text-sm font-semibold text-foreground">{t('nav.assets')}</p>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
                   Listing-style browsing for every holding in the book.
                 </p>
               </div>
-              <div className="air-surface px-5 py-5">
+              <div className="air-surface air-interactive-card px-5 py-5">
                 <ShieldCheck size={18} className="text-[var(--palette-bg-primary-core)]" />
                 <p className="mt-4 text-sm font-semibold text-foreground">{t('nav.reports')}</p>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
                   Performance, cashflow, and rebalancing in one warm shell.
                 </p>
               </div>
-              <div className="air-surface px-5 py-5">
+              <div className="air-surface air-interactive-card px-5 py-5">
                 <Sparkles size={18} className="text-[var(--palette-bg-primary-core)]" />
                 <p className="mt-4 text-sm font-semibold text-foreground">{t('nav.prices')}</p>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -82,11 +82,11 @@ export default function LoginScreen() {
           <img
             src={heroArtwork}
             alt=""
-            className="pointer-events-none absolute bottom-0 right-0 hidden w-[38rem] max-w-[62%] translate-x-14 translate-y-8 opacity-90 2xl:block"
+            className="air-hero-art pointer-events-none absolute bottom-0 right-0 hidden w-[38rem] max-w-[62%] translate-x-14 translate-y-8 opacity-90 2xl:block"
           />
         </section>
 
-        <section className="air-surface-lg flex flex-col justify-center px-6 py-7 sm:px-8 sm:py-8">
+        <section className="air-surface-lg air-enter air-delay-2 flex flex-col justify-center px-6 py-7 sm:px-8 sm:py-8">
           <div className="space-y-4">
             <img src={logoUrl} alt="" className="h-11 w-auto" />
             <div className="space-y-2">

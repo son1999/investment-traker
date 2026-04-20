@@ -68,11 +68,11 @@ export default function HoldingsTable() {
         </Button>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="air-stagger-grid grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {items.map((holding) => (
           <article
             key={holding.assetCode}
-            className="air-surface group overflow-hidden transition-transform duration-200 hover:-translate-y-0.5"
+            className="air-surface air-interactive-card air-hover-shift group overflow-hidden"
           >
             <button
               type="button"
@@ -114,7 +114,8 @@ export default function HoldingsTable() {
                     </h3>
                     <ArrowUpRight
                       size={16}
-                      className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      data-air-icon="trail"
+                      className="shrink-0 text-muted-foreground"
                     />
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">

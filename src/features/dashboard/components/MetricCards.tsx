@@ -37,14 +37,14 @@ export default function MetricCards() {
   ]
 
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
+    <div className="air-stagger-grid grid gap-4 lg:grid-cols-3">
       {stats.map((stat, index) => {
         const Icon = icons[index]
 
         return (
           <article
             key={stat.label}
-            className="air-surface relative overflow-hidden px-5 py-5"
+            className="air-surface air-interactive-card relative overflow-hidden px-5 py-5"
             style={{ background: accents[index] }}
           >
             <div className="flex items-start justify-between gap-4">
