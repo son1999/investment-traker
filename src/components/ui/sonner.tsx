@@ -3,7 +3,7 @@ import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon
 import { useThemeStore } from "@/stores/theme"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const theme = useThemeStore((s) => s.theme)
+  const theme = useThemeStore(() => 'light' as const)
 
   return (
     <Sonner

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { allocationApi } from '@/lib/api'
+import { getErrorMessage } from '@/lib/api/error'
 import { toast } from 'sonner'
 import type { AllocationCurrent, AllocationTarget, AllocationRecommendation } from '@/types/api'
 
@@ -25,8 +26,8 @@ export function useSetAllocationTargets() {
       qc.invalidateQueries({ queryKey: ['allocation'] })
       toast.success('Đã lưu mục tiêu phân bổ')
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Lưu mục tiêu thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Lưu mục tiêu thất bại'))
     },
   })
 }

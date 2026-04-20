@@ -1,43 +1,28 @@
-import HeroSection from './components/HeroSection'
-import MetricCards from './components/MetricCards'
 import AssetAllocationChart from './components/AssetAllocationChart'
-import ProfitByAssetChart from './components/ProfitByAssetChart'
-import HoldingsTable from './components/HoldingsTable'
-import PortfolioChart from './components/PortfolioChart'
-import RecentTransactions from './components/RecentTransactions'
 import FAB from './components/FAB'
+import HeroSection from './components/HeroSection'
+import HoldingsTable from './components/HoldingsTable'
+import MetricCards from './components/MetricCards'
+import PortfolioChart from './components/PortfolioChart'
+import ProfitByAssetChart from './components/ProfitByAssetChart'
+import RecentTransactions from './components/RecentTransactions'
 
 export default function DashboardScreen() {
   return (
     <>
-      <div className="mx-auto flex w-full min-w-0 max-w-[1400px] flex-col gap-5 px-4 py-6 sm:px-6">
-        {/* Hero */}
+      <div className="air-page">
         <HeroSection />
-
-        {/* Stat strip */}
         <MetricCards />
 
-        {/* Row 1: Holdings + Allocation (same height) */}
-        <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-10">
-          <div className="min-w-0 xl:col-span-7">
-            <HoldingsTable />
-          </div>
-          <div className="min-w-0 xl:col-span-3">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.7fr)]">
+          <HoldingsTable />
+          <div className="flex min-w-0 flex-col gap-6">
             <AssetAllocationChart />
-          </div>
-        </div>
-
-        {/* Row 2: Portfolio Chart + Profit bars */}
-        <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-10">
-          <div className="min-w-0 xl:col-span-7">
-            <PortfolioChart />
-          </div>
-          <div className="min-w-0 xl:col-span-3">
             <ProfitByAssetChart />
           </div>
         </div>
 
-        {/* Recent transactions */}
+        <PortfolioChart />
         <RecentTransactions />
       </div>
       <FAB />

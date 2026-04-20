@@ -20,6 +20,8 @@ export default function CashFlowChart({ period }: { period: Period }) {
     months.length > 1 && hoverIndex != null
       ? ((hoverIndex + 0.5) / months.length) * 100
       : 50
+  const clampedTooltipLeftPct = Math.min(Math.max(tooltipLeftPct, 14), 86)
+  const chartMinWidth = Math.max(months.length * 58, 420)
 
   return (
     <Card className="w-full min-w-0 border-border">
@@ -43,8 +45,8 @@ export default function CashFlowChart({ period }: { period: Period }) {
         <div className="relative pt-12">
           {hovered ? (
             <div
-              className="pointer-events-none absolute top-0 z-20 -translate-x-1/2 whitespace-nowrap rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
-              style={{ left: `${tooltipLeftPct}%` }}
+              className="pointer-events-none absolute top-0 z-20 max-w-[calc(100%-1rem)] -translate-x-1/2 rounded-md border bg-popover px-2.5 py-1.5 text-[11px] leading-tight shadow-md"
+              style={{ left: `${clampedTooltipLeftPct}%` }}
             >
               <div className="mb-1 font-medium text-muted-foreground">{hovered.month}</div>
               <div className="flex flex-col gap-0.5 font-['JetBrains_Mono']">
@@ -80,27 +82,27 @@ export default function CashFlowChart({ period }: { period: Period }) {
           ) : null}
 
           <div className="w-full min-w-0 overflow-x-auto">
-            <div className="flex min-w-130 items-end gap-4 px-2 sm:gap-6">
+            <div className="flex items-end gap-3 px-2 sm:gap-5" style={{ minWidth: `${chartMinWidth}px` }}>
               {months.map((m, index) => {
                 const isHover = hoverIndex === index
                 return (
                   <div
                     key={`${m.month}-${index}`}
-                    className="flex flex-1 flex-col items-center gap-3"
+                    className="flex min-w-[3rem] flex-1 flex-col items-center gap-3"
                     onMouseEnter={() => setHoverIndex(index)}
                     onMouseLeave={() => setHoverIndex(null)}
                   >
-                    <div className="flex h-45 w-full items-end justify-center gap-1">
+                    <div className="flex h-36 w-full items-end justify-center gap-1 sm:h-45">
                       <div
-                        className={`w-full max-w-7 rounded-t transition-all ${isHover ? 'bg-positive/80' : 'bg-positive/50'}`}
-                        style={{ height: `${(m.inflow / maxVal) * 160}px` }}
+                        className={`w-full max-w-5 rounded-t transition-all sm:max-w-7 ${isHover ? 'bg-positive/80' : 'bg-positive/50'}`}
+                        style={{ height: `${(m.inflow / maxVal) * 144}px` }}
                       />
                       <div
-                        className={`w-full max-w-7 rounded-t transition-all ${isHover ? 'bg-destructive/70' : 'bg-destructive/40'}`}
-                        style={{ height: `${(m.outflow / maxVal) * 160}px` }}
+                        className={`w-full max-w-5 rounded-t transition-all sm:max-w-7 ${isHover ? 'bg-destructive/70' : 'bg-destructive/40'}`}
+                        style={{ height: `${(m.outflow / maxVal) * 144}px` }}
                       />
                     </div>
-                    <span className="font-mono text-[11px] text-muted-foreground">{m.month}</span>
+                    <span className="font-mono text-[10px] text-muted-foreground sm:text-[11px]">{m.month}</span>
                   </div>
                 )
               })}

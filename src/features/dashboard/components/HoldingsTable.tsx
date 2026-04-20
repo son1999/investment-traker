@@ -1,207 +1,165 @@
+import { ArrowUpRight, Heart, MapPin } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { EmptyState } from '@/components/app'
 import { AssetIcon } from '@/components/ui/asset-icon'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useHoldings } from '@/hooks/usePortfolio'
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, formatCurrencySigned } from '@/lib/format'
 
-const typeLabel: Record<string, string> = { metal: 'commodity', crypto: 'crypto', stock: 'stock' }
+const typeLabel: Record<string, string> = {
+  metal: 'common.metal',
+  crypto: 'common.crypto',
+  stock: 'common.stock',
+  savings: 'common.savings',
+}
+
+const cardArt: Record<string, string> = {
+  metal:
+    'linear-gradient(145deg, rgba(255,255,255,0.08), transparent 50%), radial-gradient(circle at top right, rgba(243,195,79,0.34), transparent 38%), linear-gradient(180deg, #fdf4d8 0%, #f6e8b1 100%)',
+  crypto:
+    'linear-gradient(145deg, rgba(255,255,255,0.08), transparent 50%), radial-gradient(circle at top right, rgba(70,4,121,0.28), transparent 40%), linear-gradient(180deg, #f5eefc 0%, #ebdbf6 100%)',
+  stock:
+    'linear-gradient(145deg, rgba(255,255,255,0.08), transparent 50%), radial-gradient(circle at top right, rgba(255,56,92,0.26), transparent 40%), linear-gradient(180deg, #fff1f4 0%, #ffdfe7 100%)',
+  savings:
+    'linear-gradient(145deg, rgba(255,255,255,0.08), transparent 50%), radial-gradient(circle at top right, rgba(0,138,98,0.22), transparent 38%), linear-gradient(180deg, #eef9f5 0%, #dbf1e8 100%)',
+}
 
 export default function HoldingsTable() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: holdings, isLoading } = useHoldings()
 
-  const items = holdings || []
-  const totalValue = items.reduce((sum, holding) => sum + holding.value, 0)
-  const totalPnlAmount = items.reduce((sum, holding) => sum + holding.profitLossAmount, 0)
-  const totalCost = totalValue - totalPnlAmount
-  const totalPnlPct = totalCost > 0 ? (totalPnlAmount / totalCost) * 100 : 0
-  const totalPositive = totalPnlPct >= 0
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {[1, 2, 3, 4, 5, 6].map((item) => (
+          <Skeleton key={item} className="h-[340px] rounded-[20px]" />
+        ))}
+      </div>
+    )
+  }
 
-  if (isLoading) return <Skeleton className="h-[300px] w-full rounded-lg" />
+  const items = holdings || []
+
+  if (items.length === 0) {
+    return (
+      <EmptyState
+        title={t('dashboard.holdings')}
+        description={t('assets.noAssets')}
+      />
+    )
+  }
 
   return (
-    <Card className="h-full w-full min-w-0 overflow-hidden border-border bg-card">
-      <CardHeader className="flex-col gap-3 border-b border-border px-4 py-5 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
-        <CardTitle className="text-base font-bold text-foreground">{t('dashboard.holdings')}</CardTitle>
-        <Button variant="link" size="sm" className="justify-start px-0 text-[13px] text-muted-foreground md:justify-center md:px-2.5">
+    <section className="space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-2">
+          <span className="air-section-eyebrow">{t('dashboard.holdings')}</span>
+          <h2 className="text-[1.75rem] leading-[1.1] font-bold tracking-[-0.04em] text-foreground">
+            Browse open positions as if they were curated stays.
+          </h2>
+        </div>
+        <Button variant="outline" size="lg" onClick={() => navigate('/assets')}>
           {t('dashboard.viewDetails')}
         </Button>
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-0 md:hidden">
-        <div className="flex flex-col">
-          {items.map((holding) => (
-            <Button
-              key={holding.assetCode}
-              variant="ghost"
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {items.map((holding) => (
+          <article
+            key={holding.assetCode}
+            className="air-surface group overflow-hidden transition-transform duration-200 hover:-translate-y-0.5"
+          >
+            <button
+              type="button"
               onClick={() => navigate(`/assets/${holding.assetCode}`)}
-              className="h-auto w-full justify-start whitespace-normal rounded-none px-4 py-4"
+              className="w-full text-left"
             >
-              <div className="flex w-full min-w-0 flex-col gap-3 text-left">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
+              <div
+                className="relative aspect-[16/10] overflow-hidden rounded-t-[20px] p-5"
+                style={{ background: cardArt[holding.assetType] || cardArt.stock }}
+              >
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(34,34,34,0.02)_0%,rgba(34,34,34,0.08)_100%)]" />
+                <div className="relative z-10 flex items-start justify-between gap-3">
+                  <Badge variant="outline">{t(typeLabel[holding.assetType] || holding.assetType)}</Badge>
+                  <div className="flex size-9 items-center justify-center rounded-full bg-white/92 shadow-[var(--shadow-card)]">
+                    <Heart size={15} className="text-[var(--palette-bg-primary-core)]" />
+                  </div>
+                </div>
+                <div className="relative z-10 mt-10 flex items-end justify-between gap-4">
+                  <div className="rounded-full bg-white/88 p-2 shadow-[var(--shadow-card)] backdrop-blur-sm">
                     <AssetIcon
                       code={holding.assetCode}
                       assetType={holding.assetType}
                       fallback={holding.icon}
                       fallbackBg={holding.iconBg}
-                      sizeClass="size-9"
+                      sizeClass="size-11"
                     />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-foreground">{holding.name}</p>
-                      <p className="text-xs text-muted-foreground">{holding.assetCode}</p>
-                    </div>
                   </div>
-                  <Badge variant="outline" className="shrink-0 text-[10px] uppercase">
-                    {t(`common.${typeLabel[holding.assetType] || holding.assetType}`)}
-                  </Badge>
+                  <div className="rounded-full bg-white/88 px-3 py-2 text-sm font-medium text-foreground shadow-[var(--shadow-card)] backdrop-blur-sm">
+                    {holding.quantity.toLocaleString('en-US')}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 px-5 py-5">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-[1.15rem] leading-[1.15] font-semibold tracking-[-0.03em] text-foreground">
+                      {holding.name}
+                    </h3>
+                    <ArrowUpRight
+                      size={16}
+                      className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin size={13} />
+                    <span>{holding.assetCode}</span>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="space-y-1">
-                    <p className="text-muted-foreground">{t('dashboard.colQty')}</p>
-                    <p className="font-['JetBrains_Mono'] text-foreground">
-                      {holding.quantity.toLocaleString('en-US')}
+                    <p className="air-section-eyebrow">{t('dashboard.colAvgCost')}</p>
+                    <p className="font-medium text-foreground">
+                      {formatCurrency(holding.averageCost, holding.currency)}
                     </p>
                   </div>
                   <div className="space-y-1 text-right">
-                    <p className="text-muted-foreground">{t('dashboard.colValue')}</p>
-                    <p className="font-['JetBrains_Mono'] font-semibold text-foreground">
-                      {formatCurrency(holding.value)}
+                    <p className="air-section-eyebrow">{t('dashboard.colCurrentPrice')}</p>
+                    <p className="font-medium text-foreground">
+                      {formatCurrency(holding.currentPrice, holding.currency)}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3">
-                  <span className="text-xs text-muted-foreground">{t('dashboard.colPnl')}</span>
-                  <Badge
-                    variant={holding.positive ? 'secondary' : 'destructive'}
-                    className={`gap-1 rounded-lg px-2.5 py-1 font-['JetBrains_Mono'] text-[11px] font-bold ${holding.positive ? 'bg-positive/15 text-positive' : ''}`}
-                  >
-                    {holding.positive ? '+' : ''}
-                    {holding.profitLossPercent.toFixed(1)}%
-                  </Badge>
+                <div className="flex items-end justify-between gap-3 border-t border-black/5 pt-4">
+                  <div>
+                    <p className="air-section-eyebrow">{t('dashboard.colValue')}</p>
+                    <p className="mt-1 text-lg font-semibold tracking-[-0.03em] text-foreground">
+                      {formatCurrency(holding.value)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={holding.positive ? 'default' : 'destructive'}>
+                      {holding.positive ? '+' : ''}
+                      {holding.profitLossPercent.toFixed(2)}%
+                    </Badge>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {formatCurrencySigned(holding.profitLossAmount)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </Button>
-          ))}
-
-          {items.length > 0 ? (
-            <div className="border-t bg-muted/30 px-4 py-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-foreground">{t('dashboard.total')}</span>
-                <span className="font-['JetBrains_Mono'] text-sm font-bold text-foreground">
-                  {formatCurrency(totalValue)}
-                </span>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                <span className="text-xs text-muted-foreground">{t('dashboard.colPnl')}</span>
-                <Badge
-                  variant={totalPositive ? 'secondary' : 'destructive'}
-                  className={`gap-1 rounded-lg px-2.5 py-1 font-['JetBrains_Mono'] text-[11px] font-bold ${totalPositive ? 'bg-positive/15 text-positive' : ''}`}
-                >
-                  {totalPositive ? '+' : ''}
-                  {totalPnlPct.toFixed(1)}%
-                </Badge>
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </CardContent>
-
-      <CardContent className="hidden p-0 md:block">
-        <Table className="min-w-[780px]">
-          <TableHeader>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="pl-4 sm:pl-6 md:pl-8">{t('dashboard.colAsset')}</TableHead>
-              <TableHead className="text-right">{t('dashboard.colType')}</TableHead>
-              <TableHead className="text-right">{t('dashboard.colQty')}</TableHead>
-              <TableHead className="text-right">{t('dashboard.colAvgCost')}</TableHead>
-              <TableHead className="text-right">{t('dashboard.colCurrentPrice')}</TableHead>
-              <TableHead className="text-right">{t('dashboard.colValue')}</TableHead>
-              <TableHead className="pr-4 text-right sm:pr-6 md:pr-8">{t('dashboard.colPnl')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((holding) => (
-              <TableRow
-                key={holding.assetCode}
-                onClick={() => navigate(`/assets/${holding.assetCode}`)}
-                className="cursor-pointer"
-              >
-                <TableCell className="pl-4 sm:pl-6 md:pl-8">
-                  <div className="flex items-center gap-3">
-                    <AssetIcon
-                      code={holding.assetCode}
-                      assetType={holding.assetType}
-                      fallback={holding.icon}
-                      fallbackBg={holding.iconBg}
-                      sizeClass="size-7"
-                    />
-                    <span className="text-sm font-semibold text-foreground">{holding.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Badge variant="outline" className="text-[10px] uppercase">
-                    {t(`common.${typeLabel[holding.assetType] || holding.assetType}`)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-foreground">
-                  {holding.quantity.toLocaleString('en-US')}
-                </TableCell>
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-foreground">
-                  {formatCurrency(holding.averageCost, holding.currency)}
-                </TableCell>
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] text-foreground">
-                  {formatCurrency(holding.currentPrice, holding.currency)}
-                </TableCell>
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-foreground">
-                  {formatCurrency(holding.value)}
-                </TableCell>
-                <TableCell className="pr-4 text-right sm:pr-6 md:pr-8">
-                  <Badge
-                    variant={holding.positive ? 'secondary' : 'destructive'}
-                    className={`gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${holding.positive ? 'bg-positive/15 text-positive' : ''}`}
-                  >
-                    {holding.positive ? '+' : ''}
-                    {holding.profitLossPercent.toFixed(1)}%
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-            {items.length > 0 ? (
-              <TableRow className="border-t-2 border-border bg-muted/30 hover:bg-muted/30">
-                <TableCell className="pl-4 sm:pl-6 md:pl-8">
-                  <span className="font-bold text-foreground">{t('dashboard.total')}</span>
-                </TableCell>
-                <TableCell />
-                <TableCell />
-                <TableCell />
-                <TableCell />
-                <TableCell className="text-right font-['JetBrains_Mono'] text-[13px] font-bold text-foreground">
-                  {formatCurrency(totalValue)}
-                </TableCell>
-                <TableCell className="pr-4 text-right sm:pr-6 md:pr-8">
-                  <Badge
-                    variant={totalPositive ? 'secondary' : 'destructive'}
-                    className={`gap-1 rounded-lg px-3 py-1.5 font-['JetBrains_Mono'] text-xs font-bold ${totalPositive ? 'bg-positive/15 text-positive' : ''}`}
-                  >
-                    {totalPositive ? '+' : ''}
-                    {totalPnlPct.toFixed(1)}%
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ) : null}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+            </button>
+          </article>
+        ))}
+      </div>
+    </section>
   )
 }

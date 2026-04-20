@@ -25,7 +25,7 @@ export default function DCAHistory({ code }: { code: string }) {
                   <span className="font-['JetBrains_Mono'] text-[10px] text-muted-foreground">{new Date(e.date).toLocaleString('vi-VN')}</span>
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-3 sm:gap-6 lg:flex lg:items-center lg:gap-12">
+              <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:flex lg:items-center lg:gap-12">
                 <div className="flex flex-col items-end gap-1"><span className="text-[10px] uppercase text-muted-foreground">{t('reports.colPrice')}</span><span className="font-['JetBrains_Mono'] text-xs">{formatVND(e.unitPrice)}</span></div>
                 <div className="flex flex-col items-end gap-1"><span className="text-[10px] uppercase text-muted-foreground">{t('reports.colQty')}</span><span className="font-['JetBrains_Mono'] text-xs">{e.quantity}</span></div>
                 <div className="flex min-w-0 flex-col items-end gap-1 lg:min-w-25"><span className="text-[10px] uppercase text-muted-foreground">{t('reports.colTotal')}</span><span className="font-['JetBrains_Mono'] text-sm font-bold">{formatVND(e.total)}</span></div>

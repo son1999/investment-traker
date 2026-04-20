@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pricesApi } from '@/lib/api'
+import { getErrorMessage } from '@/lib/api/error'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import type { AssetType, CreatePriceRequest, PriceEntry, LivePriceResult } from '@/types/api'
@@ -20,8 +21,8 @@ export function useCreateOrUpdatePrice() {
       qc.invalidateQueries({ queryKey: ['portfolio'] })
       toast.success(`Đã cập nhật giá ${data.code}`)
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Cập nhật giá thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Cập nhật giá thất bại'))
     },
   })
 }
@@ -36,8 +37,8 @@ export function useUpdatePriceByCode() {
       qc.invalidateQueries({ queryKey: ['portfolio'] })
       toast.success(`Đã cập nhật giá ${data.code}`)
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Cập nhật giá thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Cập nhật giá thất bại'))
     },
   })
 }
@@ -52,8 +53,8 @@ export function useRefreshAllPrices() {
       qc.invalidateQueries({ queryKey: ['portfolio'] })
       toast.success(t('prices.refreshSuccess', { count: data.count }))
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || t('prices.refreshError'))
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, t('prices.refreshError')))
     },
   })
 }

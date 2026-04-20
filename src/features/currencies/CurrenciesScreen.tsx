@@ -56,7 +56,7 @@ export default function CurrenciesScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-[1400px] flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8">
+    <div className="air-page">
       <PageHeader
         title={t('currencies.title')}
         description={t('currencies.subtitle')}
@@ -90,58 +90,105 @@ export default function CurrenciesScreen() {
           title={t('currencies.title')}
           description={t('currencies.count', { count: items.length })}
         >
-          <Table className="min-w-[700px]">
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-6">{t('currencies.colCode')}</TableHead>
-                <TableHead>{t('currencies.colName')}</TableHead>
-                <TableHead>{t('currencies.colSymbol')}</TableHead>
-                <TableHead className="text-right">{t('currencies.colRate')}</TableHead>
-                <TableHead>{t('currencies.colUpdated')}</TableHead>
-                {!isGuest ? <TableHead className="pr-6 text-right">{t('currencies.colActions')}</TableHead> : null}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((currency) => (
-                <TableRow key={currency.id}>
-                  <TableCell className="pl-6 font-mono text-sm font-semibold">
-                    {currency.code}
-                  </TableCell>
-                  <TableCell className="text-sm">{currency.name}</TableCell>
-                  <TableCell className="text-lg">{currency.symbol}</TableCell>
-                  <TableCell className="text-right font-mono text-sm font-semibold">
-                    {currency.rateToVnd.toLocaleString('vi-VN')}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {new Date(currency.updatedAt).toLocaleDateString('vi-VN')}
-                  </TableCell>
-                  {!isGuest ? (
-                    <TableCell className="pr-6 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => {
-                            setEditingCurrency(currency)
-                            setFormOpen(true)
-                          }}
-                        >
-                          <Pencil size={14} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => setDeleteCode(currency.code)}
-                        >
-                          <Trash2 size={14} className="text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  ) : null}
+          <div className="grid gap-3 p-4 md:hidden">
+            {items.map((currency) => (
+              <article key={currency.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-mono text-sm font-semibold text-foreground">{currency.code}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{currency.name}</p>
+                  </div>
+                  <p className="text-xl">{currency.symbol}</p>
+                </div>
+                <div className="mt-4 grid gap-3 text-xs min-[420px]:grid-cols-2">
+                  <div>
+                    <p className="text-muted-foreground">{t('currencies.colRate')}</p>
+                    <p className="mt-1 font-mono text-foreground">{currency.rateToVnd.toLocaleString('vi-VN')}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-muted-foreground">{t('currencies.colUpdated')}</p>
+                    <p className="mt-1 text-foreground">{new Date(currency.updatedAt).toLocaleDateString('vi-VN')}</p>
+                  </div>
+                </div>
+                {!isGuest ? (
+                  <div className="mt-4 flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => {
+                        setEditingCurrency(currency)
+                        setFormOpen(true)
+                      }}
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => setDeleteCode(currency.code)}
+                    >
+                      <Trash2 size={14} className="text-destructive" />
+                    </Button>
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+
+          <div className="hidden md:block">
+            <Table className="min-w-[700px]">
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="pl-6">{t('currencies.colCode')}</TableHead>
+                  <TableHead>{t('currencies.colName')}</TableHead>
+                  <TableHead>{t('currencies.colSymbol')}</TableHead>
+                  <TableHead className="text-right">{t('currencies.colRate')}</TableHead>
+                  <TableHead>{t('currencies.colUpdated')}</TableHead>
+                  {!isGuest ? <TableHead className="pr-6 text-right">{t('currencies.colActions')}</TableHead> : null}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {items.map((currency) => (
+                  <TableRow key={currency.id}>
+                    <TableCell className="pl-6 font-mono text-sm font-semibold">
+                      {currency.code}
+                    </TableCell>
+                    <TableCell className="text-sm">{currency.name}</TableCell>
+                    <TableCell className="text-lg">{currency.symbol}</TableCell>
+                    <TableCell className="text-right font-mono text-sm font-semibold">
+                      {currency.rateToVnd.toLocaleString('vi-VN')}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {new Date(currency.updatedAt).toLocaleDateString('vi-VN')}
+                    </TableCell>
+                    {!isGuest ? (
+                      <TableCell className="pr-6 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => {
+                              setEditingCurrency(currency)
+                              setFormOpen(true)
+                            }}
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => setDeleteCode(currency.code)}
+                          >
+                            <Trash2 size={14} className="text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    ) : null}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </DataTableCard>
       )}
 

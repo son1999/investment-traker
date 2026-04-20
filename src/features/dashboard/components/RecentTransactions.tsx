@@ -1,55 +1,78 @@
+import { ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { useRecentTransactions } from '@/hooks/useTransactions'
+
 import { AssetIcon } from '@/components/ui/asset-icon'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useRecentTransactions } from '@/hooks/useTransactions'
 
 export default function RecentTransactions() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: transactions, isLoading } = useRecentTransactions()
 
-  if (isLoading) return <Skeleton className="h-[200px] w-full rounded-lg" />
+  if (isLoading) return <Skeleton className="h-64 w-full rounded-[20px]" />
 
   const items = transactions || []
 
   return (
-    <Card className="w-full min-w-0 border-border bg-card">
-      <CardHeader className="flex-col gap-3 border-b border-border px-4 py-5 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
-        <CardTitle className="text-base font-bold text-foreground">{t('dashboard.recentTransactions')}</CardTitle>
-        <Button variant="link" size="sm" onClick={() => navigate('/transactions')} className="text-[13px] text-muted-foreground">
+    <section className="air-surface overflow-hidden">
+      <div className="flex flex-col gap-4 border-b border-black/5 px-6 py-6 sm:px-8 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-2">
+          <span className="air-section-eyebrow">{t('dashboard.recentTransactions')}</span>
+          <h3 className="text-[1.7rem] leading-[1.1] font-semibold tracking-[-0.04em] text-foreground">
+            The latest movements across your book.
+          </h3>
+        </div>
+        <Button variant="outline" size="lg" onClick={() => navigate('/transactions')}>
           {t('dashboard.allTransactions')}
         </Button>
-      </CardHeader>
-      <CardContent className="flex flex-col p-0">
+      </div>
+
+      <div className="divide-y divide-black/5">
         {items.map((tx) => {
           const isBuy = tx.action === 'MUA'
-          const dateStr = new Date(tx.date).toLocaleDateString('vi-VN')
+
           return (
-            <div key={tx.id} className="flex flex-col gap-3 px-4 py-3 transition-colors hover:bg-muted/50 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                <span className="font-['JetBrains_Mono'] text-xs text-muted-foreground sm:w-24">{dateStr}</span>
-                <div className="flex items-center gap-2">
-                  <AssetIcon
-                    code={tx.assetCode}
-                    assetType={tx.assetType}
-                    fallback={tx.icon}
-                    sizeClass="size-6"
-                  />
-                  <span className="text-sm font-bold uppercase text-foreground">{tx.assetCode}</span>
+            <button
+              key={tx.id}
+              type="button"
+              onClick={() => navigate('/transactions')}
+              className="flex w-full flex-col gap-4 px-6 py-5 text-left transition-colors hover:bg-[rgba(34,34,34,0.02)] sm:px-8 lg:flex-row lg:items-center lg:justify-between"
+            >
+              <div className="flex items-start gap-4">
+                <AssetIcon
+                  code={tx.assetCode}
+                  assetType={tx.assetType}
+                  fallback={tx.icon}
+                  fallbackBg={tx.iconBg}
+                  sizeClass="size-11"
+                />
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-base font-semibold text-foreground">{tx.assetCode}</p>
+                    <Badge variant={isBuy ? 'default' : 'destructive'}>
+                      {isBuy ? t('common.buy') : t('common.sell')}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(tx.date).toLocaleDateString('vi-VN')} · {tx.note || t('transactions.title')}
+                  </p>
                 </div>
-                <Badge variant={isBuy ? 'secondary' : 'destructive'} className={`text-[10px] font-bold ${isBuy ? 'bg-positive/10 text-positive' : ''}`}>
-                  {isBuy ? t('common.buy') : t('common.sell')}
-                </Badge>
               </div>
-              <span className="font-['JetBrains_Mono'] text-sm font-bold text-foreground">{tx.quantity} {tx.assetCode}</span>
-            </div>
+
+              <div className="flex items-center justify-between gap-4 lg:min-w-[220px] lg:justify-end">
+                <p className="text-sm font-medium text-foreground">
+                  {tx.quantity.toLocaleString('en-US')} {tx.assetCode}
+                </p>
+                <ArrowRight size={16} className="text-muted-foreground" />
+              </div>
+            </button>
           )
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   )
 }

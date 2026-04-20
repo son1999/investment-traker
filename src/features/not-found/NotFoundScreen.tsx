@@ -1,3 +1,4 @@
+import { House, Undo2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -8,19 +9,27 @@ export default function NotFoundScreen() {
   const { t } = useTranslation()
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
-      <div className="flex w-full max-w-[400px] flex-col items-center text-center">
-        <span className="font-mono text-8xl font-bold text-muted-foreground/40">404</span>
-        <h1 className="mt-4 text-lg font-semibold">{t('notFound.title')}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t('notFound.description')}</p>
+    <div className="min-h-screen bg-background px-4 py-6 sm:px-6 lg:px-10">
+      <div className="air-surface-lg air-photo-art mx-auto flex min-h-[calc(100vh-3rem)] max-w-[1120px] flex-col items-center justify-center px-8 py-12 text-center">
+        <span className="air-kicker-pill">404</span>
+        <h1 className="mt-6 max-w-3xl text-[clamp(2.6rem,7vw,5rem)] leading-[0.92] font-bold tracking-[-0.06em] text-foreground">
+          {t('notFound.title')}
+        </h1>
+        <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+          {t('notFound.description')}
+        </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Button variant="outline" onClick={() => navigate(-1)}>
+          <Button variant="outline" size="lg" onClick={() => navigate(-1)}>
+            <Undo2 size={15} />
             {t('notFound.goBack')}
           </Button>
-          <Button onClick={() => navigate('/dashboard')}>{t('notFound.goHome')}</Button>
+          <Button size="lg" onClick={() => navigate('/dashboard')}>
+            <House size={15} />
+            {t('notFound.goHome')}
+          </Button>
         </div>
-        <p className="mt-16 text-center text-xs text-muted-foreground">
-          {t('app.brand')} &middot; {t('app.version')}
+        <p className="mt-10 text-xs tracking-[0.14em] text-muted-foreground uppercase">
+          {t('app.brand')} · {t('app.version')}
         </p>
       </div>
     </div>

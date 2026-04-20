@@ -115,6 +115,8 @@ export default function PerformanceChart({ period }: { period: Period }) {
     color: COLORS[k],
     values: series[k],
   }))
+  const monthStep = Math.max(1, Math.ceil(months.length / 6))
+  const visibleMonthIndexes = months.map((_, index) => index).filter((index) => index % monthStep === 0 || index === months.length - 1)
 
   const handleMove = (e: ReactMouseEvent<HTMLDivElement>) => {
     if (!chartRef.current || len < 2) return
@@ -171,8 +173,8 @@ export default function PerformanceChart({ period }: { period: Period }) {
         </div>
       </CardHeader>
       <CardContent className="min-w-0">
-        <div className="flex gap-3">
-          <div className="flex w-12 flex-col justify-between pt-3 pb-7 text-right">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-3">
+          <div className="hidden w-12 flex-col justify-between pt-3 pb-7 text-right sm:flex">
             {[1, 0.75, 0.5, 0.25, 0].map((r, i) => (
               <span key={i} className="font-mono text-[10px] text-muted-foreground">
                 {formatAxisCompact(maxVal * r)}
@@ -276,10 +278,10 @@ export default function PerformanceChart({ period }: { period: Period }) {
               </div>
             ) : null}
 
-            <div className="flex justify-between pt-3">
-              {months.map((m, index) => (
-                <span key={`${m}-${index}`} className="text-[11px] text-muted-foreground">
-                  {m}
+            <div className="flex justify-between gap-2 pt-3">
+              {visibleMonthIndexes.map((index) => (
+                <span key={`${months[index]}-${index}`} className="text-[11px] text-muted-foreground">
+                  {months[index]}
                 </span>
               ))}
             </div>

@@ -1,5 +1,18 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { ChevronRight, Languages, LogOut, Menu, Moon, Sun } from 'lucide-react'
+import {
+  ArrowUpDown,
+  ChartColumnBig,
+  ChevronRight,
+  Coins,
+  Landmark,
+  Languages,
+  LayoutGrid,
+  LogOut,
+  Menu,
+  Plus,
+  Search,
+  WalletCards,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -23,168 +36,195 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth'
-import { useThemeStore, type Theme } from '@/stores/theme'
 
 const logoUrl = '/logo.png'
 
-const navKeys = [
-  { key: 'nav.dashboard', to: '/dashboard' },
-  { key: 'nav.transactions', to: '/transactions' },
-  { key: 'nav.reports', to: '/reports' },
-  { key: 'nav.prices', to: '/prices' },
-  { key: 'nav.assets', to: '/assets' },
-  { key: 'nav.currencies', to: '/currencies' },
-]
-
-const themes: { value: Theme; icon: typeof Sun; label: string }[] = [
-  { value: 'light', icon: Sun, label: 'Light' },
-  { value: 'dark', icon: Moon, label: 'Dark' },
+const navItems = [
+  { key: 'nav.dashboard', to: '/dashboard', icon: LayoutGrid },
+  { key: 'nav.transactions', to: '/transactions', icon: ArrowUpDown },
+  { key: 'nav.reports', to: '/reports', icon: ChartColumnBig },
+  { key: 'nav.prices', to: '/prices', icon: Coins },
+  { key: 'nav.assets', to: '/assets', icon: WalletCards },
+  { key: 'nav.currencies', to: '/currencies', icon: Landmark },
 ]
 
 export default function AppHeader() {
   const { t, i18n } = useTranslation()
-  const { theme, setTheme } = useThemeStore()
   const { logout, user } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
+
+  const activeItem =
+    navItems.find((item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)) ??
+    navItems[0]
 
   const toggleLang = () => {
     i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi')
   }
 
-  const isLinkActive = (to: string) =>
-    location.pathname === to || location.pathname.startsWith(`${to}/`)
-
   return (
-    <header className="fixed left-0 top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex h-14 min-w-0 max-w-[1400px] items-center justify-between px-4 sm:px-6">
-        <NavLink to="/dashboard" className="flex min-w-0 items-center">
-          <img src={logoUrl} alt="Logo" className="h-9 w-auto sm:h-10" />
-        </NavLink>
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-white/92 backdrop-blur-xl">
+      <div className="mx-auto max-w-[1760px] px-4 sm:px-6 lg:px-10">
+        <div className="flex h-16 items-center justify-between gap-2 sm:h-[82px] sm:gap-3">
+          <NavLink to="/dashboard" className="flex shrink-0 items-center gap-3">
+            <img src={logoUrl} alt="Logo" className="h-8 w-auto sm:h-10" />
+            <div className="hidden xl:flex xl:flex-col">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--palette-bg-primary-core)]">
+                {t('app.brand')}
+              </span>
+              <span className="text-sm font-medium text-muted-foreground">{t(activeItem.key)}</span>
+            </div>
+          </NavLink>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {navKeys.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                cn(
-                  'rounded-md px-3 py-1.5 text-sm transition-colors',
-                  isActive
-                    ? 'bg-secondary text-secondary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                )
-              }
-            >
-              {t(link.key)}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
-          <Dialog>
-            <DialogTrigger
-              render={<Button variant="ghost" size="icon-sm" className="rounded-2xl md:hidden" />}
-            >
-              <Menu size={18} />
-            </DialogTrigger>
-
-            <DialogContent
-              showCloseButton
-              className="left-auto right-4 top-16 w-[calc(100%-2rem)] max-w-xs translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-3xl p-0 sm:right-6 md:hidden"
-            >
-              <DialogHeader className="border-b px-5 py-4 pr-12">
-                <DialogTitle className="text-lg font-semibold">{t('app.brand')}</DialogTitle>
-                <p className="text-xs text-muted-foreground">{user?.email || 'User'}</p>
-              </DialogHeader>
-
-              <div className="grid gap-1 p-2">
-                {navKeys.map((link) => (
-                  <DialogClose
-                    key={link.to}
-                    render={
-                      <Button
-                        variant="ghost"
-                        className={cn(
-                          'h-auto w-full justify-between rounded-2xl px-4 py-3 text-left text-base font-medium',
-                          isLinkActive(link.to)
-                            ? 'bg-secondary text-secondary-foreground'
-                            : 'text-foreground hover:bg-muted',
-                        )}
-                      />
-                    }
-                    onClick={() => navigate(link.to)}
-                  >
-                    <span>{t(link.key)}</span>
-                    <ChevronRight size={16} className="text-muted-foreground" />
-                  </DialogClose>
-                ))}
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleLang}
-            className="gap-1 px-2 min-[380px]:px-2.5 sm:px-3"
+          <button
+            type="button"
+            onClick={() => navigate(activeItem.to)}
+            className="air-search-shell hidden min-w-[420px] max-w-[640px] flex-1 lg:flex"
           >
-            <Languages size={14} />
-            <span className="hidden text-[11px] font-medium uppercase min-[380px]:inline">
-              {i18n.language}
+            <span className="air-search-segment min-w-0 flex-1">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Portfolio
+              </span>
+              <span className="truncate text-sm font-semibold text-foreground">{t(activeItem.key)}</span>
             </span>
-          </Button>
+            <span className="h-8 w-px bg-black/6" />
+            <span className="air-search-segment min-w-0 flex-1">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Workspace
+              </span>
+              <span className="truncate text-sm text-foreground">
+                {user?.isGuest ? 'Preview mode' : 'Live portfolio'}
+              </span>
+            </span>
+            <span className="ml-1 inline-flex size-12 items-center justify-center rounded-full bg-[var(--palette-bg-primary-core)] text-white shadow-[var(--shadow-card)]">
+              <Search size={16} />
+            </span>
+          </button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={<Button variant="ghost" size="icon-sm" className="ml-0.5 rounded-full" />}
-            >
-              <Avatar size="sm">
-                <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end" sideOffset={8} className="w-44">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>{user?.email || 'User'}</DropdownMenuLabel>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-
-              <div className="grid grid-cols-2 gap-1 px-1 pb-1">
-                {themes.map((item) => {
-                  const ThemeIcon = item.icon
-                  const active = theme === item.value
-
-                  return (
-                    <Button
-                      key={item.value}
-                      type="button"
-                      onClick={() => setTheme(item.value)}
-                      variant={active ? 'secondary' : 'ghost'}
-                      size="sm"
-                      className="justify-center gap-1.5 text-[11px]"
-                    >
-                      <ThemeIcon size={13} />
-                      {item.label}
-                    </Button>
-                  )
-                })}
-              </div>
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={async () => {
-                  await logout()
-                  navigate('/login')
-                }}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {!user?.isGuest ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden xl:inline-flex"
+                onClick={() => navigate('/transactions')}
               >
-                <LogOut size={13} />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <Plus size={14} />
+                {t('transactions.add')}
+              </Button>
+            ) : null}
+
+            <Button variant="secondary" size="sm" onClick={toggleLang} className="gap-1.5 px-2.5 sm:gap-2">
+              <Languages size={14} />
+              <span className="hidden text-[11px] font-semibold uppercase tracking-[0.14em] min-[380px]:inline">
+                {i18n.language}
+              </span>
+            </Button>
+
+            <Dialog>
+              <DialogTrigger
+                render={<Button variant="secondary" size="icon-sm" className="lg:hidden" />}
+              >
+                <Menu size={18} />
+              </DialogTrigger>
+              <DialogContent className="max-w-md p-0" showCloseButton>
+                <DialogHeader className="border-b border-black/5 px-6 py-5">
+                  <DialogTitle>{t('app.brand')}</DialogTitle>
+                  <p className="text-sm text-muted-foreground">{user?.email || 'User'}</p>
+                </DialogHeader>
+                <div className="grid gap-2 px-4 py-4">
+                  {navItems.map((item) => (
+                    <DialogClose
+                      key={item.to}
+                      render={
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            'h-auto w-full justify-between rounded-2xl px-4 py-4 text-left',
+                            activeItem.to === item.to ? 'bg-[var(--palette-surface-subtle)]' : '',
+                          )}
+                        />
+                      }
+                      onClick={() => navigate(item.to)}
+                    >
+                      <span className="flex items-center gap-3">
+                        <item.icon size={16} />
+                        {t(item.key)}
+                      </span>
+                      <ChevronRight size={16} className="text-muted-foreground" />
+                    </DialogClose>
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={<Button variant="ghost" size="icon-sm" className="rounded-full" />}
+              >
+                <Avatar size="default">
+                  <AvatarFallback>{user?.email?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" sideOffset={10} className="w-64">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>{user?.email || 'User'}</DropdownMenuLabel>
+                </DropdownMenuGroup>
+                <div className="px-3 pb-2 text-sm text-muted-foreground">
+                  {user?.isGuest ? 'Preview mode enabled' : 'Curating your live portfolio'}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/transactions')}>
+                  <Plus size={14} />
+                  {t('transactions.add')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/prices')}>
+                  <Coins size={14} />
+                  {t('nav.prices')}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={async () => {
+                    await logout()
+                    navigate('/login')
+                  }}
+                >
+                  <LogOut size={14} />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
+
+        <nav className="air-scroll-clean flex items-center gap-4 overflow-x-auto pt-1 pb-3 sm:gap-6">
+          {navItems.map((item) => {
+            const isActive = activeItem.to === item.to
+
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={cn(
+                  'group flex min-w-[72px] shrink-0 flex-col items-center gap-2 border-b-2 pb-3 text-center text-[12px] font-medium transition-all sm:min-w-[86px] sm:text-[13px]',
+                  isActive
+                    ? 'border-foreground text-foreground opacity-100'
+                    : 'border-transparent text-muted-foreground opacity-70 hover:opacity-100 hover:text-foreground',
+                )}
+              >
+                <item.icon
+                  size={18}
+                  className={cn(
+                    'transition-transform',
+                    isActive ? 'scale-105 text-foreground' : 'text-muted-foreground',
+                  )}
+                />
+                <span className="leading-none">{t(item.key)}</span>
+              </NavLink>
+            )
+          })}
+        </nav>
       </div>
     </header>
   )

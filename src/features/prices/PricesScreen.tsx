@@ -8,7 +8,7 @@ export default function PricesScreen() {
   const { t } = useTranslation()
 
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-[1400px] flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8">
+    <div className="air-page">
       <PageHeader title={t('prices.title')} description={t('prices.subtitle')} />
 
       <PriceTable />

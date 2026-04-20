@@ -6,7 +6,7 @@ export default function MasterLayout() {
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
       <AppHeader />
-      <main className="min-w-0 overflow-x-clip pt-14">
+      <main className="min-w-0 overflow-x-clip pt-[124px] sm:pt-[142px]">
         <Outlet />
       </main>
       <AppFooter />

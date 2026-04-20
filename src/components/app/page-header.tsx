@@ -18,17 +18,27 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        'min-w-0 flex flex-col gap-4 md:flex-row md:items-start md:justify-between',
+        'air-surface-lg relative overflow-hidden px-6 py-7 sm:px-8 sm:py-8',
         className,
       )}
     >
-      <div className="min-w-0 space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        {description ? (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        ) : null}
+      <div className="air-photo-art absolute inset-y-0 right-0 hidden w-72 md:block" />
+      <div className="relative flex min-w-0 flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 max-w-3xl space-y-3">
+          <span className="air-section-eyebrow">Portfolio Atelier</span>
+          <div className="space-y-2">
+            <h1 className="text-[clamp(1.8rem,3vw,2.35rem)] leading-[1.08] font-bold tracking-[-0.04em] text-foreground">
+              {title}
+            </h1>
+            {description ? (
+              <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+                {description}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        {actions ? <div className="relative z-10 flex max-w-full flex-wrap items-center gap-3">{actions}</div> : null}
       </div>
-      {actions ? <div className="flex max-w-full flex-wrap items-center gap-2">{actions}</div> : null}
     </div>
   )
 }

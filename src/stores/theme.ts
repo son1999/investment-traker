@@ -8,23 +8,28 @@ interface ThemeState {
   setTheme: (theme: Theme) => void
 }
 
-function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle('dark', theme === 'dark')
+function applyTheme(_theme: Theme) {
+  void _theme
+  document.documentElement.classList.toggle('dark', false)
 }
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'dark' as Theme,
+      theme: 'light' as Theme,
       setTheme: (theme: Theme) => {
         applyTheme(theme)
-        set({ theme })
+        set({ theme: 'light' })
       },
     }),
     {
       name: 'itracker-theme',
       onRehydrateStorage: () => (state) => {
-        if (state) applyTheme(state.theme)
+        if (state) {
+          state.setTheme('light')
+        } else {
+          applyTheme('light')
+        }
       },
     },
   ),

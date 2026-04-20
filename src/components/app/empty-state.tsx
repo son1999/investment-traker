@@ -16,12 +16,16 @@ export function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <Card className="border-dashed">
-      <CardContent className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-        {icon ? <div className="text-muted-foreground/50">{icon}</div> : null}
-        <div className="space-y-1">
-          {title ? <p className="font-medium">{title}</p> : null}
-          <p className="text-sm text-muted-foreground">{description}</p>
+    <Card className="air-surface-lg border-dashed border-black/10 bg-[linear-gradient(180deg,#ffffff_0%,#fbfbfb_100%)]">
+      <CardContent className="flex flex-col items-center justify-center gap-5 px-6 py-16 text-center sm:px-10">
+        {icon ? (
+          <div className="flex size-18 items-center justify-center rounded-full bg-[var(--palette-surface-muted)] text-muted-foreground">
+            {icon}
+          </div>
+        ) : null}
+        <div className="max-w-xl space-y-2">
+          {title ? <p className="text-xl font-semibold tracking-[-0.02em] text-foreground">{title}</p> : null}
+          <p className="text-sm leading-6 text-muted-foreground sm:text-base">{description}</p>
         </div>
         {action}
       </CardContent>

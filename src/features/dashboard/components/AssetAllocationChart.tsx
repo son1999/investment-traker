@@ -1,206 +1,82 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { PieChart } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+
+import { Badge } from '@/components/ui/badge'
 import { useAllocation } from '@/hooks/usePortfolio'
 import { formatCurrency } from '@/lib/format'
 
-interface Slice {
-  label: string
-  value: number
-  amount: string
-  color: string
-  darkColor: string
-  icon: string
-}
-
-const TILT = 0.78
-const DEPTH = 14
-const CUTOUT = 0.64
-const POP = 8
-
-const typeColors: Record<string, { color: string; darkColor: string; icon: string }> = {
-  metal: { color: '#eab308', darkColor: '#a16207', icon: '📀' },
-  crypto: { color: '#a855f7', darkColor: '#7e22ce', icon: '₿' },
-  stock: { color: '#06b6d4', darkColor: '#0e7490', icon: '📈' },
-  savings: { color: '#10b981', darkColor: '#047857', icon: '🏦' },
-}
-
-function lighten(hex: string, pct: number): string {
-  const num = parseInt(hex.slice(1), 16)
-  const r = Math.min(255, ((num >> 16) & 0xff) + pct)
-  const g = Math.min(255, ((num >> 8) & 0xff) + pct)
-  const b = Math.min(255, (num & 0xff) + pct)
-  return `rgb(${r},${g},${b})`
-}
-
-function getSliceAngles(slices: Slice[]) {
-  const total = slices.reduce((s, sl) => s + sl.value, 0)
-  const angles: { start: number; end: number }[] = []
-  let a = -Math.PI / 2
-  for (const sl of slices) {
-    const sweep = (sl.value / total) * Math.PI * 2
-    angles.push({ start: a, end: a + sweep })
-    a += sweep
-  }
-  return angles
-}
-
-function hitTest(mx: number, my: number, cx: number, cy: number, outerR: number, innerR: number, slices: Slice[]): number {
-  const dy = (my - cy) / TILT
-  const dx = mx - cx
-  const dist = Math.sqrt(dx * dx + dy * dy)
-  if (dist < innerR || dist > outerR) return -1
-  let angle = Math.atan2(dy, dx)
-  if (angle < -Math.PI / 2) angle += Math.PI * 2
-  const angles = getSliceAngles(slices)
-  for (let i = 0; i < angles.length; i++) {
-    let { start, end } = angles[i]
-    if (start < -Math.PI / 2) start += Math.PI * 2
-    if (end < -Math.PI / 2) end += Math.PI * 2
-    if (angle >= start && angle < end) return i
-  }
-  return -1
-}
-
-function drawEllipseArc(ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, startAngle: number, endAngle: number, ccw = false) {
-  ctx.ellipse(cx, cy, rx, ry, 0, startAngle, endAngle, ccw)
-}
-
-function drawDonut3D(canvas: HTMLCanvasElement, slices: Slice[], hoveredIndex: number) {
-  const ctx = canvas.getContext('2d')
-  if (!ctx || slices.length === 0) return
-  const dpr = window.devicePixelRatio || 1
-  const rect = canvas.getBoundingClientRect()
-  canvas.width = rect.width * dpr
-  canvas.height = rect.height * dpr
-  ctx.scale(dpr, dpr)
-  const w = rect.width, h = rect.height
-  const cx = w / 2, cy = h / 2 - DEPTH / 2 + 4
-  const outerR = Math.min(w, h) / 2 - 20, innerR = outerR * CUTOUT
-  const ryOuter = outerR * TILT, ryInner = innerR * TILT
-  const angles = getSliceAngles(slices)
-  function getPopOffset(i: number) {
-    if (i !== hoveredIndex) return { dx: 0, dy: 0 }
-    const mid = (angles[i].start + angles[i].end) / 2
-    return { dx: Math.cos(mid) * POP, dy: Math.sin(mid) * TILT * POP }
-  }
-  ctx.beginPath(); ctx.ellipse(cx, cy + DEPTH + 8, outerR + 4, ryOuter + 4, 0, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0,0,0,0.08)'; ctx.fill()
-  for (let d = DEPTH; d > 0; d -= 1) {
-    for (let i = 0; i < slices.length; i++) {
-      const { start, end } = angles[i]; const pop = getPopOffset(i)
-      const sideStart = Math.max(start, 0), sideEnd = Math.min(end, Math.PI)
-      if (sideStart >= sideEnd) continue
-      ctx.beginPath(); drawEllipseArc(ctx, cx + pop.dx, cy + d + pop.dy, outerR, ryOuter, sideStart, sideEnd)
-      ctx.lineTo(cx + pop.dx + Math.cos(sideEnd) * outerR, cy + pop.dy + Math.sin(sideEnd) * ryOuter)
-      drawEllipseArc(ctx, cx + pop.dx, cy + d + pop.dy, innerR, ryInner, sideEnd, sideStart, true)
-      ctx.closePath(); ctx.fillStyle = slices[i].darkColor; ctx.globalAlpha = d === DEPTH ? 0.7 : 0.08; ctx.fill()
-    }
-  }
-  ctx.globalAlpha = 1
-  for (let i = 0; i < slices.length; i++) {
-    const { start, end } = angles[i]; const pop = getPopOffset(i); const isHov = i === hoveredIndex
-    ctx.beginPath(); drawEllipseArc(ctx, cx + pop.dx, cy + pop.dy, outerR, ryOuter, start, end)
-    drawEllipseArc(ctx, cx + pop.dx, cy + pop.dy, innerR, ryInner, end, start, true); ctx.closePath()
-    const mid = (start + end) / 2
-    const grad = ctx.createLinearGradient(cx + pop.dx + Math.cos(mid) * innerR, cy + pop.dy + Math.sin(mid) * ryInner, cx + pop.dx + Math.cos(mid) * outerR, cy + pop.dy + Math.sin(mid) * ryOuter)
-    grad.addColorStop(0, isHov ? lighten(slices[i].color, 30) : slices[i].color)
-    grad.addColorStop(1, isHov ? lighten(slices[i].color, 50) : lighten(slices[i].color, 15))
-    ctx.fillStyle = grad; ctx.fill()
-    ctx.beginPath(); drawEllipseArc(ctx, cx + pop.dx, cy + pop.dy, outerR, ryOuter, start, end)
-    drawEllipseArc(ctx, cx + pop.dx, cy + pop.dy, innerR, ryInner, end, start, true); ctx.closePath()
-    const hlGrad = ctx.createLinearGradient(cx, cy - ryOuter, cx, cy + ryOuter)
-    hlGrad.addColorStop(0, 'rgba(255,255,255,0.18)'); hlGrad.addColorStop(0.5, 'rgba(255,255,255,0)'); hlGrad.addColorStop(1, 'rgba(0,0,0,0.06)')
-    ctx.fillStyle = hlGrad; ctx.fill()
-    if (isHov) { ctx.beginPath(); drawEllipseArc(ctx, cx + pop.dx, cy + pop.dy, outerR, ryOuter, start, end); drawEllipseArc(ctx, cx + pop.dx, cy + pop.dy, innerR, ryInner, end, start, true); ctx.closePath(); ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2; ctx.stroke() }
-  }
-  for (let i = 0; i < slices.length; i++) {
-    const { end } = angles[i]; const pop = getPopOffset(i)
-    ctx.beginPath(); ctx.moveTo(cx + pop.dx + Math.cos(end) * innerR, cy + pop.dy + Math.sin(end) * ryInner)
-    ctx.lineTo(cx + pop.dx + Math.cos(end) * outerR, cy + pop.dy + Math.sin(end) * ryOuter)
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1.5; ctx.stroke()
-  }
+const colors: Record<string, string> = {
+  metal: '#b7791f',
+  crypto: '#460479',
+  stock: '#ff385c',
+  savings: '#008a62',
 }
 
 export default function AssetAllocationChart() {
   const { t } = useTranslation()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [hovered, setHovered] = useState(-1)
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; idx: number } | null>(null)
+  const { data } = useAllocation()
 
-  const { data: apiData } = useAllocation()
-
-  const allocationData: Slice[] = (apiData || []).map((item) => {
-    const colors = typeColors[item.assetType] || { color: '#888', darkColor: '#555', icon: '💰' }
-    return { label: item.label, value: item.value, amount: formatCurrency(item.amount), ...colors }
-  })
-
-  const totalAmount = (apiData || []).reduce((s, a) => s + a.amount, 0)
-  const dataRef = useRef(allocationData)
-  dataRef.current = allocationData
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || dataRef.current.length === 0) return
-    drawDonut3D(canvas, dataRef.current, hovered)
-  }, [hovered, allocationData])
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    if (dataRef.current.length > 0) drawDonut3D(canvas, dataRef.current, hovered)
-    const handleResize = () => { if (dataRef.current.length > 0) drawDonut3D(canvas, dataRef.current, hovered) }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current; if (!canvas) return
-    const mx = e.nativeEvent.offsetX, my = e.nativeEvent.offsetY, rect = canvas.getBoundingClientRect()
-    const cx = rect.width / 2, cy = rect.height / 2 - DEPTH / 2 + 4
-    const outerR = Math.min(rect.width, rect.height) / 2 - 20, innerR = outerR * CUTOUT
-    const idx = hitTest(mx, my, cx, cy, outerR, innerR, dataRef.current)
-    setHovered(idx)
-    setTooltip(idx >= 0 ? { x: mx, y: my, idx } : null)
-  }, [])
+  const items = data || []
+  const totalAmount = items.reduce((sum, item) => sum + item.amount, 0)
+  const gradient = items.length
+    ? `conic-gradient(${items
+        .map((item, index) => {
+          const previous = items
+            .slice(0, index)
+            .reduce((sum, current) => sum + current.value, 0)
+          return `${colors[item.assetType] || '#222222'} ${previous}% ${previous + item.value}%`
+        })
+        .join(', ')})`
+    : 'conic-gradient(#f2f2f2 0% 100%)'
 
   return (
-    <div className="flex h-full w-full min-w-0 flex-col rounded-2xl border border-border bg-card p-4 sm:p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-bold text-foreground">{t('dashboard.allocation')}</h3>
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col items-center gap-0">
-        <div className="relative shrink-0 overflow-hidden">
-          <canvas ref={canvasRef} className="h-[220px] w-[220px] cursor-pointer sm:h-[260px] sm:w-[260px]" onMouseMove={handleMouseMove} onMouseLeave={() => { setHovered(-1); setTooltip(null) }} />
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-4 text-center" style={{ marginTop: '-7px' }}>
-            <span className="font-['JetBrains_Mono'] text-[14px] font-bold leading-tight tracking-tight text-foreground sm:text-[16px]">
-              {totalAmount.toLocaleString('vi-VN', { maximumFractionDigits: 0 })}
-            </span>
-            <span className="mt-0.5 text-xs font-medium text-muted-foreground">₫</span>
-          </div>
-          {tooltip && tooltip.idx >= 0 && allocationData[tooltip.idx] && (
-            <div className="pointer-events-none absolute z-50 rounded-lg border border-border bg-muted/40 px-4 py-3 shadow-xl" style={{ left: Math.min(tooltip.x + 12, 120), top: Math.max(tooltip.y - 50, 0) }}>
-              <div className="flex items-center gap-2">
-                <div className="size-3 rounded-sm" style={{ backgroundColor: allocationData[tooltip.idx].color }} />
-                <span className="text-sm font-semibold text-foreground">{allocationData[tooltip.idx].label}</span>
-              </div>
-              <div className="mt-1.5 flex items-baseline gap-2">
-                <span className="font-['JetBrains_Mono'] text-lg font-bold text-foreground">{allocationData[tooltip.idx].value}%</span>
-                <span className="font-['JetBrains_Mono'] text-xs text-muted-foreground">{allocationData[tooltip.idx].amount}</span>
-              </div>
-            </div>
-          )}
+    <section className="air-surface px-5 py-5 sm:px-6">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <span className="air-section-eyebrow">{t('dashboard.allocation')}</span>
+          <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-foreground">
+            Allocation mix
+          </h3>
         </div>
-        <div className="flex w-full min-w-0 flex-1 flex-col gap-1">
-          {allocationData.map((item, i) => (
-            <div key={item.label} className={`group flex items-center gap-4 rounded-xl px-3 py-2 transition-colors ${hovered === i ? 'bg-muted/70' : 'hover:bg-muted/50'}`} onMouseEnter={() => setHovered(i)} onMouseLeave={() => { setHovered(-1); setTooltip(null) }}>
-              <div className="size-2.5 shrink-0 rounded-full transition-transform" style={{ backgroundColor: item.color, transform: hovered === i ? 'scale(1.4)' : 'scale(1)' }} />
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">{item.label}</span>
-              <span className="hidden font-['JetBrains_Mono'] text-xs text-muted-foreground sm:inline">{item.amount}</span>
-              <span className="w-12 text-right font-['JetBrains_Mono'] text-sm font-bold" style={{ color: item.color }}>{item.value}%</span>
+        <div className="flex size-11 items-center justify-center rounded-full bg-[var(--palette-surface-muted)]">
+          <PieChart size={18} className="text-[var(--palette-bg-primary-core)]" />
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col items-center gap-6">
+        <div
+          className="relative flex size-[230px] items-center justify-center rounded-full"
+          style={{ background: gradient }}
+        >
+          <div className="absolute inset-[22px] rounded-full bg-white shadow-[inset_0_0_0_1px_rgba(34,34,34,0.05)]" />
+          <div className="relative z-10 text-center">
+            <p className="air-section-eyebrow">{t('dashboard.total')}</p>
+            <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-foreground">
+              {formatCurrency(totalAmount)}
+            </p>
+          </div>
+        </div>
+
+        <div className="w-full space-y-3">
+          {items.map((item) => (
+            <div key={item.assetType} className="rounded-[20px] bg-[var(--palette-surface-subtle)] px-4 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span
+                    className="size-3 rounded-full"
+                    style={{ backgroundColor: colors[item.assetType] || '#222222' }}
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                    <p className="text-sm text-muted-foreground">{formatCurrency(item.amount)}</p>
+                  </div>
+                </div>
+                <Badge variant="outline">{item.value}%</Badge>
+              </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }

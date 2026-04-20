@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -70,26 +70,19 @@ export default function TransactionForm() {
   const { data: assets } = useAssets()
   const { data: currencies } = useCurrencies()
 
-  const [selectedAssetCode, setSelectedAssetCode] = useState('')
-  const [action, setAction] = useState<TransactionAction>('MUA')
-  const [inputMode, setInputMode] = useState<InputMode>('totalAmount')
-  const [quantity, setQuantity] = useState('')
-  const [priceInput, setPriceInput] = useState('')
-  const [date, setDate] = useState('')
-  const [note, setNote] = useState('')
+  const [selectedAssetCode, setSelectedAssetCode] = useState(() => editingTx?.assetCode || '')
+  const [action, setAction] = useState<TransactionAction>(() => editingTx?.action || 'MUA')
+  const [inputMode, setInputMode] = useState<InputMode>(() => (editingTx ? 'unitPrice' : 'totalAmount'))
+  const [quantity, setQuantity] = useState(() =>
+    editingTx ? formatNumberDisplay(editingTx.quantity) : '',
+  )
+  const [priceInput, setPriceInput] = useState(() =>
+    editingTx ? formatNumberDisplay(editingTx.unitPrice) : '',
+  )
+  const [date, setDate] = useState(() => editingTx?.date.slice(0, 10) || '')
+  const [note, setNote] = useState(() => editingTx?.note || '')
   const [savingsEventType, setSavingsEventType] = useState<SavingsEventType>('DEPOSIT')
   const [savingsAmount, setSavingsAmount] = useState('')
-
-  useEffect(() => {
-    if (!editingTx) return
-    setSelectedAssetCode(editingTx.assetCode)
-    setAction(editingTx.action)
-    setInputMode('unitPrice')
-    setQuantity(formatNumberDisplay(editingTx.quantity))
-    setPriceInput(formatNumberDisplay(editingTx.unitPrice))
-    setDate(editingTx.date.slice(0, 10))
-    setNote(editingTx.note || '')
-  }, [editingTx])
 
   const selectedAsset = (assets || []).find((asset) => asset.code === selectedAssetCode)
   const currency = selectedAsset?.currency || 'VND'

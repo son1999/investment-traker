@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { savingsEventsApi } from '@/lib/api'
+import { getErrorMessage } from '@/lib/api/error'
 import type { CreateSavingsEventRequest, SavingsEvent } from '@/types/api'
 
 export function useSavingsEvents(assetCode: string | undefined) {
@@ -23,8 +24,8 @@ export function useCreateSavingsEvent() {
       qc.invalidateQueries({ queryKey: ['reports'] })
       toast.success('Đã ghi nhận giao dịch tiết kiệm')
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Ghi nhận thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Ghi nhận thất bại'))
     },
   })
 }
@@ -41,8 +42,8 @@ export function useDeleteSavingsEvent() {
       qc.invalidateQueries({ queryKey: ['reports'] })
       toast.success('Đã xóa giao dịch tiết kiệm')
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Xóa thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Xóa thất bại'))
     },
   })
 }

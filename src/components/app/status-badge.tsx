@@ -5,13 +5,14 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
-const statusBadgeVariants = cva('gap-1 rounded-md px-2.5 py-1 text-[11px] font-medium', {
+const statusBadgeVariants = cva('gap-1.5', {
   variants: {
     tone: {
-      neutral: 'bg-secondary text-secondary-foreground',
-      positive: 'bg-positive/10 text-positive',
-      negative: 'bg-destructive/10 text-destructive',
-      warning: 'bg-gold/10 text-gold',
+      neutral: 'border-black/6 bg-[var(--palette-surface-subtle)] text-foreground',
+      positive: 'border-[color:rgba(0,138,98,0.16)] bg-[rgba(0,138,98,0.08)] text-[var(--positive)]',
+      negative:
+        'border-[color:rgba(193,53,21,0.16)] bg-[rgba(193,53,21,0.08)] text-[var(--destructive)]',
+      warning: 'border-[color:rgba(183,121,31,0.16)] bg-[rgba(183,121,31,0.08)] text-[var(--gold)]',
     },
   },
   defaultVariants: {
@@ -30,10 +31,7 @@ export function StatusBadge({
   className,
 }: StatusBadgeProps) {
   return (
-    <Badge
-      variant="secondary"
-      className={cn(statusBadgeVariants({ tone }), className)}
-    >
+    <Badge variant="secondary" className={cn(statusBadgeVariants({ tone }), className)}>
       {children}
     </Badge>
   )

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,16 +29,13 @@ export function PriceInputDialog({
 }: PriceInputDialogProps) {
   const [value, setValue] = useState('')
 
-  useEffect(() => {
-    if (open) setValue('')
-  }, [open])
-
   const price = parseFloat(value)
   const valid = !isNaN(price) && price > 0
 
   const handleSubmit = () => {
     if (!valid) return
     onSubmit(price)
+    setValue('')
     onOpenChange(false)
   }
 

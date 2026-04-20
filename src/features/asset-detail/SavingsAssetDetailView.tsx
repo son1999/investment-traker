@@ -43,7 +43,7 @@ interface SavingsDetailData {
 }
 
 interface Props {
-  asset: any
+  asset: unknown
   onBack: () => void
 }
 
@@ -96,7 +96,7 @@ export default function SavingsAssetDetailView({ asset, onBack }: Props) {
   ]
 
   return (
-    <div className="mx-auto min-w-0 max-w-[1400px] px-4 pb-16 pt-6 sm:px-6">
+    <div className="air-page-tight">
       <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-2 text-muted-foreground">
           <ArrowLeft size={13} />
@@ -191,59 +191,94 @@ export default function SavingsAssetDetailView({ asset, onBack }: Props) {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <Table className="min-w-[640px]">
-              <TableHeader>
-                <TableRow className="bg-muted/30 hover:bg-muted/30">
-                  <TableHead className="pl-4 sm:pl-6 md:pl-8">
-                    {t('assetDetail.colDate')}
-                  </TableHead>
-                  <TableHead>{t('savings.eventType')}</TableHead>
-                  <TableHead className="text-right">{t('savings.amount')}</TableHead>
-                  <TableHead>{t('assetDetail.colNote')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {events.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center text-sm text-muted-foreground">
-                      {t('savings.noEvents')}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  events.map((ev) => {
-                    const positive = ev.type === 'DEPOSIT' || ev.type === 'INTEREST'
-                    return (
-                      <TableRow key={ev.id}>
-                        <TableCell className="pl-4 font-['JetBrains_Mono'] text-sm sm:pl-6 md:pl-8">
-                          {new Date(ev.date).toLocaleDateString('vi-VN')}
-                        </TableCell>
-                        <TableCell>
+            <div className="grid gap-3 p-4 md:hidden">
+              {events.length === 0 ? (
+                <div className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4 text-center text-sm text-muted-foreground">
+                  {t('savings.noEvents')}
+                </div>
+              ) : (
+                events.map((ev) => {
+                  const positive = ev.type === 'DEPOSIT' || ev.type === 'INTEREST'
+                  return (
+                    <article key={ev.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground">{new Date(ev.date).toLocaleDateString('vi-VN')}</p>
                           <Badge
                             variant="secondary"
-                            className={`text-[10px] font-bold ${
+                            className={`mt-2 text-[10px] font-bold ${
                               eventToneClass[ev.type] || 'bg-muted text-foreground'
                             }`}
                           >
                             {t(`savings.${ev.type.toLowerCase()}`)}
                           </Badge>
-                        </TableCell>
-                        <TableCell
-                          className={`text-right font-['JetBrains_Mono'] text-sm ${
-                            positive ? 'text-positive' : 'text-destructive'
-                          }`}
-                        >
-                          {positive ? '+' : '−'}
-                          {formatCurrency(ev.amount, cur)}
-                        </TableCell>
-                        <TableCell className="text-sm italic text-muted-foreground">
-                          {ev.note || '—'}
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })
-                )}
-              </TableBody>
-            </Table>
+                        </div>
+                        <p className={`font-mono text-sm ${positive ? 'text-positive' : 'text-destructive'}`}>
+                          {positive ? '+' : '−'}{formatCurrency(ev.amount, cur)}
+                        </p>
+                      </div>
+                      <p className="mt-3 text-sm text-muted-foreground">{ev.note || '—'}</p>
+                    </article>
+                  )
+                })
+              )}
+            </div>
+
+            <div className="hidden md:block">
+              <Table className="min-w-[640px]">
+                <TableHeader>
+                  <TableRow className="bg-muted/30 hover:bg-muted/30">
+                    <TableHead className="pl-4 sm:pl-6 md:pl-8">
+                      {t('assetDetail.colDate')}
+                    </TableHead>
+                    <TableHead>{t('savings.eventType')}</TableHead>
+                    <TableHead className="text-right">{t('savings.amount')}</TableHead>
+                    <TableHead>{t('assetDetail.colNote')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {events.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center text-sm text-muted-foreground">
+                        {t('savings.noEvents')}
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    events.map((ev) => {
+                      const positive = ev.type === 'DEPOSIT' || ev.type === 'INTEREST'
+                      return (
+                        <TableRow key={ev.id}>
+                          <TableCell className="pl-4 font-['JetBrains_Mono'] text-sm sm:pl-6 md:pl-8">
+                            {new Date(ev.date).toLocaleDateString('vi-VN')}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="secondary"
+                              className={`text-[10px] font-bold ${
+                                eventToneClass[ev.type] || 'bg-muted text-foreground'
+                              }`}
+                            >
+                              {t(`savings.${ev.type.toLowerCase()}`)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell
+                            className={`text-right font-['JetBrains_Mono'] text-sm ${
+                              positive ? 'text-positive' : 'text-destructive'
+                            }`}
+                          >
+                            {positive ? '+' : '−'}
+                            {formatCurrency(ev.amount, cur)}
+                          </TableCell>
+                          <TableCell className="text-sm italic text-muted-foreground">
+                            {ev.note || '—'}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { transactionsApi } from '@/lib/api'
+import { getErrorMessage } from '@/lib/api/error'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import type { TransactionFilters, CreateTransactionRequest, UpdateTransactionRequest, Transaction, Paginated } from '@/types/api'
@@ -27,8 +28,8 @@ export function useCreateTransaction() {
       qc.invalidateQueries({ queryKey: ['portfolio'] })
       toast.success('Giao dịch đã được tạo')
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Tạo giao dịch thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Tạo giao dịch thất bại'))
     },
   })
 }
@@ -43,8 +44,8 @@ export function useUpdateTransaction() {
       qc.invalidateQueries({ queryKey: ['assets'] })
       toast.success('Đã cập nhật giao dịch')
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Cập nhật giao dịch thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Cập nhật giao dịch thất bại'))
     },
   })
 }
@@ -58,8 +59,8 @@ export function useDeleteTransaction() {
       qc.invalidateQueries({ queryKey: ['portfolio'] })
       toast.success('Đã xóa giao dịch')
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Xóa giao dịch thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Xóa giao dịch thất bại'))
     },
   })
 }
@@ -73,8 +74,8 @@ export function useBulkDeleteTransactions() {
       qc.invalidateQueries({ queryKey: ['portfolio'] })
       toast.success(`Đã xóa ${data.deleted} giao dịch`)
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Xóa giao dịch thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Xóa giao dịch thất bại'))
     },
   })
 }
@@ -94,8 +95,8 @@ export function useImportCSV() {
         toast.success(t('transactions.csvSuccess', { count: data.successCount }))
       }
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || t('transactions.csvError'))
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, t('transactions.csvError')))
     },
   })
 }

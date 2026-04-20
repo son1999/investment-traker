@@ -51,65 +51,109 @@ export default function PriceTable() {
         </Button>
       }
     >
-      <Table className="min-w-[620px]">
-        <TableHeader>
-          <TableRow className="hover:bg-transparent">
-            <TableHead className="px-6">{t('prices.code')}</TableHead>
-            <TableHead className="px-6">{t('prices.type')}</TableHead>
-            <TableHead className="px-6">{t('prices.currentPrice')}</TableHead>
-            <TableHead className="px-6">{t('prices.updatedAt')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((price) => {
-            const currency = price.currency || 'VND'
-            const rate = rateMap[currency] || 1
-            const isVND = currency === 'VND'
-            const priceInVnd = price.price * rate
+      <div className="grid gap-3 p-4 md:hidden">
+        {items.map((price) => {
+          const currency = price.currency || 'VND'
+          const rate = rateMap[currency] || 1
+          const isVND = currency === 'VND'
+          const priceInVnd = price.price * rate
 
-            return (
-              <TableRow key={price.id}>
-                <TableCell className="px-6">
-                  <div className="flex items-center gap-3">
-                    <AssetIcon
-                      code={price.code}
-                      assetType={price.type}
-                      fallback={price.icon}
-                      sizeClass="size-8"
-                    />
-                    <span className="text-base font-semibold">{price.code}</span>
+          return (
+            <article key={price.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <AssetIcon
+                    code={price.code}
+                    assetType={price.type}
+                    fallback={price.icon}
+                    sizeClass="size-9"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{price.code}</p>
+                    <Badge variant="outline" className="mt-2 uppercase">
+                      {t(typeLabels[price.type] || price.type)}
+                    </Badge>
                   </div>
-                </TableCell>
-                <TableCell className="px-6">
-                  <Badge variant="outline" className="uppercase">
-                    {t(typeLabels[price.type] || price.type)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="px-6">
-                  <div className="flex flex-col">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="font-mono text-base font-semibold">
-                        {formatNum(price.price)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {isVND ? '₫' : currency}
-                      </span>
+                </div>
+                <span className="text-[11px] text-muted-foreground">
+                  {new Date(price.updatedAt).toLocaleDateString('vi-VN')}
+                </span>
+              </div>
+              <div className="mt-4">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-mono text-lg font-semibold">{formatNum(price.price)}</span>
+                  <span className="text-xs text-muted-foreground">{isVND ? '₫' : currency}</span>
+                </div>
+                {!isVND ? (
+                  <p className="mt-1 font-mono text-xs text-muted-foreground">≈ {formatNum(priceInVnd)} ₫</p>
+                ) : null}
+              </div>
+            </article>
+          )
+        })}
+      </div>
+
+      <div className="hidden md:block">
+        <Table className="min-w-[620px]">
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="px-6">{t('prices.code')}</TableHead>
+              <TableHead className="px-6">{t('prices.type')}</TableHead>
+              <TableHead className="px-6">{t('prices.currentPrice')}</TableHead>
+              <TableHead className="px-6">{t('prices.updatedAt')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((price) => {
+              const currency = price.currency || 'VND'
+              const rate = rateMap[currency] || 1
+              const isVND = currency === 'VND'
+              const priceInVnd = price.price * rate
+
+              return (
+                <TableRow key={price.id}>
+                  <TableCell className="px-6">
+                    <div className="flex items-center gap-3">
+                      <AssetIcon
+                        code={price.code}
+                        assetType={price.type}
+                        fallback={price.icon}
+                        sizeClass="size-8"
+                      />
+                      <span className="text-base font-semibold">{price.code}</span>
                     </div>
-                    {!isVND ? (
-                      <span className="font-mono text-xs text-muted-foreground">
-                        ≈ {formatNum(priceInVnd)} ₫
-                      </span>
-                    ) : null}
-                  </div>
-                </TableCell>
-                <TableCell className="px-6 text-xs text-muted-foreground">
-                  {new Date(price.updatedAt).toLocaleString('vi-VN')}
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
+                  </TableCell>
+                  <TableCell className="px-6">
+                    <Badge variant="outline" className="uppercase">
+                      {t(typeLabels[price.type] || price.type)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="px-6">
+                    <div className="flex flex-col">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="font-mono text-base font-semibold">
+                          {formatNum(price.price)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {isVND ? '₫' : currency}
+                        </span>
+                      </div>
+                      {!isVND ? (
+                        <span className="font-mono text-xs text-muted-foreground">
+                          ≈ {formatNum(priceInVnd)} ₫
+                        </span>
+                      ) : null}
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-6 text-xs text-muted-foreground">
+                    {new Date(price.updatedAt).toLocaleString('vi-VN')}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
     </DataTableCard>
   )
 }

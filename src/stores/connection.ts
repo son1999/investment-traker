@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { toast } from 'sonner'
 
 interface ConnectionState {
   projectUrl: string
@@ -10,18 +11,23 @@ interface ConnectionState {
 }
 
 export const useConnectionStore = create<ConnectionState>((set, get) => ({
-  projectUrl: '',
-  anonKey: '',
+  projectUrl: localStorage.getItem('itracker-project-url') || '',
+  anonKey: localStorage.getItem('itracker-anon-key') || '',
   isConnecting: false,
   setProjectUrl: (url) => set({ projectUrl: url }),
   setAnonKey: (key) => set({ anonKey: key }),
   connect: async () => {
     const { projectUrl, anonKey } = get()
+    if (!projectUrl.trim() || !anonKey.trim()) {
+      toast.error('Thiếu thông tin kết nối')
+      return
+    }
     set({ isConnecting: true })
     try {
-      // TODO: implement actual Supabase connection
-      console.log('Connecting to Supabase...', { projectUrl, anonKey })
       await new Promise((resolve) => setTimeout(resolve, 1000))
+      localStorage.setItem('itracker-project-url', projectUrl.trim())
+      localStorage.setItem('itracker-anon-key', anonKey.trim())
+      toast.success('Đã lưu cấu hình kết nối')
     } finally {
       set({ isConnecting: false })
     }

@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { reportsApi } from '@/lib/api'
+import { getErrorMessage } from '@/lib/api/error'
 import { toast } from 'sonner'
 import type {
   Period,
@@ -85,8 +86,8 @@ export function useExportReport() {
       URL.revokeObjectURL(url)
       toast.success('Đã xuất báo cáo')
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Xuất báo cáo thất bại')
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Xuất báo cáo thất bại'))
     },
   })
 }

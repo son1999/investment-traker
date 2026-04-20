@@ -85,7 +85,7 @@ export default function AssetsScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full min-w-0 max-w-[1400px] flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8">
+    <div className="air-page">
       <PageHeader
         title={t('assets.title')}
         description={t('assets.subtitle')}
@@ -99,7 +99,7 @@ export default function AssetsScreen() {
         }
       />
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="air-surface flex flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between sm:px-6">
         <Tabs value={typeFilter} onValueChange={setTypeFilter}>
           <TabsList className="h-auto flex-wrap">
             <TabsTrigger value="">{t('assets.filterAll')}</TabsTrigger>
@@ -132,77 +132,141 @@ export default function AssetsScreen() {
           title={t('assets.title')}
           description={t('assets.count', { count: items.length })}
         >
-          <Table className="min-w-[760px]">
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="pl-6">{t('assets.colIcon')}</TableHead>
-                <TableHead>{t('assets.colCode')}</TableHead>
-                <TableHead>{t('assets.colName')}</TableHead>
-                <TableHead>{t('assets.colType')}</TableHead>
-                <TableHead>{t('currencies.code')}</TableHead>
-                <TableHead>{t('assets.colCreated')}</TableHead>
-                {!isGuest ? <TableHead className="pr-6 text-right">{t('assets.colActions')}</TableHead> : null}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((asset) => (
-                <TableRow
-                  key={asset.id}
-                  className="cursor-pointer"
+          <div className="grid gap-3 p-4 md:hidden">
+            {items.map((asset) => (
+              <article key={asset.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+                <button
+                  type="button"
+                  className="w-full text-left"
                   onClick={() => navigate(`/assets/${asset.code}`)}
                 >
-                  <TableCell className="pl-6">
-                    <AssetIcon
-                      code={asset.code}
-                      assetType={asset.type}
-                      fallback={asset.icon}
-                      fallbackBg={asset.iconBg}
-                      sizeClass="size-9"
-                    />
-                  </TableCell>
-                  <TableCell className="font-mono text-sm font-semibold">{asset.code}</TableCell>
-                  <TableCell className="text-sm">{asset.name}</TableCell>
-                  <TableCell>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <AssetIcon
+                        code={asset.code}
+                        assetType={asset.type}
+                        fallback={asset.icon}
+                        fallbackBg={asset.iconBg}
+                        sizeClass="size-9"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-mono text-sm font-semibold text-foreground">{asset.code}</p>
+                        <p className="truncate text-sm text-muted-foreground">{asset.name}</p>
+                      </div>
+                    </div>
                     <Badge variant="outline" className="uppercase">
                       {t(typeLabels[asset.type])}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="font-mono text-xs text-muted-foreground">
-                    {asset.currency || 'VND'}
-                  </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {new Date(asset.createdAt).toLocaleDateString('vi-VN')}
-                  </TableCell>
-                  {!isGuest ? (
-                    <TableCell className="pr-6 text-right">
-                      <div
-                        className="flex items-center justify-end gap-1"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => {
-                            setEditingAsset(asset)
-                            setFormOpen(true)
-                          }}
-                        >
-                          <Pencil size={14} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => setDeleteCode(asset.code)}
-                        >
-                          <Trash2 size={14} className="text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  ) : null}
+                  </div>
+                  <div className="mt-4 grid gap-3 text-xs min-[420px]:grid-cols-2">
+                    <div>
+                      <p className="text-muted-foreground">{t('currencies.code')}</p>
+                      <p className="mt-1 font-mono text-foreground">{asset.currency || 'VND'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-muted-foreground">{t('assets.colCreated')}</p>
+                      <p className="mt-1 text-foreground">{new Date(asset.createdAt).toLocaleDateString('vi-VN')}</p>
+                    </div>
+                  </div>
+                </button>
+                {!isGuest ? (
+                  <div className="mt-4 flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => {
+                        setEditingAsset(asset)
+                        setFormOpen(true)
+                      }}
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => setDeleteCode(asset.code)}
+                    >
+                      <Trash2 size={14} className="text-destructive" />
+                    </Button>
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+
+          <div className="hidden md:block">
+            <Table className="min-w-[760px]">
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="pl-6">{t('assets.colIcon')}</TableHead>
+                  <TableHead>{t('assets.colCode')}</TableHead>
+                  <TableHead>{t('assets.colName')}</TableHead>
+                  <TableHead>{t('assets.colType')}</TableHead>
+                  <TableHead>{t('currencies.code')}</TableHead>
+                  <TableHead>{t('assets.colCreated')}</TableHead>
+                  {!isGuest ? <TableHead className="pr-6 text-right">{t('assets.colActions')}</TableHead> : null}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {items.map((asset) => (
+                  <TableRow
+                    key={asset.id}
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/assets/${asset.code}`)}
+                  >
+                    <TableCell className="pl-6">
+                      <AssetIcon
+                        code={asset.code}
+                        assetType={asset.type}
+                        fallback={asset.icon}
+                        fallbackBg={asset.iconBg}
+                        sizeClass="size-9"
+                      />
+                    </TableCell>
+                    <TableCell className="font-mono text-sm font-semibold">{asset.code}</TableCell>
+                    <TableCell className="text-sm">{asset.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="uppercase">
+                        {t(typeLabels[asset.type])}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">
+                      {asset.currency || 'VND'}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">
+                      {new Date(asset.createdAt).toLocaleDateString('vi-VN')}
+                    </TableCell>
+                    {!isGuest ? (
+                      <TableCell className="pr-6 text-right">
+                        <div
+                          className="flex items-center justify-end gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => {
+                              setEditingAsset(asset)
+                              setFormOpen(true)
+                            }}
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => setDeleteCode(asset.code)}
+                          >
+                            <Trash2 size={14} className="text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    ) : null}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </DataTableCard>
       )}
 

@@ -37,17 +37,24 @@ export function SectionCard({
   size = 'default',
 }: SectionCardProps) {
   return (
-    <Card size={size} className={className}>
-      {(title || description || action) && (
-        <CardHeader className={headerClassName}>
-          <div className="space-y-1">
-            {title ? <CardTitle>{title}</CardTitle> : null}
-            {description ? <CardDescription>{description}</CardDescription> : null}
+    <Card size={size} className={cn('w-full min-w-0', className)}>
+      {(title || description || action) ? (
+        <CardHeader
+          className={cn(
+            'border-b border-black/5 bg-[linear-gradient(180deg,#ffffff_0%,#fbfbfb_100%)]',
+            headerClassName,
+          )}
+        >
+          <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0 space-y-2">
+              {title ? <CardTitle>{title}</CardTitle> : null}
+              {description ? <CardDescription>{description}</CardDescription> : null}
+            </div>
+            {action ? <CardAction>{action}</CardAction> : null}
           </div>
-          {action ? <CardAction>{action}</CardAction> : null}
         </CardHeader>
-      )}
-      <CardContent className={cn('space-y-4', contentClassName)}>{children}</CardContent>
+      ) : null}
+      <CardContent className={cn('space-y-5 pt-5', contentClassName)}>{children}</CardContent>
       {footer ? <CardFooter className={footerClassName}>{footer}</CardFooter> : null}
     </Card>
   )

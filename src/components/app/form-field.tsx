@@ -21,11 +21,11 @@ export function FormField({
   className,
 }: FormFieldProps) {
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
+    <div className={cn('flex flex-col gap-2.5', className)}>
       {label ? <Label htmlFor={htmlFor}>{label}</Label> : null}
       {children}
-      {description ? <p className="text-xs text-muted-foreground">{description}</p> : null}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      {description ? <p className="text-xs leading-5 text-muted-foreground">{description}</p> : null}
+      {error ? <p className="text-xs leading-5 text-destructive">{error}</p> : null}
     </div>
   )
 }

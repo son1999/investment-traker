@@ -90,83 +90,141 @@ export default function TransactionTable() {
   return (
     <>
       <div className="w-full min-w-0 overflow-hidden rounded-xl border bg-card">
-        <Table className="min-w-[980px]">
-          <TableHeader>
-            <TableRow className="bg-muted/40 hover:bg-muted/40">
-              <TableHead className="pl-6">{t('assetDetail.colDate')}</TableHead>
-              <TableHead className="pl-12">{t('dashboard.colAsset')}</TableHead>
-              <TableHead>{t('dashboard.colType')}</TableHead>
-              <TableHead className="text-right">{t('dashboard.colQty')}</TableHead>
-              <TableHead className="text-right">{t('assetDetail.colUnitPrice')}</TableHead>
-              <TableHead className="text-right">{t('transactions.total')}</TableHead>
-              <TableHead>{t('transactions.note')}</TableHead>
-              {!isGuest ? <TableHead className="text-center">Actions</TableHead> : null}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.map((tx) => {
-              const isBuy = tx.action === 'MUA'
-
-              return (
-                <TableRow key={tx.id}>
-                  <TableCell className="px-6 font-mono text-sm text-muted-foreground">
-                    {new Date(tx.date).toLocaleDateString('vi-VN')}
-                  </TableCell>
-                  <TableCell className="px-6">
-                    <div className="flex items-center gap-2">
-                      <AssetIcon
-                        code={tx.assetCode}
-                        assetType={tx.assetType}
-                        fallback={tx.icon}
-                        fallbackBg={tx.iconBg}
-                        sizeClass="size-6"
-                      />
-                      <span className="text-base font-semibold">{tx.assetCode}</span>
+        <div className="grid gap-3 p-4 lg:hidden">
+          {transactions.map((tx) => {
+            const isBuy = tx.action === 'MUA'
+            return (
+              <article key={tx.id} className="rounded-[18px] bg-[var(--palette-surface-subtle)] p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <AssetIcon
+                      code={tx.assetCode}
+                      assetType={tx.assetType}
+                      fallback={tx.icon}
+                      fallbackBg={tx.iconBg}
+                      sizeClass="size-9"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">{tx.assetCode}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(tx.date).toLocaleDateString('vi-VN')}</p>
                     </div>
-                  </TableCell>
-                  <TableCell className="px-6">
-                    <StatusBadge tone={isBuy ? 'positive' : 'negative'}>
-                      {isBuy ? t('common.buy') : t('common.sell')}
-                    </StatusBadge>
-                  </TableCell>
-                  <TableCell className="px-6 text-right font-mono text-sm text-foreground/80">
-                    {formatQuantity(tx.quantity)}
-                  </TableCell>
-                  <TableCell className="px-6 text-right font-mono text-sm text-foreground/80">
-                    {tx.assetType === 'savings' ? '—' : formatCurrency(tx.unitPrice, tx.currency)}
-                  </TableCell>
-                  <TableCell className="px-6 text-right font-mono text-sm font-semibold">
-                    {formatCurrency(tx.quantity * tx.unitPrice, tx.currency)}
-                  </TableCell>
-                  <TableCell className="px-6 text-sm text-muted-foreground">
-                    {tx.note || '—'}
-                  </TableCell>
-                  {!isGuest ? (
+                  </div>
+                  <StatusBadge tone={isBuy ? 'positive' : 'negative'}>
+                    {isBuy ? t('common.buy') : t('common.sell')}
+                  </StatusBadge>
+                </div>
+                <div className="mt-4 grid gap-3 text-xs min-[420px]:grid-cols-2">
+                  <div>
+                    <p className="text-muted-foreground">{t('dashboard.colQty')}</p>
+                    <p className="mt-1 font-mono text-foreground">{formatQuantity(tx.quantity)}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-muted-foreground">{t('transactions.total')}</p>
+                    <p className="mt-1 font-mono font-semibold text-foreground">
+                      {formatCurrency(tx.quantity * tx.unitPrice, tx.currency)}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">{tx.note || '—'}</p>
+                {!isGuest ? (
+                  <div className="mt-4 flex items-center justify-end gap-1">
+                    <Button variant="ghost" size="icon-xs" onClick={() => startEdit(tx)}>
+                      <Pencil size={13} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      onClick={() => setTxToDelete(tx)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 size={13} />
+                    </Button>
+                  </div>
+                ) : null}
+              </article>
+            )
+          })}
+        </div>
+
+        <div className="hidden lg:block">
+          <Table className="min-w-[980px]">
+            <TableHeader>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead className="pl-6">{t('assetDetail.colDate')}</TableHead>
+                <TableHead className="pl-12">{t('dashboard.colAsset')}</TableHead>
+                <TableHead>{t('dashboard.colType')}</TableHead>
+                <TableHead className="text-right">{t('dashboard.colQty')}</TableHead>
+                <TableHead className="text-right">{t('assetDetail.colUnitPrice')}</TableHead>
+                <TableHead className="text-right">{t('transactions.total')}</TableHead>
+                <TableHead>{t('transactions.note')}</TableHead>
+                {!isGuest ? <TableHead className="text-center">Actions</TableHead> : null}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {transactions.map((tx) => {
+                const isBuy = tx.action === 'MUA'
+
+                return (
+                  <TableRow key={tx.id}>
+                    <TableCell className="px-6 font-mono text-sm text-muted-foreground">
+                      {new Date(tx.date).toLocaleDateString('vi-VN')}
+                    </TableCell>
                     <TableCell className="px-6">
-                      <div className="flex items-center justify-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => startEdit(tx)}
-                        >
-                          <Pencil size={13} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          onClick={() => setTxToDelete(tx)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 size={13} />
-                        </Button>
+                      <div className="flex items-center gap-2">
+                        <AssetIcon
+                          code={tx.assetCode}
+                          assetType={tx.assetType}
+                          fallback={tx.icon}
+                          fallbackBg={tx.iconBg}
+                          sizeClass="size-6"
+                        />
+                        <span className="text-base font-semibold">{tx.assetCode}</span>
                       </div>
                     </TableCell>
-                  ) : null}
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
+                    <TableCell className="px-6">
+                      <StatusBadge tone={isBuy ? 'positive' : 'negative'}>
+                        {isBuy ? t('common.buy') : t('common.sell')}
+                      </StatusBadge>
+                    </TableCell>
+                    <TableCell className="px-6 text-right font-mono text-sm text-foreground/80">
+                      {formatQuantity(tx.quantity)}
+                    </TableCell>
+                    <TableCell className="px-6 text-right font-mono text-sm text-foreground/80">
+                      {tx.assetType === 'savings' ? '—' : formatCurrency(tx.unitPrice, tx.currency)}
+                    </TableCell>
+                    <TableCell className="px-6 text-right font-mono text-sm font-semibold">
+                      {formatCurrency(tx.quantity * tx.unitPrice, tx.currency)}
+                    </TableCell>
+                    <TableCell className="px-6 text-sm text-muted-foreground">
+                      {tx.note || '—'}
+                    </TableCell>
+                    {!isGuest ? (
+                      <TableCell className="px-6">
+                        <div className="flex items-center justify-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => startEdit(tx)}
+                          >
+                            <Pencil size={13} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            onClick={() => setTxToDelete(tx)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 size={13} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    ) : null}
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
 
         <div className="flex flex-col gap-4 border-t bg-muted/30 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
